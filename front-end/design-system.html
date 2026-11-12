@@ -4,453 +4,138 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f6f7fb">
-  <title>מערכת עיצוב — CMS אישי</title>
+  <meta name="description" content="ספריית רכיבים ומערכת עיצוב לדוגמה עבור CMS אישי המבוסס על Google Apps Script.">
+  <title>מערכת עיצוב ורכיבים — CMS אישי</title>
   <style>
     :root {
       color-scheme: light;
-      --bg: #f6f7fb;
-      --surface: #fff;
-      --surface-muted: #f9fafc;
-      --ink: #172033;
-      --muted: #687386;
-      --line: #e5e9f0;
-      --primary: #5146e5;
-      --primary-dark: #4035c7;
-      --primary-soft: #eeedff;
-      --success: #147d52;
-      --success-soft: #e7f7ef;
-      --warning: #9a5b00;
-      --warning-soft: #fff4dc;
-      --danger: #b42335;
-      --danger-soft: #fff0f1;
-      --info: #1769aa;
-      --info-soft: #eaf4ff;
-      --shadow: 0 12px 35px rgba(27, 38, 66, .07);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --sidebar-width: 250px;
-      font-family: "Assistant", "Heebo", Arial, sans-serif;
+      --canvas:#f6f7fb; --surface:#fff; --surface-muted:#f9fafc; --ink:#172033; --muted:#687386;
+      --line:#e5e9f0; --primary:#5146e5; --primary-hover:#4035c7; --primary-soft:#eeedff;
+      --success:#147d52; --success-soft:#e7f7ef; --warning:#925500; --warning-soft:#fff4dc;
+      --danger:#b42335; --danger-soft:#fff0f1; --info:#1769aa; --info-soft:#eaf4ff;
+      --nav:#171b2e; --radius-sm:8px; --radius-md:11px; --radius-lg:16px;
+      --shadow:0 10px 28px rgb(23 32 51 / .07); --sidebar:248px;
+      font-family:"Assistant","Heebo",Arial,sans-serif;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.55; }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    a { color: inherit; text-decoration: none; }
-    .app { min-height: 100vh; }
-    .sidebar { position: fixed; inset: 0 0 0 auto; width: var(--sidebar-width); padding: 22px 16px; background: #171b2e; color: #eef0ff; display: flex; flex-direction: column; z-index: 20; }
-    .brand { display: flex; align-items: center; gap: 11px; padding: 4px 10px 24px; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .brand-mark { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(135deg,#8278ff,#5146e5); color: #fff; font-weight: 800; font-size: 18px; }
-    .brand-name { font-weight: 750; letter-spacing: -.2px; }
-    .brand-caption { display: block; color: #a9aec4; font-size: 11px; font-weight: 400; }
-    .nav-label { color: #9299b2; font-size: 11px; font-weight: 700; padding: 24px 12px 8px; }
-    .nav { display: grid; gap: 5px; }
-    .nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: #d3d7e8; font-size: 14px; transition: .15s ease; }
-    .nav-link:hover, .nav-link.active { background: rgba(130,120,255,.18); color: #fff; }
-    .nav-link.active { box-shadow: inset -3px 0 #938bff; }
-    .nav-icon { width: 20px; text-align: center; font-size: 17px; }
-    .nav-count { margin-inline-start: auto; padding: 1px 8px; border-radius: 99px; background: rgba(255,255,255,.12); font-size: 11px; }
-    .sidebar-bottom { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid rgba(255,255,255,.1); color: #c4c9dc; }
-    .owner { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; background: #e7e5ff; color: #4338ca; font-weight: 800; }
-    .owner small { display: block; color: #9fa6bc; font-size: 11px; }
-    .main { margin-right: var(--sidebar-width); min-height: 100vh; }
-    .topbar { height: 70px; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.82); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); }
-    .breadcrumbs { color: var(--muted); font-size: 13px; }
-    .breadcrumbs strong { color: var(--ink); font-weight: 650; }
-    .top-actions { display: flex; align-items: center; gap: 12px; }
-    .icon-button { width: 38px; height: 38px; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 11px; display: grid; place-items: center; position: relative; }
-    .icon-button:hover { background: var(--surface-muted); }
-    .notification-dot { width: 7px; height: 7px; border: 1px solid white; border-radius: 50%; background: var(--danger); position: absolute; top: 7px; left: 7px; }
-    .main-content { max-width: 1440px; margin: auto; padding: 32px 34px 60px; }
-    .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
-    .eyebrow { color: var(--primary); font-size: 12px; font-weight: 750; margin: 0 0 4px; }
-    h1 { font-size: clamp(25px,3vw,32px); line-height: 1.2; margin: 0; letter-spacing: -.65px; }
-    h2 { font-size: 19px; margin: 0; letter-spacing: -.25px; }
-    h3 { font-size: 15px; margin: 0; }
-    p { margin: 0; }
-    .subheading { color: var(--muted); margin-top: 7px; font-size: 14px; }
-    .button { border: 1px solid transparent; border-radius: 10px; min-height: 39px; padding: 8px 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 650; font-size: 13px; transition: .15s ease; white-space: nowrap; }
-    .button:focus-visible, .icon-button:focus-visible, .nav-link:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(81,70,229,.25); outline-offset: 2px; }
-    .button-primary { background: var(--primary); color: #fff; }
-    .button-primary:hover { background: var(--primary-dark); }
-    .button-secondary { background: #fff; color: var(--ink); border-color: var(--line); }
-    .button-secondary:hover { background: var(--surface-muted); }
-    .button-ghost { background: transparent; color: var(--muted); }
-    .button-ghost:hover { background: #f0f1f7; color: var(--ink); }
-    .button-danger { background: var(--danger-soft); color: var(--danger); }
-    .button-danger:hover { background: #ffe1e4; }
-    .button-small { min-height: 31px; padding: 5px 10px; font-size: 12px; }
-    .button:disabled { opacity: .48; cursor: not-allowed; }
-    .icon { font-size: 16px; line-height: 1; }
-    .grid { display: grid; gap: 18px; }
-    .stats-grid { grid-template-columns: repeat(4,minmax(0,1fr)); margin-bottom: 22px; }
-    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
-    .stat-card { padding: 19px 20px; }
-    .stat-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; }
-    .stat-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: var(--primary-soft); color: var(--primary); }
-    .stat-number { font-size: 27px; font-weight: 760; margin: 9px 0 3px; letter-spacing: -.6px; }
-    .stat-note { font-size: 11px; color: var(--muted); }
-    .stat-note .positive { color: var(--success); font-weight: 700; }
-    .content-card { overflow: hidden; }
-    .card-header { min-height: 66px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
-    .card-title-group { display: flex; align-items: center; gap: 10px; }
-    .count-pill { padding: 2px 8px; background: #f0f1f6; color: var(--muted); border-radius: 99px; font-size: 11px; }
-    .toolbar { padding: 14px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
-    .search { position: relative; flex: 1 1 240px; max-width: 360px; }
-    .search .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #929bad; }
-    .input, .select, .textarea { width: 100%; color: var(--ink); background: #fff; border: 1px solid #dce1ea; border-radius: 9px; padding: 9px 11px; min-height: 40px; outline: none; transition: .15s; }
-    .search .input { padding-right: 36px; }
-    .input:hover, .select:hover, .textarea:hover { border-color: #b7bfd0; }
-    .input:focus, .select:focus, .textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(81,70,229,.1); }
-    .select { min-width: 145px; }
-    .table-wrap { width: 100%; overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; min-width: 760px; text-align: right; }
-    th { color: var(--muted); background: #fcfcfe; font-size: 11px; font-weight: 700; padding: 12px 18px; white-space: nowrap; }
-    td { padding: 14px 18px; border-top: 1px solid #edf0f5; font-size: 13px; vertical-align: middle; }
-    tbody tr:hover { background: #fbfbff; }
-    .content-title { font-weight: 700; }
-    .content-meta { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; direction: ltr; text-align: right; }
-    .status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    .status-published { color: var(--success); background: var(--success-soft); }
-    .status-draft { color: var(--warning); background: var(--warning-soft); }
-    .status-review { color: var(--info); background: var(--info-soft); }
-    .status-archived { color: #687386; background: #eef0f4; }
-    .row-actions { display: flex; gap: 4px; }
-    .table-footer { min-height: 58px; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
-    .pagination { display: flex; align-items: center; gap: 5px; }
-    .page-btn { min-width: 30px; height: 30px; border: 1px solid var(--line); background: white; border-radius: 8px; color: var(--muted); }
-    .page-btn.active { color: white; border-color: var(--primary); background: var(--primary); }
-    .lower-grid { grid-template-columns: minmax(0,1.35fr) minmax(280px,.65fr); margin-top: 20px; }
-    .panel { padding: 20px; }
-    .panel-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .activity-list { display: grid; }
-    .activity { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #eff1f5; }
-    .activity:first-child { border-top: 0; }
-    .activity-icon { width: 31px; height: 31px; flex: 0 0 auto; border-radius: 10px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
-    .activity-text { font-size: 12px; }
-    .activity-text small { display: block; color: var(--muted); margin-top: 2px; }
-    .quick-actions { display: grid; gap: 9px; }
-    .quick-action { display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; text-align: right; }
-    .quick-action:hover { border-color: #c8c4ff; background: #fbfaff; }
-    .quick-action-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--primary); background: var(--primary-soft); }
-    .quick-action strong { display: block; font-size: 12px; }
-    .quick-action small { color: var(--muted); font-size: 10px; }
-    .section-label { margin: 32px 0 13px; color: #747f92; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
-    .component-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .component-card { padding: 20px; }
-    .component-card h3 { margin-bottom: 14px; }
-    .button-showcase { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
-    .field { display: grid; gap: 6px; }
-    .field.full { grid-column: 1/-1; }
-    .field label { font-size: 12px; font-weight: 700; }
-    .field-hint { color: var(--muted); font-size: 10px; }
-    .textarea { min-height: 88px; resize: vertical; }
-    .input-error { border-color: var(--danger); }
-    .error-text { color: var(--danger); font-size: 11px; }
-    .check-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-    input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; }
-    .switch-row { display: flex; align-items: center; gap: 9px; font-size: 12px; }
-    .switch { appearance: none; width: 36px; height: 21px; border-radius: 99px; background: #cbd1dc; position: relative; transition: .2s; margin: 0; }
-    .switch::after { content: ""; width: 15px; height: 15px; border-radius: 50%; position: absolute; top: 3px; right: 3px; background: #fff; transition: .2s; box-shadow: 0 1px 3px #0002; }
-    .switch:checked { background: var(--primary); }
-    .switch:checked::after { transform: translateX(-15px); }
-    .alerts { display: grid; gap: 9px; }
-    .alert { padding: 11px 13px; border-radius: 10px; display: flex; align-items: flex-start; gap: 9px; font-size: 12px; }
-    .alert strong { display: block; margin-bottom: 1px; }
-    .alert-success { color: #126a46; background: var(--success-soft); }
-    .alert-warning { color: #885100; background: var(--warning-soft); }
-    .alert-danger { color: #a31f30; background: var(--danger-soft); }
-    .alert-info { color: #15598e; background: var(--info-soft); }
-    .empty-state { text-align: center; padding: 27px 12px; color: var(--muted); }
-    .empty-state .empty-icon { font-size: 30px; margin-bottom: 6px; }
-    .empty-state strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 3px; }
-    .preview { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .preview-bar { padding: 9px 12px; background: #f8f9fc; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted); }
-    .preview-body { padding: 20px; }
-    .preview-body h4 { font-size: 20px; margin: 0 0 7px; }
-    .preview-body p { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
-    .preview-image { height: 90px; border-radius: 9px; background: linear-gradient(120deg,#eeedff,#dff4ef); display: grid; place-items: center; color: var(--primary); margin: 12px 0; }
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15,20,36,.48); z-index: 50; padding: 20px; align-items: center; justify-content: center; }
-    .modal-backdrop.open { display: flex; }
-    .modal { width: min(460px,100%); background: white; border-radius: 17px; box-shadow: 0 24px 80px #0003; overflow: hidden; }
-    .modal-header, .modal-footer { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
-    .modal-body { padding: 20px; color: var(--muted); font-size: 13px; }
-    .modal-footer { border: 0; border-top: 1px solid var(--line); justify-content: flex-start; gap: 8px; }
-    .toast { position: fixed; bottom: 22px; left: 22px; z-index: 60; padding: 12px 16px; color: white; background: #20283a; border-radius: 11px; box-shadow: var(--shadow); font-size: 12px; transform: translateY(20px); opacity: 0; pointer-events: none; transition: .2s; }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .mobile-menu { display: none; }
-    @media (max-width: 1100px) {
-      .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      .main-content { padding-inline: 24px; }
-      .topbar { padding-inline: 24px; }
-    }
-    @media (max-width: 760px) {
-      :root { --sidebar-width: 0px; }
-      .sidebar { width: 260px; transform: translateX(110%); transition: transform .2s; box-shadow: var(--shadow); }
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-right: 0; }
-      .mobile-menu { display: grid; }
-      .main-content { padding: 23px 15px 45px; }
-      .topbar { height: 60px; padding-inline: 15px; }
-      .page-heading { flex-direction: column; align-items: stretch; }
-      .page-heading > .button { align-self: flex-start; }
-      .lower-grid, .component-grid { grid-template-columns: 1fr; }
-      .stats-grid { gap: 10px; }
-      .stat-card { padding: 14px; }
-      .stat-number { font-size: 23px; }
-      .toolbar { padding: 12px; }
-      .search { max-width: none; flex-basis: 100%; }
-      .select { flex: 1; min-width: 120px; }
-      .card-header { padding-inline: 14px; }
-      .table-footer { padding-inline: 12px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .field.full { grid-column: auto; }
-      .breadcrumbs { font-size: 11px; }
-      .top-actions .desktop-only { display: none; }
-    }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:82px}
+    body{margin:0;background:var(--canvas);color:var(--ink);font-size:15px;line-height:1.55}
+    button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inherit;text-decoration:none}
+    :focus-visible{outline:3px solid rgb(81 70 229 / .35);outline-offset:2px}
+    .shell{min-height:100vh}.sidebar{position:fixed;inset:0 0 0 auto;width:var(--sidebar);padding:20px 15px;background:var(--nav);color:#f1f2fb;z-index:20;display:flex;flex-direction:column}
+    .brand{display:flex;align-items:center;gap:11px;padding:4px 10px 21px;border-bottom:1px solid rgb(255 255 255 / .12)}
+    .brand-mark{width:38px;height:38px;border-radius:12px;background:var(--primary);display:grid;place-items:center;font-weight:800;color:#fff}
+    .brand-name{font-weight:750}.brand-caption{display:block;color:#aab0c5;font-size:11px;font-weight:400}
+    .nav-label{padding:22px 11px 8px;color:#969db5;font-size:11px;font-weight:700}.nav{display:grid;gap:4px}
+    .nav-link{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#d4d8e8;font-size:13px}
+    .nav-link:hover,.nav-link.active{background:rgb(130 120 255 / .19);color:#fff}.nav-link.active{box-shadow:inset -3px 0 #a9a2ff}
+    .nav-icon{width:20px;text-align:center}.nav-count{margin-inline-start:auto;border-radius:99px;background:rgb(255 255 255 / .12);padding:1px 7px;font-size:10px}
+    .sidebar-bottom{margin-top:auto;border-top:1px solid rgb(255 255 255 / .12);padding:14px 8px 0}.owner{display:flex;align-items:center;gap:9px;font-size:12px}
+    .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#e7e5ff;color:#4338ca;font-weight:800;flex:0 0 auto}.owner small{display:block;color:#aab0c5;font-size:10px}
+    .main{margin-right:var(--sidebar);min-height:100vh}.topbar{position:sticky;top:0;z-index:10;height:66px;background:rgb(255 255 255 / .94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px}
+    .crumb{font-size:12px;color:var(--muted)}.crumb strong{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:9px}
+    .icon-button{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+    .mobile-menu{display:none}.content{max-width:1450px;margin:auto;padding:30px 30px 58px}
+    .page-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:21px}.eyebrow{margin:0 0 3px;color:var(--primary);font-size:11px;font-weight:750}
+    h1{margin:0;font-size:clamp(25px,3vw,32px);line-height:1.2;letter-spacing:-.4px}h2{font-size:18px;line-height:1.35;margin:0}h3{font-size:14px;margin:0}p{margin:0}.subtitle{margin-top:6px;color:var(--muted);font-size:13px}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid transparent;border-radius:10px;font-size:12px;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+    .button-primary{background:var(--primary);color:white}.button-primary:hover{background:var(--primary-hover)}
+    .button-secondary{background:white;border-color:var(--line);color:var(--ink)}.button-secondary:hover{background:var(--surface-muted);border-color:#c8cfdb}
+    .button-ghost{background:transparent;color:var(--muted)}.button-ghost:hover{background:#f0f1f7;color:var(--ink)}
+    .button-danger{background:var(--danger-soft);color:var(--danger)}.button-danger:hover{background:#ffe0e4}
+    .button-sm{min-height:32px;padding:5px 9px;font-size:11px}.button:disabled{opacity:.5;cursor:not-allowed}
+    .grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:19px}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}.stat{padding:17px 18px}
+    .stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px}.stat-icon{width:34px;height:34px;border-radius:10px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center}
+    .stat-value{font-size:26px;font-weight:780;line-height:1.2;margin:9px 0 4px}.stat-note{font-size:10px;color:var(--muted)}
+    .card-head{min-height:62px;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+    .title-row{display:flex;align-items:center;gap:9px}.count{padding:2px 8px;background:#f0f1f6;color:var(--muted);border-radius:99px;font-size:10px}
+    .toolbar{padding:12px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+    .search{position:relative;flex:1 1 240px;max-width:360px}.search-icon{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#8992a4}
+    .input,.select,.textarea{width:100%;min-height:40px;padding:8px 10px;border:1px solid #dce1ea;border-radius:var(--radius-sm);background:#fff;color:var(--ink);outline:none}
+    .search .input{padding-right:34px}.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(81 70 229 / .1)}
+    .input-error{border-color:var(--danger)!important}.field-error{font-size:10px;color:var(--danger)}.hint{font-size:10px;color:var(--muted)}
+    .select{min-width:140px}.table-wrap{overflow:auto}table{width:100%;min-width:700px;border-collapse:collapse;text-align:right}th{padding:11px 15px;background:#fcfcfe;color:var(--muted);font-size:10px;white-space:nowrap}
+    td{padding:12px 15px;border-top:1px solid #edf0f5;font-size:12px;vertical-align:middle}tbody tr:hover{background:#fbfbff}.content-title{font-weight:700}.content-meta{display:block;font-size:10px;color:var(--muted);direction:ltr;text-align:right}
+    .status{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:750;white-space:nowrap}.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+    .published{color:var(--success);background:var(--success-soft)}.draft{color:var(--warning);background:var(--warning-soft)}.review{color:var(--info);background:var(--info-soft)}.archived{color:#687386;background:#eef0f4}
+    .row-actions{display:flex;align-items:center;gap:3px}.table-footer{min-height:54px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:10px}
+    .pagination{display:flex;gap:4px}.page-button{width:29px;height:29px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--muted)}.page-button.current{background:var(--primary);border-color:var(--primary);color:#fff}
+    .lower{grid-template-columns:1.2fr .8fr;margin-top:16px}.panel{padding:18px}.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.activity{display:flex;gap:10px;padding:10px 0;border-top:1px solid #eff1f5;font-size:11px}.activity:first-of-type{border-top:0}.activity-icon{width:29px;height:29px;border-radius:9px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;flex:0 0 auto}.activity small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+    .quick-list{display:grid;gap:8px}.quick{display:flex;align-items:center;gap:10px;text-align:right;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}.quick:hover{border-color:#c8c4ff;background:#fbfaff}.quick-icon{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}.quick strong{display:block;font-size:11px}.quick small{display:block;color:var(--muted);font-size:10px}
+    .section-label{margin:30px 0 11px;color:#737e91;font-size:10px;font-weight:800;letter-spacing:.08em}.components{grid-template-columns:repeat(2,minmax(0,1fr))}.component{padding:17px}.component h3{margin-bottom:12px}.showcase{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:700}.textarea{min-height:75px;resize:vertical}
+    .check{display:flex;align-items:center;gap:7px;font-size:11px}.check input{accent-color:var(--primary)}.switch{appearance:none;width:36px;height:21px;border-radius:99px;background:#cbd1dc;position:relative;margin:0;transition:.18s}.switch::after{content:"";position:absolute;right:3px;top:3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0002;transition:.18s}.switch:checked{background:var(--primary)}.switch:checked::after{transform:translateX(-15px)}
+    .alerts{display:grid;gap:8px}.alert{display:flex;gap:8px;padding:10px 11px;border-radius:9px;font-size:11px}.alert strong{display:block}.alert-success{color:#126a46;background:var(--success-soft)}.alert-warning{color:#885100;background:var(--warning-soft)}.alert-error{color:#a31f30;background:var(--danger-soft)}.alert-info{color:#15598e;background:var(--info-soft)}
+    .empty{text-align:center;padding:24px 12px;color:var(--muted);font-size:11px}.empty strong{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}.empty-icon{font-size:27px;margin-bottom:3px}
+    .preview{border:1px solid var(--line);border-radius:11px;overflow:hidden}.preview-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8f9fc;border-bottom:1px solid var(--line);font-size:10px;color:var(--muted)}.preview-body{padding:17px}.preview-body h4{font-size:18px;margin:9px 0 5px}.preview-body p{font-size:11px;color:var(--muted);margin:7px 0}.preview-surface{height:65px;border-radius:8px;background:linear-gradient(120deg,#eeedff,#e7f7ef);display:grid;place-items:center;color:var(--primary);font-size:11px}
+    .token-list{display:grid;gap:7px}.token{display:flex;align-items:center;gap:8px;font-size:10px}.swatch{width:22px;height:22px;border-radius:6px;border:1px solid rgb(0 0 0 / .08);flex:0 0 auto}.token code{margin-inline-start:auto;direction:ltr;color:var(--muted);font-size:9px}
+    .modal-layer{display:none;position:fixed;inset:0;z-index:50;padding:18px;background:rgb(15 20 36 / .48);align-items:center;justify-content:center}.modal-layer.open{display:flex}.modal{width:min(440px,100%);background:#fff;border-radius:16px;box-shadow:0 22px 70px rgb(0 0 0 / .22);overflow:hidden}.modal-head,.modal-foot{padding:14px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.modal-body{padding:18px;color:var(--muted);font-size:12px}.modal-foot{border:0;border-top:1px solid var(--line);justify-content:flex-start;gap:8px}.toast{position:fixed;left:18px;bottom:18px;z-index:60;padding:11px 15px;background:#20283a;color:white;border-radius:10px;box-shadow:var(--shadow);font-size:11px;opacity:0;transform:translateY(12px);pointer-events:none;transition:.18s}.toast.show{opacity:1;transform:translateY(0)}
+    .demo-note{padding:10px 12px;border:1px solid #c9d6ff;background:#f1f4ff;color:#333d73;border-radius:10px;font-size:11px;margin-bottom:18px}
+    @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding-inline:22px}}
+    @media(max-width:760px){:root{--sidebar:0px}.sidebar{width:255px;transform:translateX(110%);transition:transform .2s;box-shadow:var(--shadow)}.sidebar.open{transform:translateX(0)}.main{margin-right:0}.mobile-menu{display:grid}.topbar{height:58px;padding:0 14px}.content{padding:21px 14px 42px}.page-heading{flex-direction:column}.components,.lower{grid-template-columns:1fr}.component-grid{grid-template-columns:1fr}.toolbar{padding:11px}.search{max-width:none;flex-basis:100%}.select{flex:1;min-width:120px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.card-head{padding-inline:13px}.table-footer{padding-inline:11px}.top-actions .desktop-only{display:none}}
+    @media(max-width:390px){.stats{gap:9px}.stat{padding:13px}.stat-value{font-size:22px}.page-heading .button{width:100%}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="shell">
     <aside class="sidebar" id="sidebar" aria-label="ניווט ראשי">
-      <a class="brand" href="#dashboard" aria-label="CMS אישי — לדף הבית">
-        <span class="brand-mark">C</span>
-        <span class="brand-name">CMS אישי<span class="brand-caption">ניהול תוכן פשוט</span></span>
-      </a>
+      <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">C</span><span class="brand-name">CMS אישי<span class="brand-caption">ניהול תוכן פשוט</span></span></a>
       <div class="nav-label">סביבת עבודה</div>
-      <nav class="nav">
-        <a class="nav-link active" href="#dashboard"><span class="nav-icon">▦</span>סקירה כללית</a>
-        <a class="nav-link" href="#content"><span class="nav-icon">▤</span>כל התוכן <span class="nav-count">12</span></a>
-        <a class="nav-link" href="#content"><span class="nav-icon">✎</span>טיוטות <span class="nav-count">4</span></a>
-        <a class="nav-link" href="#content"><span class="nav-icon">◉</span>פורסם</a>
-        <a class="nav-link" href="#components"><span class="nav-icon">◫</span>מדיה וקבצים</a>
-      </nav>
-      <div class="nav-label">ניהול</div>
-      <nav class="nav">
-        <a class="nav-link" href="#components"><span class="nav-icon">⚙</span>הגדרות</a>
-        <a class="nav-link" href="#components"><span class="nav-icon">◷</span>יומן פעילות</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <div class="owner"><span class="avatar">ל</span><span>ליאור<span><small>בעלים · חשבון אישי</small></span></span></div>
-      </div>
+      <nav class="nav"><a class="nav-link active" href="#overview"><span class="nav-icon">▦</span>סקירה כללית</a><a class="nav-link" href="#content"><span class="nav-icon">▤</span>כל התוכן <span class="nav-count">12</span></a><a class="nav-link" href="#content"><span class="nav-icon">✎</span>טיוטות <span class="nav-count">4</span></a><a class="nav-link" href="#content"><span class="nav-icon">◉</span>פורסם</a></nav>
+      <div class="nav-label">מערכת</div><nav class="nav"><a class="nav-link" href="#components"><span class="nav-icon">◫</span>ספריית רכיבים</a><a class="nav-link" href="#components"><span class="nav-icon">⚙</span>הגדרות</a></nav>
+      <div class="sidebar-bottom"><div class="owner"><span class="avatar">ל</span><span>בעלים<small>CMS אישי</small></span></div></div>
     </aside>
-
-    <main class="main" id="dashboard">
-      <header class="topbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <button class="icon-button mobile-menu" id="menuToggle" aria-label="פתח תפריט" aria-expanded="false">☰</button>
-          <div class="breadcrumbs">סביבת עבודה <span aria-hidden="true">/</span> <strong>סקירה כללית</strong></div>
-        </div>
-        <div class="top-actions">
-          <button class="icon-button desktop-only" aria-label="עזרה" title="עזרה">?</button>
-          <button class="icon-button" aria-label="התראות" title="התראות">♧<span class="notification-dot"></span></button>
-          <span class="avatar" aria-label="משתמש מחובר">ל</span>
-        </div>
-      </header>
-
-      <div class="main-content">
-        <section class="page-heading">
-          <div>
-            <p class="eyebrow">יום טוב, ליאור 👋</p>
-            <h1>סקירה כללית</h1>
-            <p class="subheading">הנה מה שקורה בתוכן שלך היום.</p>
-          </div>
-          <button class="button button-primary" id="newContent"><span class="icon">＋</span>יצירת תוכן חדש</button>
+    <main class="main" id="overview">
+      <header class="topbar"><div style="display:flex;align-items:center;gap:11px"><button class="icon-button mobile-menu" id="menuToggle" aria-label="פתח תפריט" aria-expanded="false">☰</button><div class="crumb">סביבת עבודה / <strong>סקירה כללית</strong></div></div><div class="top-actions"><button class="icon-button" aria-label="עזרה">?</button><span class="avatar" aria-label="משתמש מחובר">ל</span></div></header>
+      <div class="content">
+        <div class="demo-note"><strong>תצוגת הדגמה:</strong> הנתונים והרכיבים בעמוד זה סטטיים ואינם מחוברים ל־Google Apps Script, Sheets או Docs.</div>
+        <section class="page-heading"><div><p class="eyebrow">סביבת עבודה אישית</p><h1>סקירה כללית</h1><p class="subtitle">ניהול עמודים וכתבות במקום אחד.</p></div><button class="button button-primary" data-demo="יצירת תוכן חדש — הדגמה בלבד">＋ יצירת תוכן חדש</button></section>
+        <section class="grid stats" aria-label="סיכום תוכן"><article class="card stat"><div class="stat-top"><span>כל פריטי התוכן</span><span class="stat-icon">▤</span></div><div class="stat-value">12</div><div class="stat-note">נתוני הדגמה</div></article><article class="card stat"><div class="stat-top"><span>פורסם</span><span class="stat-icon" style="background:var(--success-soft);color:var(--success)">◉</span></div><div class="stat-value">7</div><div class="stat-note">נתוני הדגמה</div></article><article class="card stat"><div class="stat-top"><span>טיוטות</span><span class="stat-icon" style="background:var(--warning-soft);color:var(--warning)">✎</span></div><div class="stat-value">4</div><div class="stat-note">ממתינות להשלמה</div></article><article class="card stat"><div class="stat-top"><span>מסמכי Docs</span><span class="stat-icon" style="background:var(--info-soft);color:var(--info)">▧</span></div><div class="stat-value">9</div><div class="stat-note">נתוני הדגמה</div></article></section>
+        <section class="card" id="content" aria-labelledby="content-title">
+          <div class="card-head"><div class="title-row"><h2 id="content-title">תוכן אחרון</h2><span class="count">5 דוגמאות</span></div><button class="button button-ghost button-sm" data-demo="כל התוכן — הדגמה בלבד">הצגת כל התוכן ←</button></div>
+          <div class="toolbar"><label class="search"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" class="input" type="search" placeholder="חיפוש לפי כותרת או slug" aria-label="חיפוש תוכן"></label><select id="statusFilter" class="select" aria-label="סינון לפי סטטוס"><option value="all">כל הסטטוסים</option><option value="published">פורסם</option><option value="draft">טיוטה</option><option value="review">בבדיקה</option><option value="archived">בארכיון</option></select><button class="button button-secondary button-sm" id="reset">איפוס</button></div>
+          <div class="table-wrap"><table><thead><tr><th scope="col">כותרת</th><th scope="col">סטטוס</th><th scope="col">סוג</th><th scope="col">עדכון</th><th scope="col">שפה</th><th scope="col">פעולה</th></tr></thead><tbody id="rows">
+            <tr data-status="published" data-search="ברוכים הבאים welcome"><td><span class="content-title">ברוכים הבאים</span><span class="content-meta">/welcome</span></td><td><span class="status published">פורסם</span></td><td>עמוד</td><td>היום, 10:32</td><td>עברית</td><td><button class="button button-ghost button-sm" data-demo="עריכת תוכן — הדגמה בלבד">עריכה</button></td></tr>
+            <tr data-status="draft" data-search="המדריך הראשון first-guide"><td><span class="content-title">המדריך הראשון</span><span class="content-meta">/first-guide</span></td><td><span class="status draft">טיוטה</span></td><td>כתבה</td><td>אתמול, 16:08</td><td>עברית</td><td><button class="button button-ghost button-sm" data-demo="עריכת תוכן — הדגמה בלבד">עריכה</button></td></tr>
+            <tr data-status="review" data-search="אודות about"><td><span class="content-title">אודות</span><span class="content-meta">/about</span></td><td><span class="status review">בבדיקה</span></td><td>עמוד</td><td>12 בנוב׳</td><td>עברית</td><td><button class="button button-ghost button-sm" data-demo="עריכת תוכן — הדגמה בלבד">עריכה</button></td></tr>
+            <tr data-status="published" data-search="יצירת קשר contact"><td><span class="content-title">יצירת קשר</span><span class="content-meta">/contact</span></td><td><span class="status published">פורסם</span></td><td>עמוד</td><td>10 בנוב׳</td><td>עברית</td><td><button class="button button-ghost button-sm" data-demo="עריכת תוכן — הדגמה בלבד">עריכה</button></td></tr>
+            <tr data-status="archived" data-search="עדכון ישן old-update"><td><span class="content-title">עדכון ישן</span><span class="content-meta">/old-update</span></td><td><span class="status archived">בארכיון</span></td><td>כתבה</td><td>2 בנוב׳</td><td>עברית</td><td><button class="button button-ghost button-sm" data-demo="עריכת תוכן — הדגמה בלבד">עריכה</button></td></tr>
+          </tbody></table><div class="empty" id="empty" hidden><div class="empty-icon">⌕</div><strong>לא נמצאו פריטים</strong>נסה לשנות את החיפוש או את הסינון.</div></div>
+          <div class="table-footer"><span id="resultCount">מציג 5 דוגמאות</span><div class="pagination" aria-label="עמודים"><button class="page-button" aria-label="עמוד קודם" disabled>‹</button><button class="page-button current" aria-current="page">1</button><button class="page-button" aria-label="עמוד הבא">›</button></div></div>
         </section>
+        <section class="grid lower"><article class="card panel"><div class="panel-head"><h2>פעילות אחרונה</h2><span class="count">דוגמאות</span></div><div class="activity"><span class="activity-icon">✓</span><div><strong>״ברוכים הבאים״ פורסם</strong><small>היום, 10:32 · אירוע הדגמה</small></div></div><div class="activity"><span class="activity-icon">✎</span><div><strong>טיוטת ״המדריך הראשון״ עודכנה</strong><small>אתמול, 16:08 · אירוע הדגמה</small></div></div><div class="activity"><span class="activity-icon">＋</span><div><strong>נוצר עמוד חדש: ״אודות״</strong><small>12 בנובמבר · אירוע הדגמה</small></div></div></article><article class="card panel"><div class="panel-head"><h2>פעולות מהירות</h2></div><div class="quick-list"><button class="quick" data-demo="יצירת טיוטה — הדגמה בלבד"><span class="quick-icon">＋</span><span><strong>יצירת טיוטה</strong><small>התחלת עמוד או כתבה</small></span></button><button class="quick" data-demo="Preview — הדגמה בלבד"><span class="quick-icon">◉</span><span><strong>תצוגה מקדימה</strong><small>בדיקת תוכן לפני פרסום</small></span></button><button class="quick" data-demo="Google Docs — הדגמה בלבד"><span class="quick-icon">▧</span><span><strong>פתיחת Google Docs</strong><small>עריכת גוף התוכן</small></span></button></div></article></section>
 
-        <section class="grid stats-grid" aria-label="נתוני תוכן">
-          <article class="card stat-card"><div class="stat-top"><span>סה״כ פריטי תוכן</span><span class="stat-icon">▤</span></div><div class="stat-number">12</div><div class="stat-note"><span class="positive">+2</span> החודש</div></article>
-          <article class="card stat-card"><div class="stat-top"><span>פורסם</span><span class="stat-icon" style="background:var(--success-soft);color:var(--success)">◉</span></div><div class="stat-number">7</div><div class="stat-note">מוצג באתר הציבורי</div></article>
-          <article class="card stat-card"><div class="stat-top"><span>טיוטות</span><span class="stat-icon" style="background:var(--warning-soft);color:var(--warning)">✎</span></div><div class="stat-number">4</div><div class="stat-note">ממתינות להשלמה</div></article>
-          <article class="card stat-card"><div class="stat-top"><span>עודכן לאחרונה</span><span class="stat-icon" style="background:var(--info-soft);color:var(--info)">◷</span></div><div class="stat-number" style="font-size:21px">לפני שעה</div><div class="stat-note">עמוד: אודות</div></article>
+        <div class="section-label" id="components">ספריית רכיבים · CMS DESIGN SYSTEM</div>
+        <section class="grid components" aria-label="ספריית רכיבים">
+          <article class="card component"><h3>כפתורים</h3><div class="showcase"><button class="button button-primary" data-demo="פעולה ראשית">ראשי</button><button class="button button-secondary" data-demo="פעולה משנית">משני</button><button class="button button-ghost" data-demo="פעולה שקטה">Ghost</button><button class="button button-danger" data-demo="פעולה מסוכנת">מחיקה</button><button class="button button-secondary" disabled>מושבת</button><button class="icon-button" aria-label="פעולת חיפוש" data-demo="חיפוש">⌕</button></div></article>
+          <article class="card component"><h3>סטטוסים ותגיות</h3><div class="showcase"><span class="status published">פורסם</span><span class="status draft">טיוטה</span><span class="status review">בבדיקה</span><span class="status archived">בארכיון</span><span class="count">12 פריטים</span><span class="count" style="background:var(--primary-soft);color:var(--primary)">עברית</span></div></article>
+          <article class="card component"><h3>שדות וטופס עריכת תוכן</h3><div class="form-grid"><div class="field full"><label for="sampleTitle">כותרת <span style="color:var(--danger)">*</span></label><input id="sampleTitle" class="input" value="הסיפור שלי"><span class="hint">הכותרת תוצג בראש העמוד.</span></div><div class="field"><label for="sampleSlug">כתובת (slug)</label><input id="sampleSlug" class="input" dir="ltr" value="my-story"><span class="hint">מוצג משמאל לימין.</span></div><div class="field"><label for="sampleStatus">סטטוס</label><select id="sampleStatus" class="select" style="width:100%"><option>טיוטה</option><option>פורסם</option><option>בארכיון</option></select></div><div class="field"><label for="sampleType">סוג תוכן</label><select id="sampleType" class="select" style="width:100%"><option>כתבה</option><option>עמוד</option></select></div><div class="field"><label for="sampleLang">שפה</label><select id="sampleLang" class="select" style="width:100%"><option>עברית</option><option>English</option></select></div><div class="field full"><label for="sampleSummary">תקציר</label><textarea id="sampleSummary" class="textarea" placeholder="תקציר קצר"></textarea></div><div class="field"><label for="sampleError">מצב שגיאה</label><input id="sampleError" class="input input-error" value="ערך לא תקין" aria-invalid="true" aria-describedby="sampleErrorText"><span class="field-error" id="sampleErrorText">יש להזין ערך תקין.</span></div><div class="field" style="align-content:end;gap:10px"><label class="check"><input type="checkbox" checked> הצגה באתר</label><label class="check"><input type="checkbox" class="switch" checked> שמירה אוטומטית</label></div><div class="field full showcase"><button class="button button-primary" data-demo="שמירת טיוטה">שמירת טיוטה</button><button class="button button-secondary" data-demo="תצוגה מקדימה">תצוגה מקדימה</button></div></div></article>
+          <article class="card component"><h3>הודעות מערכת</h3><div class="alerts"><div class="alert alert-success"><span>✓</span><div><strong>נשמר בהצלחה</strong>השינויים נשמרו כטיוטה.</div></div><div class="alert alert-warning"><span>!</span><div><strong>נדרשת השלמה</strong>יש לקשר Google Doc לפני פרסום.</div></div><div class="alert alert-error"><span>×</span><div><strong>לא ניתן לפרסם</strong>ה־slug כבר נמצא בשימוש.</div></div><div class="alert alert-info"><span>i</span><div><strong>מידע</strong>גוף התוכן מנוהל ב־Google Docs.</div></div></div></article>
+          <article class="card component"><h3>תצוגה מקדימה</h3><div class="preview"><div class="preview-head"><span>Preview · טיוטה</span><button class="button button-ghost button-sm" data-demo="פתיחת Preview">פתיחה ↗</button></div><div class="preview-body"><span class="status draft">טיוטה</span><h4>הסיפור שלי</h4><p>תקציר לדוגמה. התוכן המלא ייקרא מהמסמך המקושר, לאחר שהממשק יחובר.</p><div class="preview-surface">אזור מדיה לדוגמה</div></div></div></article>
+          <article class="card component"><h3>מצב ריק</h3><div class="empty"><div class="empty-icon">▤</div><strong>עדיין אין כאן תוכן</strong>יצירת הפריט הראשון תציג אותו ברשימה.<div style="margin-top:11px"><button class="button button-primary button-sm" data-demo="יצירת טיוטה">יצירת טיוטה</button></div></div></article>
+          <article class="card component"><h3>טוקנים עיקריים</h3><div class="token-list"><div class="token"><span class="swatch" style="background:var(--primary)"></span>פעולה ראשית<code>#5146E5</code></div><div class="token"><span class="swatch" style="background:var(--ink)"></span>טקסט ראשי<code>#172033</code></div><div class="token"><span class="swatch" style="background:var(--line)"></span>קו מפריד<code>#E5E9F0</code></div><div class="token"><span class="swatch" style="background:var(--success)"></span>הצלחה<code>#147D52</code></div><div class="token"><span class="swatch" style="background:var(--warning)"></span>אזהרה<code>#925500</code></div><div class="token"><span class="swatch" style="background:var(--danger)"></span>שגיאה<code>#B42335</code></div></div></article>
         </section>
-
-        <section class="card content-card" id="content" aria-labelledby="contentTitle">
-          <div class="card-header">
-            <div class="card-title-group"><h2 id="contentTitle">תוכן אחרון</h2><span class="count-pill">12 פריטים</span></div>
-            <button class="button button-ghost button-small" id="viewAll">הצגת כל התוכן <span aria-hidden="true">←</span></button>
-          </div>
-          <div class="toolbar">
-            <label class="search"><span class="search-icon" aria-hidden="true">⌕</span><input class="input" id="contentSearch" type="search" placeholder="חיפוש לפי כותרת או slug" aria-label="חיפוש תוכן"></label>
-            <select class="select" id="statusFilter" aria-label="סינון לפי סטטוס"><option value="all">כל הסטטוסים</option><option value="published">פורסם</option><option value="draft">טיוטה</option><option value="review">בבדיקה</option><option value="archived">בארכיון</option></select>
-            <select class="select" aria-label="סינון לפי סוג"><option>כל הסוגים</option><option>עמוד</option><option>כתבה</option></select>
-            <button class="button button-secondary button-small" id="resetFilters">איפוס</button>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th><input type="checkbox" aria-label="בחר את כל הפריטים"></th><th>כותרת</th><th>סטטוס</th><th>סוג</th><th>עודכן</th><th>שפה</th><th>פעולות</th></tr></thead>
-              <tbody id="contentRows">
-                <tr data-status="published" data-search="ברוכים הבאים welcome"><td><input type="checkbox" aria-label="בחר ברוכים הבאים"></td><td><span class="content-title">ברוכים הבאים</span><span class="content-meta">/welcome</span></td><td><span class="status status-published">פורסם</span></td><td>עמוד</td><td>היום, 10:32</td><td>עברית</td><td><div class="row-actions"><button class="button button-ghost button-small" aria-label="עריכת ברוכים הבאים">עריכה</button><button class="icon-button" aria-label="אפשרויות נוספות">⋯</button></div></td></tr>
-                <tr data-status="draft" data-search="המדריך הראשון first-guide"><td><input type="checkbox" aria-label="בחר המדריך הראשון"></td><td><span class="content-title">המדריך הראשון</span><span class="content-meta">/first-guide</span></td><td><span class="status status-draft">טיוטה</span></td><td>כתבה</td><td>אתמול, 16:08</td><td>עברית</td><td><div class="row-actions"><button class="button button-ghost button-small">עריכה</button><button class="icon-button" aria-label="אפשרויות נוספות">⋯</button></div></td></tr>
-                <tr data-status="review" data-search="אודות about"><td><input type="checkbox" aria-label="בחר אודות"></td><td><span class="content-title">אודות</span><span class="content-meta">/about</span></td><td><span class="status status-review">בבדיקה</span></td><td>עמוד</td><td>12 בנוב׳, 09:14</td><td>עברית</td><td><div class="row-actions"><button class="button button-ghost button-small">עריכה</button><button class="icon-button" aria-label="אפשרויות נוספות">⋯</button></div></td></tr>
-                <tr data-status="published" data-search="יצירת קשר contact"><td><input type="checkbox" aria-label="בחר יצירת קשר"></td><td><span class="content-title">יצירת קשר</span><span class="content-meta">/contact</span></td><td><span class="status status-published">פורסם</span></td><td>עמוד</td><td>10 בנוב׳, 14:45</td><td>עברית</td><td><div class="row-actions"><button class="button button-ghost button-small">עריכה</button><button class="icon-button" aria-label="אפשרויות נוספות">⋯</button></div></td></tr>
-                <tr data-status="archived" data-search="עדכון ישן old-update"><td><input type="checkbox" aria-label="בחר עדכון ישן"></td><td><span class="content-title">עדכון ישן</span><span class="content-meta">/old-update</span></td><td><span class="status status-archived">בארכיון</span></td><td>כתבה</td><td>2 בנוב׳, 11:20</td><td>עברית</td><td><div class="row-actions"><button class="button button-ghost button-small">עריכה</button><button class="icon-button" aria-label="אפשרויות נוספות">⋯</button></div></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="table-footer"><span id="resultCount">מציג 5 מתוך 12 פריטים</span><div class="pagination" aria-label="עמודים"><button class="page-btn" aria-label="עמוד קודם">‹</button><button class="page-btn active" aria-current="page">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn" aria-label="עמוד הבא">›</button></div></div>
-        </section>
-
-        <section class="grid lower-grid">
-          <article class="card panel">
-            <div class="panel-heading"><h2>פעילות אחרונה</h2><button class="button button-ghost button-small">יומן פעילות</button></div>
-            <div class="activity-list">
-              <div class="activity"><span class="activity-icon">✓</span><div class="activity-text"><strong>״ברוכים הבאים״ פורסם</strong><small>היום, 10:32 · על ידי ליאור</small></div></div>
-              <div class="activity"><span class="activity-icon">✎</span><div class="activity-text"><strong>טיוטת ״המדריך הראשון״ עודכנה</strong><small>אתמול, 16:08 · Google Docs</small></div></div>
-              <div class="activity"><span class="activity-icon">＋</span><div class="activity-text"><strong>נוצר עמוד חדש: ״או��ות״</strong><small>12 בנובמבר, 09:14 · טיוטה</small></div></div>
-            </div>
-          </article>
-          <article class="card panel">
-            <div class="panel-heading"><h2>פעולות מהירות</h2></div>
-            <div class="quick-actions">
-              <button class="quick-action" id="quickDraft"><span class="quick-action-icon">＋</span><span><strong>יצירת טיוטה</strong><small>התחלת עמוד או כתבה חדשה</small></span></button>
-              <button class="quick-action" id="openPreview"><span class="quick-action-icon">◉</span><span><strong>תצוגה מקדימה</strong><small>בדיקת התוכן לפני פרסום</small></span></button>
-              <button class="quick-action" id="openDocs"><span class="quick-action-icon">▧</span><span><strong>פתיחת Google Docs</strong><small>עריכת גוף התוכן</small></span></button>
-            </div>
-          </article>
-        </section>
-
-        <div class="section-label" id="components">ספריית רכיבים · DESIGN SYSTEM</div>
-        <section class="grid component-grid" aria-label="דוגמאות לרכיבי ממשק">
-          <article class="card component-card">
-            <h3>כפתורים ופעולות</h3>
-            <div class="button-showcase">
-              <button class="button button-primary" data-toast="פעולה ראשית">פעולה ראשית</button>
-              <button class="button button-secondary" data-toast="נשמר בהצלחה">פעולה משנית</button>
-              <button class="button button-ghost" data-toast="פעולה שקטה">פעולה שקטה</button>
-              <button class="button button-danger" data-toast="נדרש אישור למחיקה">מחיקה</button>
-              <button class="button button-primary button-small">קטן</button>
-              <button class="button button-secondary" disabled>לא זמין</button>
-            </div>
-          </article>
-          <article class="card component-card">
-            <h3>סטטוסים ותגיות</h3>
-            <div class="button-showcase">
-              <span class="status status-published">פורסם</span>
-              <span class="status status-draft">טיוטה</span>
-              <span class="status status-review">בבדיקה</span>
-              <span class="status status-archived">בארכיון</span>
-              <span class="count-pill">12 פריטים</span>
-              <span class="count-pill" style="background:var(--primary-soft);color:var(--primary)">עברית</span>
-            </div>
-          </article>
-          <article class="card component-card">
-            <h3>טופס עריכת תוכן</h3>
-            <div class="form-grid">
-              <div class="field full"><label for="demo-title">כותרת <span style="color:var(--danger)">*</span></label><input id="demo-title" class="input" value="הסיפור שלי" placeholder="הזנת כותרת"><span class="field-hint">הכותרת מוצגת בראש העמוד.</span></div>
-              <div class="field"><label for="demo-slug">כתובת (slug)</label><input id="demo-slug" class="input" dir="ltr" value="my-story"><span class="field-hint">תווים באנגלית, מספרים ומקפים.</span></div>
-              <div class="field"><label for="demo-status">סטטוס</label><select id="demo-status" class="select" style="width:100%"><option>טיוטה</option><option>פורסם</option><option>בארכיון</option></select></div>
-              <div class="field"><label for="demo-type">סוג תוכן</label><select id="demo-type" class="select" style="width:100%"><option>כתבה</option><option>עמוד</option></select></div>
-              <div class="field"><label for="demo-language">שפה</label><select id="demo-language" class="select" style="width:100%"><option>עברית</option><option>English</option></select></div>
-              <div class="field full"><label for="demo-summary">תקציר</label><textarea id="demo-summary" class="textarea" placeholder="תקציר קצר לתוכן"></textarea></div>
-              <div class="field"><label for="demo-email">שדה שגיאה לדוגמה</label><input id="demo-email" class="input input-error" value="כתובת לא תקינה" aria-invalid="true"><span class="error-text">יש להזין ערך תקין.</span></div>
-              <div class="field" style="align-content:end"><label class="check-row"><input type="checkbox" checked> הצגה באתר</label><label class="switch-row"><input type="checkbox" class="switch" checked> שמירת טיוטה אוטומטית</label></div>
-              <div class="field full" style="display:flex;flex-direction:row;gap:8px;flex-wrap:wrap"><button class="button button-primary" data-toast="הטיוטה נשמרה">שמירת טיוטה</button><button class="button button-secondary" data-toast="נפתחה תצוגה מקדימה">תצוגה מקדימה</button></div>
-            </div>
-          </article>
-          <article class="card component-card">
-            <h3>הודעות מערכת</h3>
-            <div class="alerts">
-              <div class="alert alert-success"><span>✓</span><div><strong>נשמר בהצלחה</strong>השינויים נשמרו כטיוטה.</div></div>
-              <div class="alert alert-warning"><span>!</span><div><strong>נדרשת השלמה</strong>הוסף מסמך Google Docs לפני פרסום.</div></div>
-              <div class="alert alert-danger"><span>×</span><div><strong>לא ניתן לפרסם</strong>כתובת ה־slug כבר נמצאת בשימוש.</div></div>
-              <div class="alert alert-info"><span>i</span><div><strong>מידע</strong>הגוף המלא של התוכן מנוהל ב־Google Docs.</div></div>
-            </div>
-          </article>
-          <article class="card component-card">
-            <h3>תצוגה מקדימה</h3>
-            <div class="preview">
-              <div class="preview-bar"><span>תצוגה מקדימה · טיוטה</span><button class="button button-ghost button-small">פתיחה ↗</button></div>
-              <div class="preview-body"><span class="status status-draft">טיוטה</span><h4 style="margin-top:10px">הסיפור שלי</h4><p>תקציר לדוגמה של התוכן. כאן אפשר לראות איך העמוד ייראה לפני הפרסום.</p><div class="preview-image">תמונת שער</div><p>גוף התוכן ייטען מהמסמך המקושר ב־Google Docs. התצוגה אינה מפרסמת את התוכן.</p></div>
-            </div>
-          </article>
-          <article class="card component-card">
-            <h3>מצב ריק וטבלת נתונים</h3>
-            <div class="empty-state"><div class="empty-icon">▤</div><strong>עדיין אין כאן תוכן</strong><span>יצירת הפריט הראשון תציג אותו ברשימה.</span><div style="margin-top:12px"><button class="button button-primary button-small" data-toast="יצירת טיוטה חדשה">יצירת טיוטה</button></div></div>
-          </article>
-        </section>
-
-        <footer style="text-align:center;color:var(--muted);font-size:11px;padding:32px 0 0">CMS אישי · מערכת עיצוב לדוגמה · התוכן בדף זה סטטי ואינו מחובר עדיין ל־Google Apps Script</footer>
+        <footer style="text-align:center;color:var(--muted);font-size:10px;padding:26px 0 0">CMS אישי · ספריית עיצוב לדוגמה · לא מחובר עדיין ל־Google Apps Script</footer>
       </div>
     </main>
   </div>
-
-  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal">
-      <div class="modal-header"><h2 id="modalTitle">יצירת תוכן חדש</h2><button class="icon-button" id="closeModal" aria-label="סגירה">×</button></div>
-      <div class="modal-body">זו הדגמת ממשק בלבד. בשלב החיבור, הכפתור ייצור טיוטה ב־Google Sheets ויקשר מסמך Google Docs.</div>
-      <div class="modal-footer"><button class="button button-primary" id="confirmModal">הבנתי</button><button class="button button-secondary" id="cancelModal">ביטול</button></div>
-    </div>
-  </div>
+  <div class="modal-layer" id="modalLayer" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription"><div class="modal"><div class="modal-head"><h2 id="modalTitle">דוגמת פעולה</h2><button class="icon-button" id="modalClose" aria-label="סגירת חלונית">×</button></div><div class="modal-body" id="modalDescription">זו המחשת UI בלבד; אין פעולה מול Sheets או Docs.</div><div class="modal-foot"><button class="button button-primary" id="modalOk">הבנתי</button><button class="button button-secondary" id="modalCancel">ביטול</button></div></div></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
   <script>
-    (function () {
-      var search = document.getElementById('contentSearch');
-      var filter = document.getElementById('statusFilter');
-      var rows = Array.prototype.slice.call(document.querySelectorAll('#contentRows tr'));
-      var count = document.getElementById('resultCount');
-      var toast = document.getElementById('toast');
-      var toastTimer;
-
-      function applyFilters() {
-        var term = (search.value || '').trim().toLowerCase();
-        var status = filter.value;
-        var visible = 0;
-        rows.forEach(function (row) {
-          var matchesTerm = !term || (row.getAttribute('data-search') || '').toLowerCase().indexOf(term) !== -1;
-          var matchesStatus = status === 'all' || row.getAttribute('data-status') === status;
-          row.hidden = !(matchesTerm && matchesStatus);
-          if (!row.hidden) visible++;
-        });
-        count.textContent = 'מציג ' + visible + ' פריטים';
-      }
-      search.addEventListener('input', applyFilters);
-      filter.addEventListener('change', applyFilters);
-      document.getElementById('resetFilters').addEventListener('click', function () {
-        search.value = '';
-        filter.value = 'all';
-        applyFilters();
-      });
-      function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2600);
-      }
-      document.querySelectorAll('[data-toast]').forEach(function (button) {
-        button.addEventListener('click', function () { showToast(button.getAttribute('data-toast')); });
-      });
-      var backdrop = document.getElementById('modalBackdrop');
-      function openModal() { backdrop.classList.add('open'); document.getElementById('closeModal').focus(); }
-      function closeModal() { backdrop.classList.remove('open'); }
-      document.getElementById('newContent').addEventListener('click', openModal);
-      document.getElementById('quickDraft').addEventListener('click', openModal);
-      document.getElementById('closeModal').addEventListener('click', closeModal);
-      document.getElementById('cancelModal').addEventListener('click', closeModal);
-      document.getElementById('confirmModal').addEventListener('click', function () { closeModal(); showToast('הדגמה בלבד — טרם מחובר ל־GAS'); });
-      backdrop.addEventListener('click', function (event) { if (event.target === backdrop) closeModal(); });
-      document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeModal(); });
-      ['viewAll', 'openPreview', 'openDocs'].forEach(function (id) {
-        document.getElementById(id).addEventListener('click', function () { showToast('הפעולה תתחבר ל־CMS בהמשך'); });
-      });
-      var sidebar = document.getElementById('sidebar');
-      var menuToggle = document.getElementById('menuToggle');
-      menuToggle.addEventListener('click', function () {
-        var open = sidebar.classList.toggle('open');
-        menuToggle.setAttribute('aria-expanded', String(open));
-      });
-      document.querySelectorAll('.nav-link').forEach(function (link) {
-        link.addEventListener('click', function () {
-          document.querySelectorAll('.nav-link').forEach(function (item) { item.classList.remove('active'); });
-          link.classList.add('active');
-          sidebar.classList.remove('open');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        });
-      });
+    (function(){
+      var search=document.getElementById('search'),filter=document.getElementById('statusFilter'),rows=[].slice.call(document.querySelectorAll('#rows tr')),empty=document.getElementById('empty'),count=document.getElementById('resultCount');
+      function filterRows(){var query=(search.value||'').trim().toLowerCase(),status=filter.value,visible=0;rows.forEach(function(row){var matchText=!query||(row.getAttribute('data-search')||'').toLowerCase().indexOf(query)!==-1;var matchStatus=status==='all'||row.getAttribute('data-status')===status;row.hidden=!(matchText&&matchStatus);if(!row.hidden)visible++;});empty.hidden=visible!==0;count.textContent='מציג '+visible+' דוגמאות';}
+      search.addEventListener('input',filterRows);filter.addEventListener('change',filterRows);document.getElementById('reset').addEventListener('click',function(){search.value='';filter.value='all';filterRows();});
+      var toast=document.getElementById('toast'),toastTimer;function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast.classList.remove('show');},2400);}
+      document.querySelectorAll('[data-demo]').forEach(function(button){button.addEventListener('click',function(){showToast(button.getAttribute('data-demo'));});});
+      var layer=document.getElementById('modalLayer'),previousFocus=null;function openModal(message){previousFocus=document.activeElement;document.getElementById('modalDescription').textContent=message;layer.classList.add('open');document.getElementById('modalClose').focus();}
+      function closeModal(){layer.classList.remove('open');if(previousFocus)previousFocus.focus();}
+      document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalCancel').addEventListener('click',closeModal);document.getElementById('modalOk').addEventListener('click',closeModal);layer.addEventListener('click',function(event){if(event.target===layer)closeModal();});document.addEventListener('keydown',function(event){if(event.key==='Escape'&&layer.classList.contains('open'))closeModal();});
+      document.querySelectorAll('.button-primary').forEach(function(button){if(button.hasAttribute('data-demo'))button.addEventListener('dblclick',function(){openModal('דוגמת רכיב בלבד. פעולות CMS אמיתיות ידרשו חיבור backend והרשאה בצד השרת.');});});
+      var sidebar=document.getElementById('sidebar'),menu=document.getElementById('menuToggle');menu.addEventListener('click',function(){var isOpen=sidebar.classList.toggle('open');menu.setAttribute('aria-expanded',String(isOpen));});
+      document.querySelectorAll('.nav-link').forEach(function(link){link.addEventListener('click',function(){document.querySelectorAll('.nav-link').forEach(function(item){item.classList.remove('active');});link.classList.add('active');sidebar.classList.remove('open');menu.setAttribute('aria-expanded','false');});});
     })();
   </script>
 </body>
