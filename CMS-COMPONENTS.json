@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "name": "Google Apps Script CMS",
+    "repository": "Liordanc/google-app-script-as-cms",
+    "projectType": "personal-cms",
+    "description": "A personal content management system using Google Apps Script, Google Sheets, Google Docs, and a web frontend.",
+    "architectureStatus": "planned",
+    "mvpAssumptions": {
+      "primaryOwner": "single-person",
+      "editorApprovalWorkflow": false,
+      "userRoleTableRequired": false,
+      "contentBodyStorage": "google-docs",
+      "metadataStorage": "google-sheets"
+    }
+  },
+  "architecture": {
+    "style": "layered-web-app",
+    "requestFlow": [
+      "Editor or visitor",
+      "Frontend UI",
+      "Google Apps Script API and router",
+      "Authorization and validation",
+      "Content services",
+      "Google Sheets and Google Docs",
+      "JSON response to frontend or public site"
+    ],
+    "components": [
+      {
+        "id": "public-frontend",
+        "name": "Public Website",
+        "layer": "frontend",
+        "location": "front-end/",
+        "status": "existing-basic",
+        "responsibilities": ["Display published content", "Request public content from GAS API", "Render lists and content pages"],
+        "mustNot": ["Read drafts", "Contain secrets", "Perform privileged writes directly"]
+      },
+      {
+        "id": "admin-ui",
+        "name": "CMS Admin UI",
+        "layer": "frontend",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["List and search content", "Edit metadata", "Open linked Google Docs", "Preview drafts", "Publish and unpublish content"]
+      },
+      {
+        "id": "gas-entrypoint",
+        "name": "GAS Web App Entry Point",
+        "layer": "backend",
+        "location": "back-end-script/Routes.gs",
+        "status": "existing-basic",
+        "responsibilities": ["Handle doGet and doPost", "Parse requests", "Dispatch explicitly allowed actions", "Return JSON responses"]
+      },
+      {
+        "id": "authorization",
+        "name": "Authorization Service",
+        "layer": "backend",
+        "location": "back-end-script/CheckAuthorization.gs",
+        "status": "existing-basic",
+        "responsibilities": ["Enforce access rules on the server", "Protect all administrative actions", "Keep public reads separate from management operations"],
+        "securityNote": "Do not treat a key embedded in browser JavaScript as a secret. Deployment identity and access policy must be verified for the chosen GAS deployment."
+      },
+      {
+        "id": "configuration",
+        "name": "Configuration",
+        "layer": "backend",
+        "location": "back-end-script/Config.gs",
+        "status": "existing-basic",
+        "responsibilities": ["Resolve spreadsheet IDs and sheet names", "Store non-public configuration", "Provide environment-specific settings"]
+      },
+      {
+        "id": "content-service",
+        "name": "Content Service",
+        "layer": "backend",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Create and update drafts", "Validate publish readiness", "Build content response objects", "Coordinate preview, publish, unpublish, and archive"]
+      },
+      {
+        "id": "content-repository",
+        "name": "Sheets Content Repository",
+        "layer": "data-access",
+        "location": "back-end-script/GetDataFromSheet.gs and back-end-script/PostDataToSheet.gs",
+        "status": "existing-basic",
+        "responsibilities": ["Read and write content metadata in batches", "Map sheet rows to objects by header", "Use stable IDs rather than row numbers"]
+      },
+      {
+        "id": "document-service",
+        "name": "Google Docs Service",
+        "layer": "data-access",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Read the body of a linked Google Doc", "Verify a document exists and is accessible", "Return body content for preview and published API"]
+      },
+      {
+        "id": "validation",
+        "name": "Request and Content Validation",
+        "layer": "backend",
+        "location": "back-end-script/FormValidations.gs",
+        "status": "existing-basic",
+        "responsibilities": ["Validate action parameters", "Validate required content fields", "Reject duplicate IDs and slugs", "Validate allowed status transitions"]
+      },
+      {
+        "id": "response-handler",
+        "name": "JSON Response and Error Handler",
+        "layer": "backend",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Return a consistent success and error envelope", "Avoid exposing stack traces or private data", "Use stable error codes"]
+      },
+      {
+        "id": "audit-log",
+        "name": "Audit Log",
+        "layer": "data-access",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Record publish and unpublish events", "Record administrative changes and failures", "Exclude secrets and full document bodies"]
+      },
+      {
+        "id": "locking",
+        "name": "Concurrency Protection",
+        "layer": "backend",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Use LockService around conflicting writes", "Avoid lost updates during concurrent operations"]
+      },
+      {
+        "id": "deployment",
+        "name": "Build and Deployment",
+        "layer": "operations",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Deploy GAS Web App versions", "Manage development and production configuration", "Optionally use clasp for local development and repeatable deployment"]
+      },
+      {
+        "id": "tests",
+        "name": "Automated Tests",
+        "layer": "quality",
+        "location": "planned",
+        "status": "planned",
+        "responsibilities": ["Test pure validation and mapping logic", "Test API access rules", "Test draft-preview-publish workflow"]
+      }
+    ]
+  },
+  "dataStores": [
+    {
+      "id": "content-spreadsheet",
+      "type": "google-spreadsheet",
+      "purpose": "Canonical index and metadata for CMS content",
+      "sheets": [
+        {
+          "name": "Content",
+          "requiredForMvp": true,
+          "primaryKey": "id",
+          "columns": [
+            {"name": "id", "type": "string", "required": true, "description": "Stable unique content identifier, preferably UUID."},
+            {"name": "type", "type": "enum", "required": true, "values": ["page", "article"]},
+            {"name": "title", "type": "string", "required": true},
+            {"name": "slug", "type": "string", "required": true, "unique": true},
+            {"name": "summary", "type": "string", "required": false},
+            {"name": "docId", "type": "string", "required": true, "description": "Google Docs document ID for the content body."},
+            {"name": "status", "type": "enum", "required": true, "values": ["draft", "published", "archived"]},
+            {"name": "language", "type": "string", "required": true, "example": "he"},
+            {"name": "category", "type": "string", "required": false},
+            {"name": "authorEmail", "type": "string", "required": false},
+            {"name": "createdAt", "type": "datetime-utc", "required": true},
+            {"name": "updatedAt", "type": "datetime-utc", "required": true},
+            {"name": "publishedAt", "type": "datetime-utc", "required": false},
+            {"name": "version", "type": "integer", "required": true, "default": 1}
+          ]
+        },
+        {
+          "name": "Categories",
+          "requiredForMvp": false,
+          "columns": ["id", "name", "slug", "description", "active"]
+        },
+        {
+          "name": "Config",
+          "requiredForMvp": false,
+          "columns": ["key", "value", "description"],
+          "securityNote": "Do not store secrets in a sheet accessible to public-site readers. Use Script Properties for secrets."
+        }
+      ]
+    },
+    {
+      "id": "google-documents",
+      "type": "google-docs",
+      "purpose": "Editorial authoring for long-form body content",
+      "relationship": "Content.docId references a Google Doc",
+      "accessPolicy": "Only owner and authorized editors should access draft documents. Public API returns body content only for published records."
+    },
+    {
+      "id": "audit-log",
+      "type": "google-sheet",
+      "purpose": "Operational audit trail",
+      "requiredForMvp": false,
+      "columns": ["timestamp", "actorEmail", "action", "contentId", "result", "details"],
+      "exclude": ["secrets", "tokens", "full-document-body"]
+    },
+    {
+      "id": "user-registry",
+      "type": "google-sheet",
+      "purpose": "Optional application roles for multiple editors",
+      "requiredForMvp": false,
+      "columns": ["email", "role", "active"],
+      "roles": ["admin", "editor", "viewer"],
+      "personalProjectNote": "For a single-owner personal CMS, Google account and deployment permissions may be sufficient; verify GAS identity behavior before relying on it."
+    }
+  ],
+  "api": {
+    "transport": "Google Apps Script Web App JSON",
+    "responseEnvelope": {"ok": "boolean", "data": "object|null", "error": "object|null"},
+    "publicActions": [
+      {"name": "listPublished", "method": "GET", "parameters": ["page", "limit", "category", "language"], "returns": "Published content only."},
+      {"name": "getPublishedBySlug", "method": "GET", "parameters": ["slug", "language"], "returns": "One published item or not-found error."}
+    ],
+    "adminActions": [
+      {"name": "listContent", "method": "POST", "parameters": ["status", "query", "page"], "authorizationRequired": true},
+      {"name": "getContent", "method": "POST", "parameters": ["id"], "authorizationRequired": true},
+      {"name": "createDraft", "method": "POST", "parameters": ["type", "title", "language"], "authorizationRequired": true},
+      {"name": "saveMetadata", "method": "POST", "parameters": ["id", "fields"], "authorizationRequired": true},
+      {"name": "previewContent", "method": "POST", "parameters": ["id"], "authorizationRequired": true},
+      {"name": "publishContent", "method": "POST", "parameters": ["id"], "authorizationRequired": true},
+      {"name": "unpublishContent", "method": "POST", "parameters": ["id"], "authorizationRequired": true},
+      {"name": "archiveContent", "method": "POST", "parameters": ["id"], "authorizationRequired": true}
+    ],
+    "securityRules": ["Authorize every admin action on the server.", "Do not return drafts through public actions.", "Validate and normalize all request parameters.", "Do not expose stack traces or secrets in responses."]
+  },
+  "workflows": [
+    {
+      "name": "create-and-edit",
+      "steps": ["Create draft metadata row", "Create or link Google Doc", "Edit body in Google Docs", "Save and validate metadata"]
+    },
+    {
+      "name": "preview",
+      "steps": ["Verify editor authorization", "Load metadata by stable ID", "Read linked Google Doc", "Return a preview without changing publish status"]
+    },
+    {
+      "name": "publish",
+      "steps": ["Verify editor authorization", "Acquire write lock", "Validate required fields and unique slug", "Verify linked document is accessible and non-empty", "Set status to published and update timestamps/version", "Write audit entry", "Release lock"]
+    },
+    {
+      "name": "unpublish",
+      "steps": ["Verify editor authorization", "Acquire write lock", "Change status so public API no longer returns the content", "Update timestamp/version", "Write audit entry", "Release lock"]
+    }
+  ],
+  "implementationPlan": [
+    {"phase": 0, "name": "Inspect and preserve current app", "deliverables": ["Map current routes and spreadsheet columns", "Create a development copy of data", "Document current deployment and permissions"]},
+    {"phase": 1, "name": "Stable content model and public API", "deliverables": ["Content sheet schema", "Stable IDs and unique slugs", "Consistent JSON responses", "Published-only public reads"]},
+    {"phase": 2, "name": "Google Docs and preview", "deliverables": ["docId linkage", "Document reading service", "Authorized preview"]},
+    {"phase": 3, "name": "CMS management actions", "deliverables": ["Create and edit drafts", "Publish and unpublish", "Audit log", "LockService"]},
+    {"phase": 4, "name": "Admin UI and verification", "deliverables": ["Content list and metadata editor", "Preview and publish UI", "Unit and integration tests"]},
+    {"phase": 5, "name": "Repeatable operations", "deliverables": ["clasp workflow", "Environment configuration", "Deployment and recovery documentation"]}
+  ],
+  "acceptanceCriteria": [
+    "An authorized owner can create and edit a draft.",
+    "A content record can link to a Google Doc and render a preview.",
+    "Publishing rejects missing required fields, inaccessible documents, and duplicate slugs.",
+    "Public API never returns drafts or archived content.",
+    "Unpublishing removes an item from public responses without deleting the record or document.",
+    "Administrative operations are authorized on the server and recorded when audit logging is enabled.",
+    "Concurrent writes are protected against lost updates.",
+    "No secret is embedded in frontend code or committed to the repository."
+  ],
+  "outOfScopeForMvp": ["Multi-tenant CMS", "Complex approval chains", "Scheduled publishing", "Full rich-text editor inside the CMS", "High-volume database workloads", "Advanced media CDN and search indexing"],
+  "notes": [
+    "This JSON describes the target architecture and does not imply all components are implemented.",
+    "Current repository code is a basic starter; component status values distinguish existing basics from planned components.",
+    "Google Sheets and Apps Script quotas should be evaluated against expected traffic and content volume."
+  ]
+}
