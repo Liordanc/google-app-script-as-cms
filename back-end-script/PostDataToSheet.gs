@@ -1,11 +1,14 @@
-var sheet = Config().postSpreadsheet.getSheets()[0];
-// post data from contact form submission to google sheet 
+// Persist contact-form submissions lazily; no spreadsheet access at script load.
 function postDataToSheet(e) {
+  var config = Config();
+  if (!config.postSpreadsheet) throw new Error('SUBMISSIONS_SPREADSHEET_ID is not configured.');
+  var sheet = config.postSpreadsheet.getSheets()[0];
   var rows = sheet.getDataRange().getValues();
-  var headings = rows[0].map(String.toLowerCase);
-  var row = [];
-  for (i in headings)
-    headings[i] == "timestamp" ? row.push(new Date()) : row.push(e.parameter[headings[i]]);
-
-    sheet.appendRow(row);
-  }
+  if (!rows.length) throw new Error('Submission sheet must have a header row.');
+  var headings = rows[0].map(function (value) { return String(value).trim().toLowerCase(); });
+  var params = e && e.parameter ? e.parameter : {};
+  var row = headings.map(function (heading) {
+    return heading === 'timestamp' ? new Date() : (params[heading] || '');
+  });
+  sheet.appendRow(row);
+}
