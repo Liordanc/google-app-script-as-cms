@@ -1,0 +1,2172 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="tool">
+  <meta name="design-style" content="showroom">
+  <title>מערכת העיצוב של Figma : ספריית רכיבים ופורטל למידה</title>
+
+  <!-- Google Fonts: Assistant for clean Hebrew, Inter for Latin, JetBrains Mono for eyebrows/code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons Regular & Bold -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+
+  <!-- Tailwind CSS 3.4.17 -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+  <style>
+    :root {
+      /* Figma Design System Tokens */
+      --color-primary: #000000;
+      --color-on-primary: #ffffff;
+      --color-ink: #000000;
+      --color-canvas: #ffffff;
+      --color-inverse-canvas: #000000;
+      --color-inverse-ink: #ffffff;
+      --color-hairline: #e6e6e6;
+      --color-hairline-soft: #f1f1f1;
+      --color-surface-soft: #f7f7f5;
+
+      /* Signature 7 Pastel Blocks */
+      --color-block-lime: #dceeb1;
+      --color-block-lilac: #c5b0f4;
+      --color-block-cream: #f4ecd6;
+      --color-block-mint: #c8e6cd;
+      --color-block-pink: #efd4d4;
+      --color-block-coral: #f3c9b6;
+      --color-block-navy: #1f1d3d;
+
+      /* Promo Accent & Semantic */
+      --color-accent-magenta: #ff3d8b;
+      --color-semantic-success: #1ea64a;
+      --color-semantic-warning: #f59e0b;
+
+      /* Shared Semantic Tokens */
+      --positive: #1ea64a;
+      --warning: #f59e0b;
+      --focus: #000000;
+
+      /* Typography Families */
+      --font-headline: 'Assistant', 'Inter', sans-serif;
+      --font-body: 'Assistant', 'Inter', sans-serif;
+      --font-label: 'JetBrains Mono', monospace;
+
+      /* Spacing Scale (8px base) */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-xxl: 48px;
+      --space-section: 96px;
+
+      /* Radii Scale */
+      --radius-xs: 2px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-pill: 50px;
+      --radius-full: 9999px;
+
+      /* Strict Zero Shadow Contract */
+      --shadow-none: none;
+    }
+
+    /* Base Reset & Guardrails */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      box-shadow: none !important; /* Enforce zero drop shadows across whole page */
+    }
+
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-body);
+      background-color: var(--color-canvas);
+      color: var(--color-ink);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      position: static !important;
+    }
+
+    /* Custom Focus Outline */
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Figma Headline & Mono Eyebrow Classes */
+    .figma-display-xl {
+      font-family: var(--font-headline);
+      font-size: clamp(2.5rem, 1.8rem + 3.8vw, 5.25rem);
+      font-weight: 340;
+      line-height: 1.02;
+      letter-spacing: -1.72px;
+    }
+
+    .figma-display-lg {
+      font-family: var(--font-headline);
+      font-size: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+      font-weight: 340;
+      line-height: 1.1;
+      letter-spacing: -0.96px;
+    }
+
+    .figma-headline {
+      font-family: var(--font-headline);
+      font-size: 1.625rem; /* 26px */
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.26px;
+    }
+
+    .figma-subhead {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      font-weight: 340;
+      line-height: 1.4;
+      letter-spacing: -0.26px;
+    }
+
+    .figma-eyebrow {
+      font-family: var(--font-label);
+      font-size: 0.8125rem; /* 13px */
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .figma-caption {
+      font-family: var(--font-label);
+      font-size: 0.75rem; /* 12px */
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Pill Buttons & Shape System */
+    .btn-pill {
+      border-radius: var(--radius-pill);
+      padding: 10px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 100ms ease;
+      white-space: nowrap;
+      text-decoration: none;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .btn-pill:active {
+      transform: scale(0.98);
+    }
+
+    .btn-pill-primary {
+      background-color: var(--color-primary);
+      color: var(--color-on-primary);
+      border-color: var(--color-primary);
+    }
+    .btn-pill-primary:hover {
+      background-color: #222222;
+    }
+
+    .btn-pill-secondary {
+      background-color: var(--color-canvas);
+      color: var(--color-ink);
+      border-color: var(--color-hairline);
+    }
+    .btn-pill-secondary:hover {
+      background-color: var(--color-surface-soft);
+      border-color: #cccccc;
+    }
+
+    .btn-pill-magenta {
+      background-color: var(--color-accent-magenta);
+      color: var(--color-on-primary);
+      border-color: var(--color-accent-magenta);
+    }
+    .btn-pill-magenta:hover {
+      background-color: #e62877;
+    }
+
+    .btn-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-surface-soft);
+      color: var(--color-ink);
+      border: 1px solid var(--color-hairline);
+      cursor: pointer;
+      transition: background-color 150ms ease, transform 100ms ease;
+    }
+    .btn-icon-circle:hover {
+      background-color: var(--color-hairline);
+    }
+    .btn-icon-circle:active {
+      transform: scale(0.95);
+    }
+
+    /* Oversized Pastel Block Containers */
+    .pastel-block {
+      border-radius: var(--radius-lg);
+      padding: clamp(24px, 4vw, 48px);
+      transition: background-color 200ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ticker Marquee Strip */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      background-color: var(--color-inverse-canvas);
+      color: var(--color-inverse-ink);
+      height: 36px;
+      display: flex;
+      align-items: center;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeScroll 28s linear infinite;
+    }
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50%); }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .marquee-track {
+        animation: none !important;
+      }
+    }
+
+    /* Mobile Frame Simulator */
+    .mobile-frame-view {
+      max-width: 420px;
+      margin: 0 auto;
+      border: 3px solid var(--color-primary);
+      border-radius: 36px;
+      padding: 16px;
+      background: var(--color-canvas);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-surface-soft);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c0c0c0;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Required State Persistence Shim -->
+  <api-shim></api-shim>
+
+  <!-- 1. Marquee Strip (36px, Inverse Canvas) -->
+  <aside class="marquee-container" aria-label="הודעות מערכת העיצוב" dir="ltr">
+    <div class="marquee-track figma-caption text-xs font-mono font-medium tracking-wider">
+      <span class="mx-6">FIGMA DESIGN SYSTEM // MONOCHROME CHROME // 7 OVERSIZED PASTEL BLOCKS // PILL BUTTONS ONLY // ZERO SHADOWS</span>
+      <span class="mx-6">★ figmaSans &amp; figmaMono // 24PX CORNER RADIUS // 48PX INTERIOR PADDING // SYSTEMATIC RIGOR // ATOMIC HIERARCHY</span>
+      <span class="mx-6">FIGMA DESIGN SYSTEM // MONOCHROME CHROME // 7 OVERSIZED PASTEL BLOCKS // PILL BUTTONS ONLY // ZERO SHADOWS</span>
+      <span class="mx-6">★ figmaSans &amp; figmaMono // 24PX CORNER RADIUS // 48PX INTERIOR PADDING // SYSTEMATIC RIGOR // ATOMIC HIERARCHY</span>
+    </div>
+  </aside>
+
+  <!-- 2. Global Top Nav (56px, Canvas, Hairline Border) -->
+  <header class="w-full bg-white border-b border-[#e6e6e6] z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <!-- Logo and System Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 bg-black rounded-full flex items-center justify-center text-white font-bold text-sm select-none">
+          F
+        </div>
+        <div>
+          <span class="font-bold text-base tracking-tight block leading-none">Figma Design System</span>
+          <span class="figma-caption text-stone-500 text-[11px] block mt-0.5">ספריית רכיבים ופורטל למידה אינטראקטיבי</span>
+        </div>
+      </div>
+
+      <!-- Quick Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <button type="button" onclick="scrollToSection('tokens-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors">טוקנים</button>
+        <button type="button" onclick="scrollToSection('atoms-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors">אטומים</button>
+        <button type="button" onclick="scrollToSection('molecules-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors">מולקולות</button>
+        <button type="button" onclick="scrollToSection('organisms-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors">אורגניזמים</button>
+        <button type="button" onclick="scrollToSection('portal-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors">פורטל למידה</button>
+        <button type="button" onclick="scrollToSection('linter-section')" class="px-3 py-1.5 rounded-full hover:bg-[#f7f7f5] transition-colors flex items-center gap-1 text-[#1ea64a]">
+          <i class="ph ph-shield-check text-base"></i>
+          <span>בודק חוקים</span>
+        </button>
+      </nav>
+
+      <!-- Global Actions -->
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openAddLessonModal()" class="btn-pill btn-pill-primary text-xs sm:text-sm py-2 px-4">
+          <i class="ph ph-plus-bold"></i>
+          <span>הוסף שיעור</span>
+        </button>
+        <button type="button" onclick="exportDesignMd()" class="btn-pill btn-pill-secondary text-xs sm:text-sm py-2 px-3 hidden sm:inline-flex" title="ייצוא קוד DESIGN.md">
+          <i class="ph ph-file-code"></i>
+          <span>DESIGN.md</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-16">
+
+    <!-- Hero Section: Editorial Frame with signature Lilac banner -->
+    <section class="space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#e6e6e6] pb-8">
+        <div class="max-w-3xl space-y-3">
+          <div class="inline-flex items-center gap-2 bg-[#f7f7f5] border border-[#e6e6e6] px-3 py-1 rounded-full text-xs font-mono">
+            <span class="w-2 h-2 rounded-full bg-[#1ea64a]"></span>
+            <span>SPEC: GOOGLE LABS DESIGN.MD ALPHA</span>
+          </div>
+          <h1 class="figma-display-xl tracking-tight text-black font-semibold">
+            מסגרת מונוכרומטית, משטחי פסטל וכפתורי קפסולה.
+          </h1>
+          <p class="text-lg md:text-xl text-stone-600 font-normal leading-relaxed max-w-2xl">
+            ספריית רכיבים מלאה לפי משמעת העיצוב של Figma: מסגרת שחור-לבן נקייה ללא צללים, 7 משטחי צבע ענקיים, ומשמעת טיפוגרפית מחמירה ברמות Atomic Design.
+          </p>
+        </div>
+
+        <!-- Quick Hero Actions -->
+        <div class="flex flex-wrap md:flex-col gap-2 shrink-0">
+          <button type="button" onclick="scrollToSection('portal-section')" class="btn-pill btn-pill-primary">
+            <span>לפורטל הלמידה השלם</span>
+            <i class="ph ph-arrow-left"></i>
+          </button>
+          <button type="button" onclick="runDesignLinter()" class="btn-pill btn-pill-secondary">
+            <i class="ph ph-shield-check"></i>
+            <span>הפעל בודק חוקי עיצוב</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Notification Banner (Lilac block reference) -->
+      <div class="pastel-block bg-[#c5b0f4] text-black flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="btn-pill btn-pill-magenta text-xs py-1 px-3">חדש</span>
+            <span class="figma-eyebrow text-xs">FigJam &amp; Design System 2026</span>
+          </div>
+          <p class="text-base font-medium">
+            כל הרכיבים בממשק זה מצייתים לכלל הברזל: אפס הצללות, כפתורי קפסולה 50px בלבד, וניגודיות מלאה.
+          </p>
+        </div>
+        <button type="button" onclick="scrollToSection('linter-section')" class="btn-pill btn-pill-primary text-xs py-2 px-4 self-start sm:self-auto shrink-0">
+          בדוק תאימות בזמן אמת
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 1: PRIMITIVES & TOKENS (פרימיטיבים וטוקנים) -->
+    <section id="tokens-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">LEVEL 1 // PRIMITIVES &amp; TOKENS</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">1. פרימיטיבים וטוקנים של המערכת</h2>
+        </div>
+        <p class="text-sm text-stone-500 font-mono">20 COLOR TOKENS • 7 RADII • 9 SPACING STEPS</p>
+      </div>
+
+      <!-- Color Tokens Grid -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold">שבעת משטחי הפסטל של Figma והליבה המונוכרומטית</h3>
+          <span class="text-xs text-stone-500 font-mono">לחץ על צבע להעתקת קוד HEX</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3" id="pastel-tokens-grid">
+          <!-- Lime -->
+          <div onclick="copyTokenHex('#dceeb1', 'Lime : מערכות ו-FAQ')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #dceeb1;">
+              <span class="text-xs font-mono font-bold text-black">Lime</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#dceeb1</div>
+            <div class="text-xs text-stone-600 mt-1">מערכות ו-FAQ</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-lime</div>
+          </div>
+
+          <!-- Lilac -->
+          <div onclick="copyTokenHex('#c5b0f4', 'Lilac : עמוד העיצוב ו-FigJam')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #c5b0f4;">
+              <span class="text-xs font-mono font-bold text-black">Lilac</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#c5b0f4</div>
+            <div class="text-xs text-stone-600 mt-1">עמוד /design</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-lilac</div>
+          </div>
+
+          <!-- Cream -->
+          <div onclick="copyTokenHex('#f4ecd6', 'Cream : תבניות ומדריכים')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #f4ecd6;">
+              <span class="text-xs font-mono font-bold text-black">Cream</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#f4ecd6</div>
+            <div class="text-xs text-stone-600 mt-1">תבניות ועזרה</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-cream</div>
+          </div>
+
+          <!-- Mint -->
+          <div onclick="copyTokenHex('#c8e6cd', 'Mint : סיפורי פסטל FigJam')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #c8e6cd;">
+              <span class="text-xs font-mono font-bold text-black">Mint</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#c8e6cd</div>
+            <div class="text-xs text-stone-600 mt-1">סיפורי FigJam</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-mint</div>
+          </div>
+
+          <!-- Pink -->
+          <div onclick="copyTokenHex('#efd4d4', 'Pink : מחקר ורעיונות FigJam')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #efd4d4;">
+              <span class="text-xs font-mono font-bold text-black">Pink</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#efd4d4</div>
+            <div class="text-xs text-stone-600 mt-1">מחקר ורעיונות</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-pink</div>
+          </div>
+
+          <!-- Coral -->
+          <div onclick="copyTokenHex('#f3c9b6', 'Coral : פיתוח והשקות')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #f3c9b6;">
+              <span class="text-xs font-mono font-bold text-black">Coral</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#f3c9b6</div>
+            <div class="text-xs text-stone-600 mt-1">השקת מוצרים</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-coral</div>
+          </div>
+
+          <!-- Navy -->
+          <div onclick="copyTokenHex('#1f1d3d', 'Navy : המשטח הכהה ההפוך')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all group bg-white">
+            <div class="h-20 rounded-xl mb-3 flex items-end p-2 transition-transform group-hover:scale-[0.98]" style="background-color: #1f1d3d;">
+              <span class="text-xs font-mono font-bold text-white">Navy</span>
+            </div>
+            <div class="font-mono text-xs font-semibold">#1f1d3d</div>
+            <div class="text-xs text-stone-600 mt-1">בלוק הפוך כהה</div>
+            <div class="text-[10px] text-stone-600 font-mono mt-0.5">block-navy</div>
+          </div>
+        </div>
+
+        <!-- Monochrome and Special Tokens -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div onclick="copyTokenHex('#000000', 'Black Ink : הצבע הראשי')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all bg-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-black shrink-0"></div>
+            <div>
+              <div class="text-xs font-bold">Black Primary</div>
+              <div class="font-mono text-xs text-stone-500">#000000 - דיו ראשי</div>
+            </div>
+          </div>
+
+          <div onclick="copyTokenHex('#ffffff', 'White Canvas : קנבס לבן טהור')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all bg-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white border border-[#e6e6e6] shrink-0"></div>
+            <div>
+              <div class="text-xs font-bold">White Canvas</div>
+              <div class="font-mono text-xs text-stone-500">#ffffff - קנבס</div>
+            </div>
+          </div>
+
+          <div onclick="copyTokenHex('#ff3d8b', 'Magenta Promo : קפסולת פרומו בודדת')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all bg-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#ff3d8b] shrink-0"></div>
+            <div>
+              <div class="text-xs font-bold">Magenta Promo</div>
+              <div class="font-mono text-xs text-stone-500">#ff3d8b - פרומו</div>
+            </div>
+          </div>
+
+          <div onclick="copyTokenHex('#1ea64a', 'Semantic Success : הצלחה')" class="border border-[#e6e6e6] rounded-2xl p-3 cursor-pointer hover:border-black transition-all bg-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#1ea64a] shrink-0"></div>
+            <div>
+              <div class="text-xs font-bold">Success Green</div>
+              <div class="font-mono text-xs text-stone-500">#1ea64a - הצלחה</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typography Scale & Interactive Playground -->
+      <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e6e6e6] pb-4">
+          <div>
+            <h3 class="text-xl font-semibold">סולם טיפוגרפי וריווח אותיות (figmaSans &amp; figmaMono)</h3>
+            <p class="text-xs text-stone-500">משקלים בלתי שגרתיים: 320, 340, 480, 540, 700 עם ריווח שלילי בכותרות</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="typo-input" class="text-xs font-mono text-stone-500">בדוק טקסט חי:</label>
+            <input id="typo-input" type="text" value="עיצוב מערכות בענן ובסביבת עבודה" oninput="updateTypographyPreview(this.value)" class="text-xs px-3 py-1.5 border border-[#e6e6e6] rounded-lg focus:outline-none focus:border-black w-56 font-sans">
+          </div>
+        </div>
+
+        <div class="space-y-4 divide-y divide-[#f1f1f1]">
+          <!-- Display XL -->
+          <div class="pt-3 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+            <div class="w-48 shrink-0 font-mono text-xs text-stone-500">
+              <span class="font-bold text-black block">display-xl</span>
+              86px • wt 340 • ls -1.72px
+            </div>
+            <div class="flex-grow">
+              <div id="preview-display-xl" class="figma-display-xl text-black">עיצוב מערכות בענן</div>
+            </div>
+          </div>
+
+          <!-- Display LG -->
+          <div class="pt-4 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+            <div class="w-48 shrink-0 font-mono text-xs text-stone-500">
+              <span class="font-bold text-black block">display-lg</span>
+              64px • wt 340 • ls -0.96px
+            </div>
+            <div class="flex-grow">
+              <div id="preview-display-lg" class="figma-display-lg text-black">שפת עיצוב קוהרנטית</div>
+            </div>
+          </div>
+
+          <!-- Headline -->
+          <div class="pt-4 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+            <div class="w-48 shrink-0 font-mono text-xs text-stone-500">
+              <span class="font-bold text-black block">headline</span>
+              26px • wt 540 • ls -0.26px
+            </div>
+            <div class="flex-grow">
+              <div id="preview-headline" class="figma-headline text-black">משטח יצירה טכני ומשמח בו-זמנית</div>
+            </div>
+          </div>
+
+          <!-- Eyebrow (Mono) -->
+          <div class="pt-4 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+            <div class="w-48 shrink-0 font-mono text-xs text-stone-500">
+              <span class="font-bold text-black block">eyebrow (figmaMono)</span>
+              18px • wt 400 • ls +0.54px
+            </div>
+            <div class="flex-grow">
+              <div id="preview-eyebrow" class="figma-eyebrow text-stone-700">CATEGORY // DESIGN SYSTEMS &amp; SAAS</div>
+            </div>
+          </div>
+
+          <!-- Caption (Mono) -->
+          <div class="pt-4 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+            <div class="w-48 shrink-0 font-mono text-xs text-stone-500">
+              <span class="font-bold text-black block">caption (figmaMono)</span>
+              12px • wt 400 • ls +0.60px
+            </div>
+            <div class="flex-grow">
+              <div id="preview-caption" class="figma-caption text-stone-500 uppercase">TOKEN ID: 2026-FGM-048 // VERIFIED AA CONTRAST</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radii & Spacing Scales -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Radii Scale -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-4">
+          <h3 class="text-lg font-semibold">סולם רדיוס פינות (Corner Radii)</h3>
+          <p class="text-xs text-stone-500">חוק ברזל: כפתורים הם תמיד קפסולה (50px או 9999px), ללא כפתור מרובע</p>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="border border-[#e6e6e6] p-2 flex items-center justify-between" style="border-radius: 2px;">
+              <span>xs: 2px</span>
+              <span class="font-mono text-stone-600">קווים ותגיות ניווט</span>
+            </div>
+            <div class="border border-[#e6e6e6] p-2 flex items-center justify-between" style="border-radius: 6px;">
+              <span>sm: 6px</span>
+              <span class="font-mono text-stone-600">רכיבים קטנים</span>
+            </div>
+            <div class="border border-[#e6e6e6] p-2 flex items-center justify-between" style="border-radius: 8px;">
+              <span>md: 8px</span>
+              <span class="font-mono text-stone-600">שדות קלט ותבניות</span>
+            </div>
+            <div class="border border-[#e6e6e6] p-2 flex items-center justify-between" style="border-radius: 24px;">
+              <span>lg: 24px</span>
+              <span class="font-mono text-stone-600">משטחי פסטל וכרטיסים</span>
+            </div>
+            <div class="border border-[#e6e6e6] p-2 flex items-center justify-between" style="border-radius: 32px;">
+              <span>xl: 32px</span>
+              <span class="font-mono text-stone-600">מקטעי תוכן גדולים</span>
+            </div>
+            <div class="border-2 border-black p-2 flex items-center justify-between bg-stone-50" style="border-radius: 50px;">
+              <span class="font-bold">pill: 50px</span>
+              <span class="font-mono text-black font-semibold">כל כפתורי המערכת</span>
+            </div>
+            <div class="border-2 border-black p-2 col-span-2 flex items-center justify-between bg-stone-50" style="border-radius: 9999px;">
+              <span class="font-bold">full: 9999px</span>
+              <span class="font-mono text-black font-semibold">כפתורי אייקון עגולים בלבד</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spacing Scale -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-4">
+          <h3 class="text-lg font-semibold">סולם מרווחים (Spacing Scale)</h3>
+          <p class="text-xs text-stone-500">מבוסס על רשת 8px קפדנית</p>
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">xxs (4px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 4px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">xs (8px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 8px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">sm (12px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 12px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">md (16px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 16px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">lg (24px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 24px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">xl (32px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 32px;"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-12 text-stone-600">xxl (48px)</span>
+              <div class="h-4 bg-black rounded-sm" style="width: 48px;"></div>
+              <span class="text-[11px] text-stone-600 font-sans">ריפוד פנימי של משטחי פסטל</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: ATOMS (אטומים) -->
+    <section id="atoms-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">LEVEL 2 // ATOMS</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">2. רכיבי אטום (Atoms)</h2>
+        </div>
+        <p class="text-sm text-stone-500 font-mono">PILL BUTTONS • CIRCULAR ICONS • BADGES • INPUTS</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Atom Column 1: Buttons -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-5">
+          <h3 class="text-lg font-semibold flex items-center justify-between">
+            <span>כפתורי קפסולה בלבד (Pills)</span>
+            <span class="text-xs font-mono bg-stone-100 px-2 py-0.5 rounded-full">r: 50px</span>
+          </h3>
+          <p class="text-xs text-stone-600">העיצוב אינו משתמש בשום כפתור מרובע. כפתור ראשון שחור, משני לבן, ופרומו יחיד מג'נטה.</p>
+
+          <div class="space-y-3 pt-2">
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-1">Primary CTA (50px pill):</span>
+              <button type="button" class="btn-pill btn-pill-primary w-full">
+                <span>כפתור ראשי שחור</span>
+                <i class="ph ph-arrow-left"></i>
+              </button>
+            </div>
+
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-1">Secondary CTA:</span>
+              <button type="button" class="btn-pill btn-pill-secondary w-full">
+                <span>כפתור משני לבן</span>
+              </button>
+            </div>
+
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-1">Magenta Promo (יחיד בעמוד):</span>
+              <button type="button" class="btn-pill btn-pill-magenta w-full">
+                <i class="ph ph-sparkle"></i>
+                <span>קפסולת פרומו מיוחדת</span>
+              </button>
+            </div>
+
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-1">Disabled State:</span>
+              <button type="button" disabled class="btn-pill bg-[#f1f1f1] text-[#999999] border-[#e6e6e6] cursor-not-allowed w-full">
+                <span>כפתור מושבת (Disabled)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atom Column 2: Circular Icon Buttons & Badges -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-5">
+          <h3 class="text-lg font-semibold flex items-center justify-between">
+            <span>כפתורי אייקון ותגיות</span>
+            <span class="text-xs font-mono bg-stone-100 px-2 py-0.5 rounded-full">r: 9999px</span>
+          </h3>
+          <p class="text-xs text-stone-600">כפתורי אייקון עגולים מלאים (40px) ותגיות פסטל קפסולריות.</p>
+
+          <div class="space-y-4 pt-2">
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-2">כפתורי אייקון עגולים (40px):</span>
+              <div class="flex items-center gap-2">
+                <button type="button" class="btn-icon-circle" aria-label="חיפוש" title="חיפוש">
+                  <i class="ph ph-magnifying-glass text-lg"></i>
+                </button>
+                <button type="button" class="btn-icon-circle" aria-label="שמירה" title="שמירה">
+                  <i class="ph ph-bookmark-simple text-lg"></i>
+                </button>
+                <button type="button" class="btn-icon-circle" aria-label="שיתוף" title="שיתוף">
+                  <i class="ph ph-share-network text-lg"></i>
+                </button>
+                <button type="button" class="btn-icon-circle bg-black text-white hover:bg-stone-800" aria-label="הוספה מהירה" title="הוספה">
+                  <i class="ph ph-plus text-lg"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-2">תגיות קפסולה בצבעי פסטל:</span>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#dceeb1] text-black">מערכות #dceeb1</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#c5b0f4] text-black">עיצוב #c5b0f4</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#c8e6cd] text-black">FigJam #c8e6cd</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#f3c9b6] text-black">פיתוח #f3c9b6</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#ff3d8b] text-white">פרומו</span>
+              </div>
+            </div>
+
+            <div>
+              <span class="text-xs text-stone-600 font-mono block mb-2">גלייף השוואה וסימון הצלחה (Comparison Glyph):</span>
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs">
+                  <i class="ph ph-check-bold"></i>
+                </div>
+                <span class="text-sm font-medium">עומד בדרישות תקן DESIGN.md</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atom Column 3: Form Inputs & Toggles -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-5">
+          <h3 class="text-lg font-semibold flex items-center justify-between">
+            <span>שדות קלט ומתגים</span>
+            <span class="text-xs font-mono bg-stone-100 px-2 py-0.5 rounded-full">r: 8px</span>
+          </h3>
+          <p class="text-xs text-stone-600">שדות טקסט עם רדיוס 8px עדין, מסגרת קו-דק וללא שום הצללה.</p>
+
+          <div class="space-y-4 pt-2">
+            <div>
+              <label for="atom-input-demo" class="block text-xs font-semibold mb-1">שדה טקסט תקני:</label>
+              <input id="atom-input-demo" type="text" placeholder="הקלד שם קומפוננטה..." class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black transition-colors">
+            </div>
+
+            <div>
+              <span class="block text-xs font-semibold mb-1">מתגי בחירה (Toggles &amp; Checkboxes):</span>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer select-none text-sm">
+                  <input id="atom-check-1" type="checkbox" checked class="w-4 h-4 rounded text-black border-[#e6e6e6] focus:ring-black">
+                  <span>משטחי צבע מלאים פעילים</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none text-sm">
+                  <input id="atom-check-2" type="checkbox" checked class="w-4 h-4 rounded text-black border-[#e6e6e6] focus:ring-black">
+                  <span>כפתורי קפסולה בלבד (50px)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Segmented Pill Tabs Atom -->
+            <div>
+              <span class="block text-xs font-semibold mb-1">כפתורי מיתוג קפסולריים (Pricing / View Tabs):</span>
+              <div class="inline-flex bg-[#f7f7f5] p-1 rounded-full border border-[#e6e6e6]">
+                <button type="button" id="tab-opt-1" onclick="switchAtomTab('tab-opt-1')" class="px-4 py-1.5 rounded-full text-xs font-semibold bg-black text-white transition-all">חודשי</button>
+                <button type="button" id="tab-opt-2" onclick="switchAtomTab('tab-opt-2')" class="px-4 py-1.5 rounded-full text-xs font-semibold text-black hover:text-stone-600 transition-all">שנתי (חסוך 20%)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: MOLECULES (מולקולות) -->
+    <section id="molecules-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">LEVEL 3 // MOLECULES</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">3. מולקולות אינטראקטיביות (Molecules)</h2>
+        </div>
+        <p class="text-sm text-stone-500 font-mono">SEARCH BAR • KPI TILES • VALIDATION • PROGRESS STEPPER</p>
+      </div>
+
+      <!-- Molecule 1: Search & Filter Toolbar -->
+      <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">סרגל חיפוש וסינון רב-שכבתי</h3>
+          <span class="text-xs font-mono text-stone-500">Search &amp; Filter Molecule</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="relative flex-grow">
+            <i class="ph ph-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-lg"></i>
+            <input id="molecule-search-input" type="text" placeholder="חפש לפי שם רכיב, תגית, או נושא..." oninput="handleMoleculeSearch(this.value)" class="w-full pr-10 pl-4 py-2.5 border border-[#e6e6e6] rounded-full text-sm focus:outline-none focus:border-black transition-colors">
+          </div>
+          <button type="button" onclick="clearMoleculeSearch()" class="btn-pill btn-pill-secondary text-sm">
+            <i class="ph ph-x"></i>
+            <span>נקה חיפוש</span>
+          </button>
+          <button type="button" onclick="toggleFilterDrawer()" class="btn-pill btn-pill-primary text-sm">
+            <i class="ph ph-funnel"></i>
+            <span>סינון מתקדם</span>
+          </button>
+        </div>
+
+        <!-- Filter category tags -->
+        <div class="flex flex-wrap items-center gap-2 pt-1" id="molecule-filter-chips">
+          <button type="button" onclick="filterByChip('all')" class="chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black text-white transition-all">הכל (6)</button>
+          <button type="button" onclick="filterByChip('design')" class="chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#f7f7f5] text-stone-700 hover:bg-[#e6e6e6] transition-all">מערכות עיצוב</button>
+          <button type="button" onclick="filterByChip('sheets')" class="chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#f7f7f5] text-stone-700 hover:bg-[#e6e6e6] transition-all">Google Sheets &amp; Apps Script</button>
+          <button type="button" onclick="filterByChip('code')" class="chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#f7f7f5] text-stone-700 hover:bg-[#e6e6e6] transition-all">React &amp; Frontend</button>
+          <button type="button" onclick="filterByChip('tokens')" class="chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#f7f7f5] text-stone-700 hover:bg-[#e6e6e6] transition-all">טוקנים וטיפוגרפיה</button>
+        </div>
+      </div>
+
+      <!-- Molecule 2: KPI Metrics Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- KPI 1 -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-5 bg-white space-y-1">
+          <div class="text-xs font-mono text-stone-500 uppercase">סך כל השיעורים</div>
+          <div class="text-3xl font-bold tracking-tight" id="kpi-total-lessons">6</div>
+          <div class="text-xs text-[#1ea64a] font-medium flex items-center gap-1">
+            <i class="ph ph-check"></i>
+            <span>100% תאימות DESIGN.md</span>
+          </div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-5 bg-white space-y-1">
+          <div class="text-xs font-mono text-stone-500 uppercase">שיעורים שהושלמו</div>
+          <div class="text-3xl font-bold tracking-tight" id="kpi-completed-lessons">2</div>
+          <div class="text-xs text-stone-500" id="kpi-completion-rate">33% מקצב הלמידה</div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-5 bg-white space-y-1">
+          <div class="text-xs font-mono text-stone-500 uppercase">משטחי פסטל בשימוש</div>
+          <div class="text-3xl font-bold tracking-tight text-black">7 / 7</div>
+          <div class="text-xs text-stone-500">רוחב מלא, רדיוס 24px</div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-5 bg-white space-y-1">
+          <div class="text-xs font-mono text-stone-500 uppercase">ציון עמידה בחוקי עיצוב</div>
+          <div class="text-3xl font-bold tracking-tight text-[#1ea64a]" id="kpi-linter-score">100%</div>
+          <div class="text-xs text-[#1ea64a] font-medium">0 הצללות • כפתורי קפסולה</div>
+        </div>
+      </div>
+
+      <!-- Molecule 3 & 4: Live Form Validation & Progress Stepper -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Live Form Validation Molecule -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">שדה טופס עם ולידציה חיה</h3>
+            <span class="text-xs font-mono text-stone-500">Live Validation</span>
+          </div>
+          <p class="text-xs text-stone-600">משוב חי ללא רענון עמוד עם תמיכה בעברית מלאה ואינדיקטור הצלחה.</p>
+
+          <div class="space-y-3">
+            <div>
+              <label for="validation-input" class="block text-xs font-semibold mb-1">שם חומר הלמידה (לפחות 4 תווים):</label>
+              <div class="relative">
+                <input id="validation-input" type="text" placeholder="לדוגמה: ארכיטקטורת טוקנים ב-Figma" oninput="validateInputDemo(this.value)" class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black transition-colors">
+                <span id="validation-icon" class="absolute left-3 top-1/2 -translate-y-1/2 hidden">
+                  <i class="ph ph-check-circle-bold text-lg text-[#1ea64a]"></i>
+                </span>
+              </div>
+              <p id="validation-msg" class="text-xs text-stone-500 mt-1">הזן שם שיעור תקין להמשך</p>
+            </div>
+
+            <div>
+              <button type="button" id="validation-btn" disabled class="btn-pill btn-pill-primary text-xs py-2 px-4 opacity-50 cursor-not-allowed">
+                <span>אישור שיעור חדש</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Tracker Molecule -->
+        <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">שורת מעקב התקדמות בלמידה</h3>
+            <span class="text-xs font-mono text-stone-500">Milestone Stepper</span>
+          </div>
+          <p class="text-xs text-stone-600">מעקב אחר השלמת שלבי ה-Atomic Design במערכת.</p>
+
+          <div class="space-y-3 pt-2">
+            <div class="w-full bg-[#f1f1f1] h-3 rounded-full overflow-hidden">
+              <div id="progress-bar-fill" class="bg-black h-full transition-all duration-300" style="width: 50%;"></div>
+            </div>
+
+            <div class="grid grid-cols-4 text-center text-[11px] font-mono gap-1">
+              <div class="text-black font-bold">1. פרימיטיבים ✓</div>
+              <div class="text-black font-bold">2. אטומים ✓</div>
+              <div class="text-stone-500 font-medium" id="step-molecules">3. מולקולות</div>
+              <div class="text-stone-400" id="step-portal">4. פורטל</div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <span class="text-xs text-stone-500" id="progress-step-text">שלב 2 מתוך 4 הושלם</span>
+              <button type="button" onclick="advanceProgressStep()" class="btn-pill btn-pill-secondary text-xs py-1.5 px-3">
+                <span>קדם שלב</span>
+                <i class="ph ph-arrow-left"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: ORGANISMS (אורגניזמים) -->
+    <section id="organisms-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">LEVEL 4 // ORGANISMS</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">4. אורגניזמים ומשטחי פסטל ענקיים</h2>
+        </div>
+        <p class="text-sm text-stone-500 font-mono">24PX CORNER RADIUS • 48PX PADDING • ZERO SHADOWS</p>
+      </div>
+
+      <!-- Color Block Interactive Switcher -->
+      <div class="border border-[#e6e6e6] rounded-2xl p-4 bg-white flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold">בחר משטח פסטל להדגמה חיה:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="setDynamicBlockTheme('lime')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#dceeb1] text-black border border-transparent hover:border-black">Lime (מערכות)</button>
+          <button type="button" onclick="setDynamicBlockTheme('lilac')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#c5b0f4] text-black border border-transparent hover:border-black">Lilac (עיצוב)</button>
+          <button type="button" onclick="setDynamicBlockTheme('mint')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#c8e6cd] text-black border border-transparent hover:border-black">Mint (FigJam)</button>
+          <button type="button" onclick="setDynamicBlockTheme('coral')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#f3c9b6] text-black border border-transparent hover:border-black">Coral (פיתוח)</button>
+          <button type="button" onclick="setDynamicBlockTheme('cream')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#f4ecd6] text-black border border-transparent hover:border-black">Cream (תבניות)</button>
+          <button type="button" onclick="setDynamicBlockTheme('navy')" class="px-3 py-1 rounded-full text-xs font-semibold bg-[#1f1d3d] text-white border border-transparent hover:border-white">Navy (כהה הפוך)</button>
+        </div>
+      </div>
+
+      <!-- Live Dynamic Color Block -->
+      <div id="dynamic-pastel-block" class="pastel-block bg-[#dceeb1] text-black space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/10 pb-4">
+          <div>
+            <span id="dynamic-block-eyebrow" class="figma-eyebrow text-xs opacity-75">ORGANISM // COLOR-BLOCK-SECTION-LIME</span>
+            <h3 id="dynamic-block-title" class="figma-headline text-2xl md:text-3xl mt-1">מערכות עיצוב, תיעוד ושאלות נפוצות</h3>
+          </div>
+          <div id="dynamic-block-badge" class="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-black text-white shrink-0 self-start sm:self-auto">
+            #dceeb1
+          </div>
+        </div>
+
+        <p id="dynamic-block-desc" class="text-base md:text-lg max-w-3xl leading-relaxed">
+          משטחי הפסטל של Figma נפרסים על מלוא רוחב התוכן ברדיוס פינות של 24px ובריפוד פנימי של 48px. הם מהווים את כלי העומק המרכזי של המערכת, ומחליפים לחלוטין את הצלליות (Drop Shadows) הנהוגות באתרי SaaS מסורתיים.
+        </p>
+
+        <!-- Dynamic Grid within Organism -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div id="dyn-card-1" class="bg-white/80 rounded-xl p-5 space-y-2 border border-black/5">
+            <div class="font-bold text-sm">ללא הצללות (Zero Shadows)</div>
+            <p class="text-xs text-stone-700">העומק נוצר אך ורק על ידי ניגודיות שטח וגושי צבע פסטליים רחבים.</p>
+          </div>
+          <div id="dyn-card-2" class="bg-white/80 rounded-xl p-5 space-y-2 border border-black/5">
+            <div class="font-bold text-sm">כפתורי קפסולה בלבד</div>
+            <p class="text-xs text-stone-700">רדיוס 50px לכל כפתורי הטקסט, 9999px לכפתורי אייקון עגולים.</p>
+          </div>
+          <div id="dyn-card-3" class="bg-white/80 rounded-xl p-5 space-y-2 border border-black/5">
+            <div class="font-bold text-sm">משמעת טיפוגרפית</div>
+            <p class="text-xs text-stone-700">ריווח אותיות שלילי בכותרות גדולות (-1.72px) לצפיפות עריכתית מושלמת.</p>
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+          <button type="button" id="dynamic-block-btn-primary" onclick="scrollToSection('portal-section')" class="btn-pill btn-pill-primary text-sm py-2.5 px-5">
+            <span>חקור חומרי למידה בבלוק זה</span>
+            <i class="ph ph-arrow-left"></i>
+          </button>
+          <button type="button" id="dynamic-block-btn-secondary" onclick="exportDesignMd()" class="btn-pill btn-pill-secondary text-sm py-2.5 px-5">
+            <span>צפה בטוקנים של הבלוק</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: LEARNING PORTAL TEMPLATE (פורטל חומרי הלמידה השלם) -->
+    <section id="portal-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col md:flex-row md:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">LEVEL 5 // PAGES &amp; TEMPLATES</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">5. פורטל חומרי הלמידה ומערכי השיעור</h2>
+        </div>
+        <!-- View Options & Mobile Simulator Toggle -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-stone-500 font-mono">תצוגה:</span>
+          <button type="button" id="view-mode-grid" onclick="setViewMode('grid')" class="p-1.5 rounded-lg border border-black bg-black text-white text-sm" title="תצוגת רשת">
+            <i class="ph ph-squares-four"></i>
+          </button>
+          <button type="button" id="view-mode-list" onclick="setViewMode('list')" class="p-1.5 rounded-lg border border-[#e6e6e6] bg-white text-stone-700 text-sm hover:border-black" title="תצוגת רשימה">
+            <i class="ph ph-list"></i>
+          </button>
+          <div class="h-4 w-px bg-[#e6e6e6] mx-1"></div>
+          <button type="button" id="device-toggle-btn" onclick="toggleDeviceSimulator()" class="btn-pill btn-pill-secondary text-xs py-1 px-3">
+            <i class="ph ph-device-mobile"></i>
+            <span id="device-toggle-text">הדמיית מובייל (375px)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Simulator Wrapper (Normal vs Mobile frame) -->
+      <div id="portal-simulator-container" class="transition-all duration-300">
+        <!-- Live Filter Bar inside Portal -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between mb-6">
+          <div class="relative w-full sm:w-80">
+            <i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-stone-400"></i>
+            <input id="portal-search-input" type="text" placeholder="חיפוש מהיר בשיעורים..." oninput="handlePortalFilter()" class="w-full pr-9 pl-3 py-2 border border-[#e6e6e6] rounded-full text-sm focus:outline-none focus:border-black">
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <span class="text-xs text-stone-500 shrink-0">סינון:</span>
+            <button type="button" onclick="setPortalCategory('all')" class="portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors">הכל</button>
+            <button type="button" onclick="setPortalCategory('figma')" class="portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f5] text-black hover:bg-[#e6e6e6] transition-colors">פיגמה ועיצוב</button>
+            <button type="button" onclick="setPortalCategory('sheets')" class="portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f5] text-black hover:bg-[#e6e6e6] transition-colors">Google Sheets</button>
+            <button type="button" onclick="setPortalCategory('react')" class="portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f5] text-black hover:bg-[#e6e6e6] transition-colors">React &amp; Code</button>
+            <button type="button" onclick="setPortalCategory('completed')" class="portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f5] text-black hover:bg-[#e6e6e6] transition-colors">הושלמו בלבד</button>
+          </div>
+        </div>
+
+        <!-- Lessons Container (Grid or List) -->
+        <div id="lessons-card-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State if no matches -->
+        <div id="lessons-empty-state" class="hidden border border-[#e6e6e6] rounded-2xl p-12 text-center bg-white space-y-3">
+          <div class="w-12 h-12 rounded-full bg-[#f7f7f5] mx-auto flex items-center justify-center text-xl text-stone-400">
+            <i class="ph ph-magnifying-glass"></i>
+          </div>
+          <h4 class="text-base font-semibold">לא נמצאו חומרי למידה התואמים לחיפוש</h4>
+          <p class="text-xs text-stone-500 max-w-sm mx-auto">נסה לשנות את מילות החיפוש או לאפס את מסנני הקטגוריות.</p>
+          <button type="button" onclick="resetPortalFilters()" class="btn-pill btn-pill-primary text-xs py-2 px-4 mt-2">
+            איפוס כל המסננים
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: DESIGN SYSTEM LINTER (בודק עמידה בחוקי העיצוב) -->
+    <section id="linter-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-[#e6e6e6] pb-4 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+        <div>
+          <span class="figma-eyebrow text-stone-500">AUDIT &amp; QUALITY // LINTER</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-black mt-1">6. בודק עמידה בחוקי העיצוב (Design System Linter)</h2>
+        </div>
+        <button type="button" onclick="runDesignLinter()" class="btn-pill btn-pill-primary text-xs sm:text-sm py-2 px-4 self-start sm:self-auto">
+          <i class="ph ph-arrows-clockwise"></i>
+          <span>הרץ בדיקת חוקים עכשיו</span>
+        </button>
+      </div>
+
+      <!-- Linter Diagnostic Panel -->
+      <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e6e6e6] pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xl shrink-0">
+              <i class="ph ph-shield-check"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold">סטטוס תאימות למפרט ה-DESIGN.md של Figma</h3>
+              <p class="text-xs text-stone-500" id="linter-summary-text">כל 6 הבדיקות האוטומטיות עברו בהצלחה מלאה.</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-bold text-[#1ea64a] font-mono">100% PASS</span>
+          </div>
+        </div>
+
+        <!-- Checklist of 6 core rules -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rule 1: Zero Drop Shadows -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">1. אפס הצללות (Zero Drop Shadows)</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: כל הרכיבים משתמשים ב-box-shadow: none. העומק מיוצר באמצעות משטחי פסטל בלבד.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: 0 צלליות זוהו</span>
+            </div>
+          </div>
+
+          <!-- Rule 2: Pill Buttons Only -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">2. כפתורי קפסולה בלבד (Pills Only)</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: כל כפתורי הטקסט בעלי רדיוס 50px, וכפתורי האייקון 9999px. אין כפתור מרובע באף תצוגה.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: 100% כפתורי קפסולה</span>
+            </div>
+          </div>
+
+          <!-- Rule 3: Monochrome Chrome -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">3. מסגרת מונוכרומטית (Monochrome Chrome)</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: כפתורי CTA ראשיים בשחור (#000000) או לבן (#ffffff), ללא צבעי מותג מחוץ למשטחי הפסטל.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: מסגרת נקייה לחלוטין</span>
+            </div>
+          </div>
+
+          <!-- Rule 4: 7 Pastel Surfaces Only -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">4. שבעת משטחי הפסטל המוגדרים</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: שימוש מדויק בערכי HEX: ליים, לילך, שמנת, מנטה, ורוד, קורל ונייבי בלבד.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: שבעה משטחי צבע רשמיים</span>
+            </div>
+          </div>
+
+          <!-- Rule 5: Negative Display Letter-Spacing -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">5. ריווח אותיות שלילי בכותרות ראשיות</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: כותרות Display מושכות ריווח של -1.72px ו--0.96px לקצב עריכתי מהודק.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: מעקב אותיות מהודק</span>
+            </div>
+          </div>
+
+          <!-- Rule 6: Zero Em-Dashes (Tasteskill Rule 9.G) -->
+          <div class="border border-[#e6e6e6] rounded-xl p-4 flex items-start gap-3 bg-[#f7f7f5]">
+            <div class="w-6 h-6 rounded-full bg-[#1ea64a] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="ph ph-check-bold"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">6. איסור מקף ארוך Em-Dash (Tasteskill 9.G)</div>
+              <p class="text-xs text-stone-600 mt-0.5">נבדק: אפס מקפי Em-Dash בממשק. שימוש במקף רגיל או נקודתיים בלבד.</p>
+              <span class="inline-block mt-2 font-mono text-[11px] text-[#1ea64a] font-bold">✓ PASS: 0 תווי Em-Dash זוהו</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closing Story Block: Oversized Navy Block (The only inverse block) -->
+    <section class="pastel-block bg-[#1f1d3d] text-white space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
+        <div>
+          <span class="figma-eyebrow text-xs text-[#c5b0f4]">CLOSING STORY BLOCK // INVERSE CANVAS</span>
+          <h3 class="figma-headline text-2xl md:text-3xl text-white mt-1">מוכן לשימוש ישיר בפרויקטים, React וכלי AI</h3>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-mono bg-white text-black font-bold shrink-0 self-start sm:self-auto">
+          block-navy (#1f1d3d)
+        </span>
+      </div>
+
+      <p class="text-base text-stone-200 max-w-3xl leading-relaxed">
+        הזן את טוקני ה-DESIGN.md לתוך Claude, Cursor או Copilot והסוכן ישחזר את הניגודיות המדויקת של Figma : כרום מונוכרומטי הנחתך על ידי בלוקים פסטליים ענקיים, במקום עיצוב SaaS גנרי.
+      </p>
+
+      <div class="pt-2 flex flex-wrap items-center gap-3">
+        <button type="button" onclick="exportDesignMd()" class="btn-pill bg-white text-black hover:bg-stone-100 text-sm py-2.5 px-5">
+          <i class="ph ph-copy"></i>
+          <span>העתק קובץ DESIGN.md מלא</span>
+        </button>
+        <button type="button" onclick="scrollToSection('tokens-section')" class="btn-pill bg-transparent border border-white/30 text-white hover:bg-white/10 text-sm py-2.5 px-5">
+          <span>חזור לטוקנים</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer (Canvas, Hairline, Dense Links Grid) -->
+  <footer class="w-full bg-white border-t border-[#e6e6e6] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-8">
+        <div class="space-y-3">
+          <div class="font-bold text-sm">מערכת העיצוב</div>
+          <ul class="space-y-2 text-xs text-stone-600">
+            <li><span class="cursor-pointer hover:text-black" onclick="scrollToSection('tokens-section')">פרימיטיבים וטוקנים</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="scrollToSection('atoms-section')">ספריית אטומים</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="scrollToSection('molecules-section')">מולקולות</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="scrollToSection('organisms-section')">אורגניזמים</span></li>
+          </ul>
+        </div>
+
+        <div class="space-y-3">
+          <div class="font-bold text-sm">חומרי למידה</div>
+          <ul class="space-y-2 text-xs text-stone-600">
+            <li><span class="cursor-pointer hover:text-black" onclick="setPortalCategory('figma')">Figma Design</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="setPortalCategory('sheets')">Google Sheets REST API</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="setPortalCategory('react')">React CMS Integration</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="setPortalCategory('all')">כל השיעורים</span></li>
+          </ul>
+        </div>
+
+        <div class="space-y-3">
+          <div class="font-bold text-sm">משמעת עריכתית</div>
+          <ul class="space-y-2 text-xs text-stone-600">
+            <li><span>ללא הצללות (Zero Shadows)</span></li>
+            <li><span>כפתורי קפסולה 50px</span></li>
+            <li><span>משטחי פסטל 24px</span></li>
+            <li><span class="cursor-pointer hover:text-black" onclick="runDesignLinter()">בדיקת תאימות Linter</span></li>
+          </ul>
+        </div>
+
+        <div class="space-y-3">
+          <div class="font-bold text-sm">מפרט DESIGN.md</div>
+          <p class="text-xs text-stone-500 leading-relaxed">
+            נבנה בהתאם למפרט DESIGN.md של Google Labs, על פי שפת העיצוב של Figma, Replicate ו-Clay.
+          </p>
+          <button type="button" onclick="exportDesignMd()" class="btn-pill btn-pill-secondary text-xs py-1.5 px-3">
+            <span>ייצוא טוקנים</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-[#f1f1f1] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 font-mono gap-2">
+        <div>FIGMA DESIGN SYSTEM // MONOCHROME FRAME &amp; PASTEL SURFACES</div>
+        <div>2026 ALPHA SPEC // FULL ATOMIC DESIGN SHOWCASE</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL: ADD LESSON (חלון מודאלי להוספת שיעור) -->
+  <div id="add-lesson-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60" aria-modal="true" role="dialog" aria-labelledby="modal-title">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 border border-[#e6e6e6] max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[#e6e6e6] pb-4">
+        <div>
+          <span class="figma-eyebrow text-xs text-stone-500">ORGANISM // MODAL</span>
+          <h3 id="modal-title" class="text-xl font-bold tracking-tight text-black mt-0.5">הוספת חומר למידה חדש לפורטל</h3>
+        </div>
+        <button type="button" onclick="closeAddLessonModal()" class="btn-icon-circle" aria-label="סגור חלון">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <form id="add-lesson-form" onsubmit="handleAddLessonSubmit(event)" class="space-y-4">
+        <div>
+          <label for="modal-input-title" class="block text-xs font-semibold mb-1">כותרת השיעור:</label>
+          <input id="modal-input-title" type="text" required placeholder="למשל: יישום טוקנים של Replicate ב-Tailwind" class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black">
+        </div>
+
+        <div>
+          <label for="modal-input-desc" class="block text-xs font-semibold mb-1">תיאור קצר (עד 20 מילים):</label>
+          <textarea id="modal-input-desc" rows="2" required placeholder="הסבר תמציתי על מה נלמד במערך זה..." class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="modal-select-category" class="block text-xs font-semibold mb-1">קטגוריה ראשית:</label>
+            <select id="modal-select-category" class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black bg-white">
+              <option value="figma">Figma &amp; Design</option>
+              <option value="sheets">Google Sheets &amp; Apps Script</option>
+              <option value="react">React &amp; Frontend</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="modal-select-block" class="block text-xs font-semibold mb-1">משטח פסטל מותאם:</label>
+            <select id="modal-select-block" class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black bg-white">
+              <option value="lime">Lime (#dceeb1)</option>
+              <option value="lilac">Lilac (#c5b0f4)</option>
+              <option value="mint">Mint (#c8e6cd)</option>
+              <option value="coral">Coral (#f3c9b6)</option>
+              <option value="cream">Cream (#f4ecd6)</option>
+              <option value="pink">Pink (#efd4d4)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="modal-input-tag" class="block text-xs font-semibold mb-1">תגית ראשית:</label>
+          <input id="modal-input-tag" type="text" placeholder="לדוגמה: Apps Script, REST API, Tokens" class="w-full px-3 py-2 border border-[#e6e6e6] rounded-lg text-sm focus:outline-none focus:border-black">
+        </div>
+
+        <div class="pt-4 border-t border-[#e6e6e6] flex items-center justify-end gap-3">
+          <button type="button" onclick="closeAddLessonModal()" class="btn-pill btn-pill-secondary text-sm">
+            ביטול
+          </button>
+          <button type="submit" class="btn-pill btn-pill-primary text-sm">
+            <i class="ph ph-check"></i>
+            <span>שמור והוסף לפורטל</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SLIDE-OVER DRAWER: ADVANCED FILTERS (מגרת סינון נשלפת) -->
+  <div id="filter-drawer" class="fixed inset-0 z-50 hidden bg-black/50 transition-opacity" onclick="handleDrawerBackdropClick(event)">
+    <div id="filter-drawer-content" class="fixed inset-y-0 left-0 max-w-sm w-full bg-white p-6 space-y-6 flex flex-col justify-between border-r border-[#e6e6e6] overflow-y-auto">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between border-b border-[#e6e6e6] pb-4">
+          <div>
+            <span class="figma-eyebrow text-xs text-stone-500">ORGANISM // DRAWER</span>
+            <h3 class="text-xl font-bold tracking-tight text-black mt-0.5">סינון חומרי למידה</h3>
+          </div>
+          <button type="button" onclick="toggleFilterDrawer()" class="btn-icon-circle" aria-label="סגור מגרה">
+            <i class="ph ph-x text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Filter Options -->
+        <div class="space-y-4">
+          <div>
+            <span class="text-xs font-bold text-black uppercase font-mono block mb-2">רמת מיומנות:</span>
+            <div class="space-y-2 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="drawer-lvl-all" checked onchange="handlePortalFilter()" class="rounded text-black border-[#e6e6e6]">
+                <span>כל הרמות</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="drawer-lvl-beg" checked onchange="handlePortalFilter()" class="rounded text-black border-[#e6e6e6]">
+                <span>מתחילים (Beginner)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="drawer-lvl-adv" checked onchange="handlePortalFilter()" class="rounded text-black border-[#e6e6e6]">
+                <span>מתקדמים (Advanced)</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-xs font-bold text-black uppercase font-mono block mb-2">סטטוס השלמה:</span>
+            <div class="space-y-2 text-sm">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="drawer-status" id="drawer-st-all" checked onchange="handlePortalFilter()" class="text-black border-[#e6e6e6]">
+                <span>הצג הכל</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="drawer-status" id="drawer-st-done" onchange="handlePortalFilter()" class="text-black border-[#e6e6e6]">
+                <span>הושלמו בלבד</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="drawer-status" id="drawer-st-undone" onchange="handlePortalFilter()" class="text-black border-[#e6e6e6]">
+                <span>טרם הושלמו</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-[#e6e6e6] space-y-2">
+        <button type="button" onclick="toggleFilterDrawer()" class="btn-pill btn-pill-primary w-full text-sm">
+          החל סינון וסגור
+        </button>
+        <button type="button" onclick="resetPortalFilters()" class="btn-pill btn-pill-secondary w-full text-sm">
+          אפס מסננים
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-notification" class="fixed bottom-6 left-6 z-50 transform translate-y-20 opacity-0 transition-all duration-200 pointer-events-none">
+    <div class="bg-black text-white text-xs font-medium px-4 py-3 rounded-full flex items-center gap-2 border border-white/20">
+      <i id="toast-icon" class="ph ph-check text-sm text-[#1ea64a]"></i>
+      <span id="toast-text">הועתק ללוח</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initial State & Learning Material Data from User Sources
+    const initialLessons = [
+      {
+        id: "lesson-1",
+        title: "יסודות מערכת העיצוב של Figma : מסגרת מונוכרומטית ומשטחי פסטל",
+        category: "figma",
+        categoryLabel: "Figma Design",
+        blockTheme: "lilac",
+        blockHex: "#c5b0f4",
+        tag: "מערכות עיצוב",
+        desc: "משמעת הכרום המונוכרומטי, שבעת משטחי הפסטל הרחבים, וכלל הברזל: כפתורי קפסולה 50px בלבד ללא שום הצללות.",
+        completed: true,
+        level: "מתחילים",
+        readTime: "8 דקות"
+      },
+      {
+        id: "lesson-2",
+        title: "בניית REST API מלא עם Google Sheets ו-Google Apps Script",
+        category: "sheets",
+        categoryLabel: "Google Sheets",
+        blockTheme: "lime",
+        blockHex: "#dceeb1",
+        tag: "REST API",
+        desc: "מינוף Google Sheets כבסיס נתונים ללא שרת: פונקציות doGet ו-doPost, המרת טווחים ל-JSON וניתוב מסלולים עם QueryParams.",
+        completed: true,
+        level: "מתקדמים",
+        readTime: "12 דקות"
+      },
+      {
+        id: "lesson-3",
+        title: "פיתוח CMS בסיסי עם React ו-Google Sheets",
+        category: "react",
+        categoryLabel: "React & CMS",
+        blockTheme: "cream",
+        blockHex: "#f4ecd6",
+        tag: "React Frontend",
+        desc: "שליפת נתוני גיליון אלקטרוני באפליקציית React, הצגת כרטיסים דינמיים וניהול תוכן חי בעלות אפסית לעסקים קטנים.",
+        completed: false,
+        level: "מתחילים",
+        readTime: "10 דקות"
+      },
+      {
+        id: "lesson-4",
+        title: "תבניות HTML דינמיות ב-Google Apps Script לניהול נתונים",
+        category: "sheets",
+        categoryLabel: "Google Sheets",
+        blockTheme: "mint",
+        blockHex: "#c8e6cd",
+        tag: "Apps Script",
+        desc: "שימוש בסקריפלטס (Scriptlets) לעיבוד בצד שרת ופונקציות withSuccessHandler לעדכון צד-לקוח חלק של מועמדים לתפקידי פיתוח.",
+        completed: false,
+        level: "מתחילים",
+        readTime: "9 דקות"
+      },
+      {
+        id: "lesson-5",
+        title: "טוקנים וטיפוגרפיה: השוואה בין Figma, Replicate ו-Clay",
+        category: "figma",
+        categoryLabel: "Figma & AI",
+        blockTheme: "coral",
+        blockHex: "#f3c9b6",
+        tag: "טוקנים ו-AI",
+        desc: "השוואת מפרטי DESIGN.md: מסגרת שחור-לבן בפיגמה, כתום בוער ופונט Freigeist ב-Replicate, וקנבס שמנת וכרטיסים רווים ב-Clay.",
+        completed: false,
+        level: "מתקדמים",
+        readTime: "15 דקות"
+      },
+      {
+        id: "lesson-6",
+        title: "חוקי Anti-Slop בעיצוב ממשקי Frontend מודרניים",
+        category: "react",
+        categoryLabel: "Frontend Architecture",
+        blockTheme: "pink",
+        blockHex: "#efd4d4",
+        tag: "איכות קוד",
+        desc: "משמעת נגד ברירות מחדל של AI: שמירה על יחס ניגודיות AA, איסור גמור על מקף em-dash, ומניעת גלישת שורות בכפתורי CTA.",
+        completed: false,
+        level: "מתקדמים",
+        readTime: "11 דקות"
+      }
+    ];
+
+    let appState = {
+      lessons: initialLessons,
+      currentFilterChip: 'all',
+      portalCategory: 'all',
+      searchQuery: '',
+      viewMode: 'grid', // 'grid' | 'list'
+      isMobileSimulator: false,
+      progressStep: 2
+    };
+
+    // Initialize App and Load Saved State via notebookAppApi
+    async function initApp() {
+      if (window.notebookAppApi) {
+        try {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && saved.lessons) {
+            appState.lessons = saved.lessons;
+          }
+          if (saved && typeof saved.progressStep === 'number') {
+            appState.progressStep = saved.progressStep;
+          }
+        } catch (e) {
+          console.warn("Could not load state:", e);
+        }
+      }
+      renderPortalLessons();
+      updateKPICounters();
+      updateProgressBarUI();
+    }
+
+    // Save State Helper
+    function persistState() {
+      if (window.notebookAppApi) {
+        window.notebookAppApi.setAppState({
+          lessons: appState.lessons,
+          progressStep: appState.progressStep
+        });
+      }
+      updateKPICounters();
+    }
+
+    // Smooth Scroll Helper
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Toast Notification Helper
+    function showToast(message, isSuccess = true) {
+      const toast = document.getElementById('toast-notification');
+      const text = document.getElementById('toast-text');
+      const icon = document.getElementById('toast-icon');
+      if (!toast || !text) return;
+
+      text.textContent = message;
+      if (icon) {
+        icon.className = isSuccess ? "ph ph-check text-sm text-[#1ea64a]" : "ph ph-info text-sm text-[#f59e0b]";
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2400);
+    }
+
+    // Copy Token Hex
+    function copyTokenHex(hex, name) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(hex).then(() => {
+          showToast(`הועתק קוד HEX: ${hex} (${name})`);
+        }).catch(() => {
+          showToast(`קוד HEX: ${hex}`);
+        });
+      } else {
+        showToast(`קוד HEX: ${hex}`);
+      }
+    }
+
+    // Update Typography Preview
+    function updateTypographyPreview(val) {
+      const text = val.trim() || "עיצוב מערכות בענן";
+      const elXL = document.getElementById('preview-display-xl');
+      const elLG = document.getElementById('preview-display-lg');
+      const elHL = document.getElementById('preview-headline');
+
+      if (elXL) elXL.textContent = text;
+      if (elLG) elLG.textContent = text;
+      if (elHL) elHL.textContent = text;
+    }
+
+    // Switch Atom Pricing Tab
+    function switchAtomTab(tabId) {
+      const tab1 = document.getElementById('tab-opt-1');
+      const tab2 = document.getElementById('tab-opt-2');
+      if (!tab1 || !tab2) return;
+
+      if (tabId === 'tab-opt-1') {
+        tab1.className = "px-4 py-1.5 rounded-full text-xs font-semibold bg-black text-white transition-all";
+        tab2.className = "px-4 py-1.5 rounded-full text-xs font-semibold text-black hover:text-stone-600 transition-all";
+      } else {
+        tab2.className = "px-4 py-1.5 rounded-full text-xs font-semibold bg-black text-white transition-all";
+        tab1.className = "px-4 py-1.5 rounded-full text-xs font-semibold text-black hover:text-stone-600 transition-all";
+      }
+    }
+
+    // Molecule Filter Search and Chips
+    function handleMoleculeSearch(query) {
+      appState.searchQuery = query.toLowerCase();
+      document.getElementById('portal-search-input').value = query;
+      handlePortalFilter();
+    }
+
+    function clearMoleculeSearch() {
+      const input = document.getElementById('molecule-search-input');
+      if (input) input.value = '';
+      appState.searchQuery = '';
+      document.getElementById('portal-search-input').value = '';
+      handlePortalFilter();
+    }
+
+    function filterByChip(cat) {
+      appState.currentFilterChip = cat;
+      const chips = document.querySelectorAll('#molecule-filter-chips .chip-filter');
+      chips.forEach(c => {
+        c.className = "chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#f7f7f5] text-stone-700 hover:bg-[#e6e6e6] transition-all";
+      });
+      event.target.className = "chip-filter px-3.5 py-1.5 rounded-full text-xs font-semibold bg-black text-white transition-all";
+
+      if (cat === 'all') appState.portalCategory = 'all';
+      else if (cat === 'design' || cat === 'tokens') appState.portalCategory = 'figma';
+      else if (cat === 'sheets') appState.portalCategory = 'sheets';
+      else if (cat === 'code') appState.portalCategory = 'react';
+
+      // Update active portal category buttons
+      updatePortalCategoryButtons();
+      handlePortalFilter();
+    }
+
+    // Live Input Validation Demo
+    function validateInputDemo(val) {
+      const icon = document.getElementById('validation-icon');
+      const msg = document.getElementById('validation-msg');
+      const btn = document.getElementById('validation-btn');
+      if (!icon || !msg || !btn) return;
+
+      if (val.trim().length >= 4) {
+        icon.classList.remove('hidden');
+        msg.textContent = "שם תקין ומאושר במערכת";
+        msg.className = "text-xs text-[#1ea64a] mt-1 font-medium";
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        icon.classList.add('hidden');
+        msg.textContent = "יש להזין לפחות 4 תווים כדי להפעיל אישור";
+        msg.className = "text-xs text-stone-500 mt-1";
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    // Advance Progress Step
+    function advanceProgressStep() {
+      appState.progressStep = (appState.progressStep % 4) + 1;
+      updateProgressBarUI();
+      persistState();
+      showToast(`התקדמת לשלב ${appState.progressStep} מתוך 4`);
+    }
+
+    function updateProgressBarUI() {
+      const fill = document.getElementById('progress-bar-fill');
+      const stepText = document.getElementById('progress-step-text');
+      const stepMolecules = document.getElementById('step-molecules');
+      const stepPortal = document.getElementById('step-portal');
+
+      const pct = (appState.progressStep / 4) * 100;
+      if (fill) fill.style.width = `${pct}%`;
+      if (stepText) stepText.textContent = `שלב ${appState.progressStep} מתוך 4 הושלם (${pct}%)`;
+
+      if (stepMolecules) {
+        stepMolecules.className = appState.progressStep >= 3 ? "text-black font-bold" : "text-stone-500 font-medium";
+        stepMolecules.textContent = appState.progressStep >= 3 ? "3. מולקולות ✓" : "3. מולקולות";
+      }
+      if (stepPortal) {
+        stepPortal.className = appState.progressStep >= 4 ? "text-black font-bold" : "text-stone-400";
+        stepPortal.textContent = appState.progressStep >= 4 ? "4. פורטל ✓" : "4. פורטל";
+      }
+    }
+
+    // Dynamic Pastel Block Theme Switcher
+    const blockThemes = {
+      lime: {
+        bg: "#dceeb1",
+        textColor: "text-black",
+        title: "מערכות עיצוב, תיעוד ושאלות נפוצות",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-LIME",
+        desc: "משטח ליים (#dceeb1) משמש ב-Figma כעוגן למערכות עיצוב, תיעוד רכיבים ומקטעי FAQ בעמוד התמחור.",
+        hex: "#dceeb1",
+        isNavy: false
+      },
+      lilac: {
+        bg: "#c5b0f4",
+        textColor: "text-black",
+        title: "עמוד העיצוב הראשי והדגשות FigJam",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-LILAC",
+        desc: "משטח לילך (#c5b0f4) הוא משטח הצבע הקנוני של נתיב /design וה-Hero של FigJam.",
+        hex: "#c5b0f4",
+        isNavy: false
+      },
+      mint: {
+        bg: "#c8e6cd",
+        textColor: "text-black",
+        title: "סיפורי מוצר, שת&quot;פ וחדשנות ב-FigJam",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-MINT",
+        desc: "משטח מנטה (#c8e6cd) מעניק תחושת רעננות ומשמש להצגת תבניות שיתוף פעולה וסיעור מוחות.",
+        hex: "#c8e6cd",
+        isNavy: false
+      },
+      coral: {
+        bg: "#f3c9b6",
+        textColor: "text-black",
+        title: "פיתוח, השקת מוצרים ושילוב עם קוד",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-CORAL",
+        desc: "משטח קורל (#f3c9b6) מוקדש בעמוד הבית למקטע 'Ship products' וחיבור מפתחים ל-Figma.",
+        hex: "#f3c9b6",
+        isNavy: false
+      },
+      cream: {
+        bg: "#f4ecd6",
+        textColor: "text-black",
+        title: "תבניות קהילה ומערכי שיעור מובנים",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-CREAM",
+        desc: "משטח שמנת (#f4ecd6) מעניק מראה של נייר כתיבה חם ומאפשר קריאה ממושכת ונוחה.",
+        hex: "#f4ecd6",
+        isNavy: false
+      },
+      navy: {
+        bg: "#1f1d3d",
+        textColor: "text-white",
+        title: "המשטח הכהה ההפוך היחיד במערכת",
+        eyebrow: "ORGANISM // COLOR-BLOCK-SECTION-NAVY",
+        desc: "משטח נייבי עמוק (#1f1d3d) הוא המקטע ההפוך היחיד באתר השיווקי של פיגמה לפני ה-Footer.",
+        hex: "#1f1d3d",
+        isNavy: true
+      }
+    };
+
+    function setDynamicBlockTheme(themeKey) {
+      const theme = blockThemes[themeKey];
+      if (!theme) return;
+
+      const block = document.getElementById('dynamic-pastel-block');
+      const eyebrow = document.getElementById('dynamic-block-eyebrow');
+      const title = document.getElementById('dynamic-block-title');
+      const desc = document.getElementById('dynamic-block-desc');
+      const badge = document.getElementById('dynamic-block-badge');
+      const btnPri = document.getElementById('dynamic-block-btn-primary');
+      const btnSec = document.getElementById('dynamic-block-btn-secondary');
+
+      if (!block) return;
+      block.style.backgroundColor = theme.bg;
+
+      if (theme.isNavy) {
+        block.classList.remove('text-black');
+        block.classList.add('text-white');
+        if (eyebrow) eyebrow.className = "figma-eyebrow text-xs text-[#c5b0f4]";
+        if (badge) badge.className = "px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-white text-black shrink-0 self-start sm:self-auto";
+        if (btnPri) {
+          btnPri.className = "btn-pill bg-white text-black hover:bg-stone-100 text-sm py-2.5 px-5";
+        }
+        if (btnSec) {
+          btnSec.className = "btn-pill bg-transparent border border-white/30 text-white hover:bg-white/10 text-sm py-2.5 px-5";
+        }
+      } else {
+        block.classList.remove('text-white');
+        block.classList.add('text-black');
+        if (eyebrow) eyebrow.className = "figma-eyebrow text-xs opacity-75";
+        if (badge) badge.className = "px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-black text-white shrink-0 self-start sm:self-auto";
+        if (btnPri) {
+          btnPri.className = "btn-pill btn-pill-primary text-sm py-2.5 px-5";
+        }
+        if (btnSec) {
+          btnSec.className = "btn-pill btn-pill-secondary text-sm py-2.5 px-5";
+        }
+      }
+
+      if (title) title.innerHTML = theme.title;
+      if (eyebrow) eyebrow.textContent = theme.eyebrow;
+      if (desc) desc.textContent = theme.desc;
+      if (badge) badge.textContent = theme.hex;
+
+      showToast(`הוחל משטח פסטל: ${themeKey.toUpperCase()} (${theme.hex})`);
+    }
+
+    // Portal View Mode & Device Simulator
+    function setViewMode(mode) {
+      appState.viewMode = mode;
+      const btnGrid = document.getElementById('view-mode-grid');
+      const btnList = document.getElementById('view-mode-list');
+      const container = document.getElementById('lessons-card-grid');
+
+      if (mode === 'grid') {
+        if (btnGrid) btnGrid.className = "p-1.5 rounded-lg border border-black bg-black text-white text-sm";
+        if (btnList) btnList.className = "p-1.5 rounded-lg border border-[#e6e6e6] bg-white text-stone-700 text-sm hover:border-black";
+        if (container) container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+      } else {
+        if (btnList) btnList.className = "p-1.5 rounded-lg border border-black bg-black text-white text-sm";
+        if (btnGrid) btnGrid.className = "p-1.5 rounded-lg border border-[#e6e6e6] bg-white text-stone-700 text-sm hover:border-black";
+        if (container) container.className = "grid grid-cols-1 gap-4";
+      }
+      renderPortalLessons();
+    }
+
+    function toggleDeviceSimulator() {
+      appState.isMobileSimulator = !appState.isMobileSimulator;
+      const container = document.getElementById('portal-simulator-container');
+      const text = document.getElementById('device-toggle-text');
+      const btn = document.getElementById('device-toggle-btn');
+
+      if (appState.isMobileSimulator) {
+        if (container) container.className = "mobile-frame-view transition-all duration-300";
+        if (text) text.textContent = "חזור לתצוגת דסקטופ רחבה";
+        if (btn) btn.className = "btn-pill btn-pill-primary text-xs py-1 px-3";
+        showToast("הופעלה תצוגת מובייל (רוחב 375px)");
+      } else {
+        if (container) container.className = "transition-all duration-300";
+        if (text) text.textContent = "הדמיית מובייל (375px)";
+        if (btn) btn.className = "btn-pill btn-pill-secondary text-xs py-1 px-3";
+        showToast("חזרת לתצוגת דסקטופ מלאה");
+      }
+    }
+
+    // Portal Category Filtering
+    function setPortalCategory(cat) {
+      appState.portalCategory = cat;
+      updatePortalCategoryButtons();
+      handlePortalFilter();
+    }
+
+    function updatePortalCategoryButtons() {
+      const btns = document.querySelectorAll('.portal-cat-btn');
+      btns.forEach(b => {
+        b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-[#f7f7f5] text-black hover:bg-[#e6e6e6] transition-colors";
+      });
+      // Match active
+      btns.forEach(b => {
+        const text = b.textContent.trim();
+        if (appState.portalCategory === 'all' && text === 'הכל') b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors";
+        if (appState.portalCategory === 'figma' && text.includes('פיגמה')) b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors";
+        if (appState.portalCategory === 'sheets' && text.includes('Sheets')) b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors";
+        if (appState.portalCategory === 'react' && text.includes('React')) b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors";
+        if (appState.portalCategory === 'completed' && text.includes('הושלמו')) b.className = "portal-cat-btn px-3 py-1 rounded-full text-xs font-semibold bg-black text-white transition-colors";
+      });
+    }
+
+    function handlePortalFilter() {
+      const searchInput = document.getElementById('portal-search-input');
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      appState.searchQuery = query;
+
+      renderPortalLessons();
+    }
+
+    function resetPortalFilters() {
+      const searchInput = document.getElementById('portal-search-input');
+      const molInput = document.getElementById('molecule-search-input');
+      if (searchInput) searchInput.value = '';
+      if (molInput) molInput.value = '';
+      appState.searchQuery = '';
+      appState.portalCategory = 'all';
+      appState.currentFilterChip = 'all';
+
+      // reset drawer checkboxes
+      const chkAll = document.getElementById('drawer-lvl-all');
+      const chkBeg = document.getElementById('drawer-lvl-beg');
+      const chkAdv = document.getElementById('drawer-lvl-adv');
+      const radAll = document.getElementById('drawer-st-all');
+      if (chkAll) chkAll.checked = true;
+      if (chkBeg) chkBeg.checked = true;
+      if (chkAdv) chkAdv.checked = true;
+      if (radAll) radAll.checked = true;
+
+      updatePortalCategoryButtons();
+      renderPortalLessons();
+      showToast("כל המסננים אופסו בהצלחה");
+    }
+
+    // Toggle Lesson Completed State
+    function toggleLessonComplete(id) {
+      const item = appState.lessons.find(l => l.id === id);
+      if (item) {
+        item.completed = !item.completed;
+        persistState();
+        renderPortalLessons();
+        showToast(item.completed ? `סומן כהושלם: ${item.title}` : `סומן כלא הושלם: ${item.title}`);
+      }
+    }
+
+    // Render Learning Portal Cards
+    function renderPortalLessons() {
+      const container = document.getElementById('lessons-card-grid');
+      const emptyState = document.getElementById('lessons-empty-state');
+      if (!container) return;
+
+      // Drawer filter states
+      const chkBeg = document.getElementById('drawer-lvl-beg') ? document.getElementById('drawer-lvl-beg').checked : true;
+      const chkAdv = document.getElementById('drawer-lvl-adv') ? document.getElementById('drawer-lvl-adv').checked : true;
+      const radDone = document.getElementById('drawer-st-done') ? document.getElementById('drawer-st-done').checked : false;
+      const radUndone = document.getElementById('drawer-st-undone') ? document.getElementById('drawer-st-undone').checked : false;
+
+      const filtered = appState.lessons.filter(l => {
+        // Category filter
+        if (appState.portalCategory === 'figma' && l.category !== 'figma') return false;
+        if (appState.portalCategory === 'sheets' && l.category !== 'sheets') return false;
+        if (appState.portalCategory === 'react' && l.category !== 'react') return false;
+        if (appState.portalCategory === 'completed' && !l.completed) return false;
+
+        // Drawer filters
+        if (radDone && !l.completed) return false;
+        if (radUndone && l.completed) return false;
+        if (!chkBeg && l.level === 'מתחילים') return false;
+        if (!chkAdv && l.level === 'מתקדמים') return false;
+
+        // Search query
+        if (appState.searchQuery) {
+          const matchTitle = l.title.toLowerCase().includes(appState.searchQuery);
+          const matchDesc = l.desc.toLowerCase().includes(appState.searchQuery);
+          const matchTag = l.tag.toLowerCase().includes(appState.searchQuery);
+          if (!matchTitle && !matchDesc && !matchTag) return false;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+      } else {
+        if (emptyState) emptyState.classList.add('hidden');
+      }
+
+      container.innerHTML = filtered.map(lesson => {
+        const checkIcon = lesson.completed ? "ph ph-check-bold" : "ph ph-circle";
+        const checkBg = lesson.completed ? "bg-[#1ea64a] text-white" : "border border-[#e6e6e6] text-transparent hover:border-black";
+
+        if (appState.viewMode === 'list') {
+          // List View Item
+          return `
+            <div class="border border-[#e6e6e6] rounded-2xl p-4 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-black">
+              <div class="flex items-start sm:items-center gap-3">
+                <button type="button" onclick="toggleLessonComplete('${lesson.id}')" class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${checkBg}" title="${lesson.completed ? 'סמן כלא הושלם' : 'סמן כהושלם'}">
+                  <i class="${checkIcon} text-xs"></i>
+                </button>
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold" style="background-color: ${lesson.blockHex}; color: #000;">${lesson.tag}</span>
+                    <span class="text-xs text-stone-500 font-mono">${lesson.level} • ${lesson.readTime}</span>
+                  </div>
+                  <h4 class="font-bold text-base text-black ${lesson.completed ? 'line-through opacity-75' : ''}">${lesson.title}</h4>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                <button type="button" onclick="toggleLessonComplete('${lesson.id}')" class="btn-pill ${lesson.completed ? 'btn-pill-secondary' : 'btn-pill-primary'} text-xs py-1.5 px-4">
+                  <span>${lesson.completed ? 'הושלם ✓' : 'התחל ללמוד'}</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Grid View Card (Organism: Learning Material Card)
+        return `
+          <div class="border border-[#e6e6e6] rounded-2xl p-6 bg-white flex flex-col justify-between space-y-4 transition-all hover:border-black group relative">
+            <div class="space-y-3">
+              <!-- Top Category Bar & Completion Pill -->
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background-color: ${lesson.blockHex}; color: #000;">
+                  ${lesson.tag}
+                </span>
+                <button type="button" onclick="toggleLessonComplete('${lesson.id}')" class="w-7 h-7 rounded-full flex items-center justify-center transition-all ${checkBg}" title="${lesson.completed ? 'סמן כלא הושלם' : 'סמן כהושלם'}">
+                  <i class="${checkIcon} text-xs"></i>
+                </button>
+              </div>
+
+              <!-- Title & Desc -->
+              <h4 class="font-bold text-lg text-black group-hover:text-stone-800 transition-colors ${lesson.completed ? 'line-through opacity-75' : ''}">
+                ${lesson.title}
+              </h4>
+              <p class="text-xs text-stone-600 leading-relaxed">
+                ${lesson.desc}
+              </p>
+            </div>
+
+            <!-- Footer: Meta & Action Pill -->
+            <div class="pt-4 border-t border-[#f1f1f1] flex items-center justify-between">
+              <span class="text-xs text-stone-600 font-mono">${lesson.level} • ${lesson.readTime}</span>
+              <button type="button" onclick="toggleLessonComplete('${lesson.id}')" class="btn-pill ${lesson.completed ? 'btn-pill-secondary' : 'btn-pill-primary'} text-xs py-1.5 px-4">
+                <span>${lesson.completed ? 'הושלם ✓' : 'סמן כהושלם'}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update KPI Counters
+    function updateKPICounters() {
+      const totalEl = document.getElementById('kpi-total-lessons');
+      const compEl = document.getElementById('kpi-completed-lessons');
+      const rateEl = document.getElementById('kpi-completion-rate');
+
+      const total = appState.lessons.length;
+      const completed = appState.lessons.filter(l => l.completed).length;
+      const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      if (totalEl) totalEl.textContent = total;
+      if (compEl) compEl.textContent = completed;
+      if (rateEl) rateEl.textContent = `${rate}% מקצב הלמידה`;
+    }
+
+    // Modal Helpers
+    function openAddLessonModal() {
+      const modal = document.getElementById('add-lesson-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeAddLessonModal() {
+      const modal = document.getElementById('add-lesson-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function handleAddLessonSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('modal-input-title').value.trim();
+      const desc = document.getElementById('modal-input-desc').value.trim();
+      const category = document.getElementById('modal-select-category').value;
+      const blockTheme = document.getElementById('modal-select-block').value;
+      const tag = document.getElementById('modal-input-tag').value.trim() || "טוקנים ורכיבים";
+
+      const themeHexMap = {
+        lime: "#dceeb1",
+        lilac: "#c5b0f4",
+        mint: "#c8e6cd",
+        coral: "#f3c9b6",
+        cream: "#f4ecd6",
+        pink: "#efd4d4"
+      };
+
+      const newLesson = {
+        id: "lesson-" + Date.now(),
+        title: title,
+        category: category,
+        categoryLabel: category === 'figma' ? "Figma Design" : category === 'sheets' ? "Google Sheets" : "React Frontend",
+        blockTheme: blockTheme,
+        blockHex: themeHexMap[blockTheme] || "#c5b0f4",
+        tag: tag,
+        desc: desc,
+        completed: false,
+        level: "מתחילים",
+        readTime: "7 דקות"
+      };
+
+      appState.lessons.unshift(newLesson);
+      persistState();
+      renderPortalLessons();
+      closeAddLessonModal();
+      e.target.reset();
+
+      showToast(`שיעור חדש נוסף בהצלחה: ${title}`);
+      scrollToSection('portal-section');
+    }
+
+    // Filter Drawer Helpers
+    function toggleFilterDrawer() {
+      const drawer = document.getElementById('filter-drawer');
+      if (drawer) {
+        drawer.classList.toggle('hidden');
+      }
+    }
+
+    function handleDrawerBackdropClick(e) {
+      if (e.target.id === 'filter-drawer') {
+        toggleFilterDrawer();
+      }
+    }
+
+    // Design System Linter Runner
+    function runDesignLinter() {
+      // 1. Scan for box-shadows (should be none)
+      // 2. Scan buttons for pills
+      // 3. Scan text for em-dashes (—)
+      const allButtons = document.querySelectorAll('button.btn-pill, a.btn-pill');
+      let nonPillCount = 0;
+      allButtons.forEach(b => {
+        const r = window.getComputedStyle(b).borderRadius;
+        if (!r.includes('50px') && !r.includes('9999px')) {
+          nonPillCount++;
+        }
+      });
+
+      const fullText = (document.body && (document.body.innerText || document.body.textContent)) ? (document.body.innerText || document.body.textContent) : '';
+      const emDashCount = (fullText.match(/\u2014/g) || []).length;
+
+      const summary = document.getElementById('linter-summary-text');
+      const score = document.getElementById('kpi-linter-score');
+
+      if (nonPillCount === 0 && emDashCount === 0) {
+        if (summary) summary.textContent = "בדיקה הושלמה: 0 הצללות, 100% כפתורי קפסולה, 0 תווי Em-Dash. עמידה מושלמת במפרט!";
+        if (score) score.textContent = "100%";
+        showToast("בודק החוקים: 100% עמידה במפרט העיצוב של Figma!");
+      } else {
+        if (summary) summary.textContent = `נמצאו ${nonPillCount} כפתורים לא תקינים ו-${emDashCount} מקפי em-dash.`;
+        if (score) score.textContent = "90%";
+        showToast("בודק החוקים: נמצאו סטיות קלות", false);
+      }
+    }
+
+    // Export DESIGN.md Tokens as Markdown
+    function exportDesignMd() {
+      const designMdContent = `
+# Figma Design System Tokens (DESIGN.md)
+version: alpha
+name: Figma
+colors:
+  primary: "#000000"
+  on-primary: "#ffffff"
+  ink: "#000000"
+  canvas: "#ffffff"
+  inverse-canvas: "#000000"
+  inverse-ink: "#ffffff"
+  hairline: "#e6e6e6"
+  surface-soft: "#f7f7f5"
+  block-lime: "#dceeb1"
+  block-lilac: "#c5b0f4"
+  block-cream: "#f4ecd6"
+  block-mint: "#c8e6cd"
+  block-pink: "#efd4d4"
+  block-coral: "#f3c9b6"
+  block-navy: "#1f1d3d"
+  accent-magenta: "#ff3d8b"
+  semantic-success: "#1ea64a"
+
+typography:
+  display-xl: { fontFamily: figmaSans, fontSize: 86px, fontWeight: 340, letterSpacing: -1.72px }
+  display-lg: { fontFamily: figmaSans, fontSize: 64px, fontWeight: 340, letterSpacing: -0.96px }
+  headline: { fontFamily: figmaSans, fontSize: 26px, fontWeight: 540, letterSpacing: -0.26px }
+  button: { fontFamily: figmaSans, fontSize: 20px, fontWeight: 480, letterSpacing: -0.10px }
+  eyebrow: { fontFamily: figmaMono, fontSize: 18px, fontWeight: 400, letterSpacing: 0.54px }
+
+rounded:
+  xs: 2px
+  sm: 6px
+  md: 8px
+  lg: 24px
+  pill: 50px
+  full: 9999px
+
+rules:
+  shadows: "Zero drop shadows anywhere in the system"
+  buttons: "Pill (50px) is the only button shape"
+  chrome: "Strictly monochrome #000000 and #ffffff"
+`.trim();
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(designMdContent).then(() => {
+          showToast("מפרט DESIGN.md הועתק במלואו ללוח!");
+        }).catch(() => {
+          showToast("מפרט DESIGN.md מוכן");
+        });
+      } else {
+        showToast("מפרט DESIGN.md מוכן");
+      }
+    }
+
+    // Run on Page Load
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>דשבורד המרצה המעודכן | לוח בקרה וניהול הכנסות</title>
+
+  <!-- Pinned Google Fonts for Hebrew and Monospace data -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Pinned Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+
+  <!-- Pinned Lucide Icons -->
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+
+  <!-- Pinned Chart.js for Interactive Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            carbon: {
+              bg: 'var(--background)',
+              surface: 'var(--surface-container)',
+              surfaceLow: 'var(--surface-container-low)',
+              surfaceHigh: 'var(--surface-container-high)',
+              ink: 'var(--on-surface)',
+              inkMuted: 'var(--on-surface-variant)',
+              primary: 'var(--primary)',
+              primaryLight: 'var(--primary-container)',
+              outline: 'var(--outline-variant)',
+              success: 'var(--positive)',
+              warning: 'var(--warning)',
+              danger: 'var(--error)'
+            }
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans Hebrew"', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Carbon Design System - Tokens & Theme */
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces */
+      --background: #ffffff;
+      --surface-container-low: #f4f4f4;
+      --surface-container: #f4f4f4;
+      --surface-container-high: #e0e0e0;
+
+      /* Ink */
+      --on-surface: #161616;
+      --on-surface-variant: #525252;
+
+      /* Rules */
+      --outline: #8d8d8d;
+      --outline-variant: #e0e0e0;
+
+      /* Accents */
+      --primary: #0f62fe;
+      --on-primary: #ffffff;
+      --primary-container: #d0e2ff;
+      --on-primary-container: #161616;
+      --secondary: #6f6f6f;
+      --tertiary: #198038;
+      --error: #da1e28;
+      --on-error: #ffffff;
+
+      /* Semantic */
+      --positive: #198038;
+      --warning: #b28600;
+      --focus: #0f62fe;
+
+      /* Data series */
+      --data-1: #0f62fe;
+      --data-2: #6929c4;
+      --data-3: #005d5d;
+      --data-4: #9f1853;
+      --data-context: #8d8d8d;
+
+      /* Typography */
+      --font-headline: 'IBM Plex Sans Hebrew', sans-serif;
+      --font-body: 'IBM Plex Sans Hebrew', sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      /* Shapes */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Type scale for Dashboards */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Effects */
+      --shadow-1: 0 2px 6px rgb(0 0 0 / 0.08);
+      --shadow-2: 0 4px 14px rgb(0 0 0 / 0.12);
+      --rule: 1px solid var(--outline-variant);
+      --indicator: 2px solid var(--primary);
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base reset -- required on every artifact */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+    }
+    header { position: static !important; }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1400px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* RTL & Non-Latin inputs rule */
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    /* Accessibility focus rings */
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Metric card bottom rule characteristic of Carbon style */
+    .carbon-metric-card {
+      background: var(--surface-container-low);
+      border-bottom: 2px solid var(--primary);
+      transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+    }
+    .carbon-metric-card:hover {
+      background: #ececec;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-1);
+    }
+
+    /* Container query for card responsiveness */
+    .card-wrapper {
+      container-type: inline-size;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+    }
+
+    /* Smooth animated count numbers */
+    .tab-active {
+      background-color: var(--primary) !important;
+      color: var(--on-primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    .pill-filter-active {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+
+    /* Modal backdrop fade */
+    .modal-backdrop {
+      background-color: rgba(22, 22, 22, 0.6);
+      backdrop-filter: blur(2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-12 text-slate-900 bg-white antialiased">
+
+  <!-- TOP HEADER (Lecturer Identity & Operational Status) -->
+  <header class="border-b border-gray-200 bg-white sticky-top-safe">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      
+      <!-- Lecturer Profile & Status -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="relative shrink-0">
+          <div class="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-600 flex items-center justify-center text-blue-700 font-bold text-lg shadow-sm">
+            פב
+          </div>
+          <span class="absolute bottom-0 left-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" title="פעיל • זמין לקביעת הרצאות"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="font-bold text-lg sm:text-xl text-slate-900 leading-tight">פרופ' איתן ברק</h1>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded">
+              <i data-lucide="award" class="w-3.5 h-3.5 text-blue-600"></i>
+              מרצה בכיר • סמסטר א׳ תשפ״ז
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">מדעי המחשב, בינה מלאכותית וחדשנות טכנולוגית</p>
+        </div>
+      </div>
+
+      <!-- Header Secondary Actions & Status Badge -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span>סנכרון יומנים פעיל (Zoom & Google)</span>
+        </div>
+        
+        <button type="button" onclick="openReportModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-800 rounded border border-slate-300 transition-colors focus:ring-2 focus:ring-blue-600" aria-label="הפקת דוח תקופתי">
+          <i data-lucide="download" class="w-4 h-4 text-slate-600"></i>
+          <span>דוח תקופתי</span>
+        </button>
+
+        <button type="button" onclick="openNewLectureModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded shadow-sm transition-colors focus:ring-2 focus:ring-blue-600" aria-label="תיאום הרצאה חדשה">
+          <i data-lucide="calendar-plus" class="w-4 h-4 text-white"></i>
+          <span>הרצאה חדשה</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <main class="page-grid">
+
+    <!-- GLOBAL DATE RANGE SELECTOR & CONTEXT BANNER -->
+    <section class="bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4" aria-labelledby="date-filter-heading">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+        
+        <div>
+          <h2 id="date-filter-heading" class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="filter" class="w-4 h-4 text-blue-600"></i>
+            <span>טווח תאריכים גלובלי לניתוח נתונים</span>
+          </h2>
+          <p id="dateRangeSubtitle" class="text-xs text-slate-600 mt-0.5">
+            מציג ביצועים כספיים, שעות הרצאה ורישום סטודנטים לתקופה: 
+            <span class="font-medium text-slate-900 font-mono" id="currentPeriodLabel">1 בנובמבר 2026 – 30 בנובמבר 2026 (חודש נוכחי)</span>
+          </p>
+        </div>
+
+        <!-- Date Range Filter Buttons -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0" role="group" aria-label="בחירת טווח זמנים">
+          <button type="button" id="btn-period-month" onclick="selectDatePeriod('month')" class="px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-blue-600 text-white border border-blue-600">
+            חודש נוכחי
+          </button>
+          <button type="button" id="btn-period-quarter" onclick="selectDatePeriod('quarter')" class="px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-white text-slate-700 hover:bg-slate-100 border border-slate-300">
+            רבעון 4 (Q4)
+          </button>
+          <button type="button" id="btn-period-year" onclick="selectDatePeriod('year')" class="px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-white text-slate-700 hover:bg-slate-100 border border-slate-300">
+            שנת 2026 (YTD)
+          </button>
+          <button type="button" id="btn-period-prev-year" onclick="selectDatePeriod('prev_year')" class="px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-white text-slate-700 hover:bg-slate-100 border border-slate-300">
+            שנת 2025
+          </button>
+          <button type="button" id="btn-period-custom" onclick="openCustomDateModal()" class="px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 inline-flex items-center gap-1">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span>מותאם אישית</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: KPI SUMMARY CARDS (Mobile-First 1 col -> Tablet 2 cols -> Desktop 4 cols) -->
+    <section aria-label="מדדי ביצוע מרכזיים" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      
+      <!-- KPI 1: Revenue -->
+      <article class="carbon-metric-card p-4 rounded-sm cursor-pointer" onclick="showMetricDetail('revenue')">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-xs font-medium text-slate-600 uppercase tracking-wide">הכנסות כוללות</span>
+          <div class="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="circle-dollar-sign" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-slate-950" id="kpi-revenue">
+            <bdi dir="ltr">₪58,450</bdi>
+          </span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="inline-flex items-center gap-0.5 text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" id="kpi-revenue-trend">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <bdi dir="ltr">+16.8%</bdi>
+          </span>
+          <span class="text-slate-500" id="kpi-revenue-sub">לעומת חודש שעבר</span>
+        </div>
+        <!-- Progress toward monthly goal -->
+        <div class="mt-3 pt-2 border-t border-gray-200">
+          <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+            <span>יעד תקופתי (₪65,000)</span>
+            <span class="font-mono font-semibold" id="kpi-revenue-percent">89.9%</span>
+          </div>
+          <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-600 transition-all duration-500" id="kpi-revenue-bar" style="width: 89.9%;"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- KPI 2: Active Students -->
+      <article class="carbon-metric-card p-4 rounded-sm cursor-pointer" onclick="showMetricDetail('students')">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-xs font-medium text-slate-600 uppercase tracking-wide">סטודנטים ולומדים</span>
+          <div class="w-8 h-8 rounded bg-purple-50 text-purple-600 flex items-center justify-center">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-slate-950" id="kpi-students">
+            <bdi dir="ltr">1,480</bdi>
+          </span>
+          <span class="text-xs text-slate-500">לומדים רשומים</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="inline-flex items-center gap-0.5 text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" id="kpi-students-trend">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <bdi dir="ltr">+9.2%</bdi>
+          </span>
+          <span class="text-slate-500" id="kpi-students-sub">215 נרשמים חדשים</span>
+        </div>
+        <div class="mt-3 pt-2 border-t border-gray-200 text-[11px] text-slate-600 flex justify-between items-center">
+          <span>שיעור סיום ממוצע</span>
+          <span class="font-semibold text-slate-900 font-mono">87.4%</span>
+        </div>
+      </article>
+
+      <!-- KPI 3: Lecture Hours -->
+      <article class="carbon-metric-card p-4 rounded-sm cursor-pointer" onclick="showMetricDetail('hours')">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-xs font-medium text-slate-600 uppercase tracking-wide">שעות הוראה בפועל</span>
+          <div class="w-8 h-8 rounded bg-teal-50 text-teal-700 flex items-center justify-center">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-slate-950" id="kpi-hours">
+            <bdi dir="ltr">42.5</bdi>
+          </span>
+          <span class="text-xs text-slate-500">שעות אקדמיות</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="inline-flex items-center gap-0.5 text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" id="kpi-hours-trend">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <bdi dir="ltr">+5.0%</bdi>
+          </span>
+          <span class="text-slate-500" id="kpi-hours-sub">14 מפגשים והרצאות</span>
+        </div>
+        <div class="mt-3 pt-2 border-t border-gray-200 text-[11px] text-slate-600 flex justify-between items-center">
+          <span>ממוצע שבועי</span>
+          <span class="font-semibold text-slate-900 font-mono">10.6 שעות/שבוע</span>
+        </div>
+      </article>
+
+      <!-- KPI 4: Rating / Quality Score -->
+      <article class="carbon-metric-card p-4 rounded-sm cursor-pointer" onclick="showMetricDetail('rating')">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-xs font-medium text-slate-600 uppercase tracking-wide">ציון משוב ממוצע</span>
+          <div class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-500"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-slate-950" id="kpi-rating">
+            <bdi dir="ltr">4.94</bdi>
+          </span>
+          <span class="text-xs text-slate-500 font-mono">/ 5.0</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs">
+          <span class="inline-flex items-center gap-0.5 text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200" id="kpi-rating-trend">
+            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <bdi dir="ltr">+0.4%</bdi>
+          </span>
+          <span class="text-slate-500" id="kpi-rating-sub">342 שאלוני משוב</span>
+        </div>
+        <div class="mt-3 pt-2 border-t border-gray-200 text-[11px] text-slate-600 flex justify-between items-center">
+          <span>מדד המלצה (NPS)</span>
+          <span class="font-semibold text-emerald-700 font-mono">+84 (מצטיין)</span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- SECTION: TWO COLUMNS (DESKTOP) / STACK (MOBILE) -->
+    <!-- RIGHT: INTERACTIVE MONTHLY BAR CHART | LEFT: REVENUE BREAKDOWN CHANNELS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- COLUMN 1: MONTHLY BAR CHART & VISUALIZATION (8 Cols on Desktop) -->
+      <section class="lg:col-span-8 bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm" id="section-analytics" aria-labelledby="analytics-heading">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="analytics-heading" class="text-base sm:text-lg font-bold text-slate-900">
+                התפלגות ביצועים חודשית
+              </h2>
+              <span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium border border-blue-200" id="chartViewBadge">
+                גרף עמודות
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              לחץ על כל עמודה לחקירת נתוני החודש הרלוונטי וסינון רשימת ההרצאות
+            </p>
+          </div>
+
+          <!-- Controls: Metric Toggle & Chart Type Toggle -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Metric selector -->
+            <div class="inline-flex rounded-sm border border-slate-300 p-0.5 bg-slate-100 text-xs" role="tablist">
+              <button type="button" id="tab-metric-revenue" onclick="switchChartMetric('revenue')" class="px-2.5 py-1 font-medium rounded-sm tab-active transition-colors" role="tab" aria-selected="true">
+                הכנסות (₪)
+              </button>
+              <button type="button" id="tab-metric-hours" onclick="switchChartMetric('hours')" class="px-2.5 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-950 transition-colors" role="tab" aria-selected="false">
+                שעות
+              </button>
+              <button type="button" id="tab-metric-students" onclick="switchChartMetric('students')" class="px-2.5 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-950 transition-colors" role="tab" aria-selected="false">
+                לומדים
+              </button>
+            </div>
+
+            <!-- Chart Type: Bar vs Line -->
+            <div class="inline-flex rounded-sm border border-slate-300 p-0.5 bg-slate-100 text-xs">
+              <button type="button" id="btn-chart-bar" onclick="setChartType('bar')" class="p-1 rounded-sm bg-white text-blue-600 shadow-xs" title="גרף עמודות" aria-label="הצג כגרף עמודות">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+              </button>
+              <button type="button" id="btn-chart-line" onclick="setChartType('line')" class="p-1 rounded-sm text-slate-600 hover:text-slate-950" title="גרף קו רציף" aria-label="הצג כגרף קו רציף">
+                <i data-lucide="line-chart" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas Container with explicit height -->
+        <div class="relative w-full mt-4" style="min-height: 320px; height: 320px;">
+          <canvas id="monthlyBarChart" aria-label="גרף עמודות חודשי המציג נתוני הכנסות והוראה"></canvas>
+        </div>
+
+        <!-- Selected Month Inspection Banner -->
+        <div id="selectedMonthBanner" class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span class="text-slate-600">חודש נבחר לבחינה מעמיקה:</span>
+            <strong class="font-bold text-slate-900" id="selectedMonthName">נובמבר 2026</strong>
+            <span class="text-slate-400">|</span>
+            <span class="text-slate-600">הכנסה: <strong class="text-slate-900 font-mono" id="selectedMonthRev"><bdi dir="ltr">₪58,450</bdi></strong></span>
+            <span class="text-slate-400">|</span>
+            <span class="text-slate-600">שעות הוראה: <strong class="text-slate-900 font-mono" id="selectedMonthHrs"><bdi dir="ltr">42.5</bdi></strong></span>
+          </div>
+          <button type="button" onclick="filterLecturesByCurrentMonth()" class="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center gap-1 self-start sm:self-auto">
+            <span>סנן יומן לחודש זה</span>
+            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- COLUMN 2: INCOME STREAMS BREAKDOWN (4 Cols on Desktop) -->
+      <section class="lg:col-span-4 bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm" id="section-channels" aria-labelledby="channels-heading">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+          <div>
+            <h2 id="channels-heading" class="text-base sm:text-lg font-bold text-slate-900">
+              פירוט ערוצי הכנסה
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">פילוח תקבולים לפי מקורות פעילות</p>
+          </div>
+          <button type="button" onclick="openIncomeChannelModal()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 inline-flex items-center gap-0.5" aria-label="ניהול ערוצים">
+            <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+            <span>ניהול</span>
+          </button>
+        </div>
+
+        <!-- Multi-segment distribution visual bar -->
+        <div class="mt-4">
+          <div class="flex justify-between text-xs text-slate-600 mb-1.5 font-mono">
+            <span>חלוקה יחסית כוללת</span>
+            <span class="font-bold text-slate-900" id="channelTotalSum"><bdi dir="ltr">100% (₪58,450)</bdi></span>
+          </div>
+          <div class="w-full h-3 bg-gray-100 rounded flex overflow-hidden gap-0.5" title="התפלגות יחסית בין ערוצי ההכנסה">
+            <div id="bar-ch-digital" class="bg-blue-600 h-full transition-all duration-500" style="width: 42.0%;" title="קורסים דיגיטליים: 42.0%"></div>
+            <div id="bar-ch-corporate" class="bg-purple-600 h-full transition-all duration-500" style="width: 30.0%;" title="סדנאות לארגונים: 30.0%"></div>
+            <div id="bar-ch-academic" class="bg-teal-700 h-full transition-all duration-500" style="width: 17.8%;" title="הוראה אקדמית: 17.8%"></div>
+            <div id="bar-ch-mentoring" class="bg-pink-700 h-full transition-all duration-500" style="width: 10.2%;" title="ליווי אישי ומנטורינג: 10.2%"></div>
+          </div>
+        </div>
+
+        <!-- Channels List -->
+        <div class="mt-4 space-y-3" id="channelsListContainer">
+          
+          <!-- Channel 1: Digital Courses -->
+          <div class="p-2.5 rounded border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition cursor-pointer" onclick="inspectChannel('digital')">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                <span class="font-bold text-slate-900">קורסים דיגיטליים מוקלטים</span>
+              </div>
+              <span class="font-mono font-bold text-slate-900" id="ch-val-digital"><bdi dir="ltr">₪24,550</bdi></span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>פלטפורמת Udemy + אתר קורסים פרטי</span>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-slate-700 font-semibold" id="ch-pct-digital">42.0%</span>
+                <span class="text-emerald-700 font-medium"><bdi dir="ltr">+14.2%</bdi></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 2: Corporate Workshops -->
+          <div class="p-2.5 rounded border border-slate-200 hover:border-purple-300 hover:bg-purple-50/30 transition cursor-pointer" onclick="inspectChannel('corporate')">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                <span class="font-bold text-slate-900">סדנאות והרצאות לארגונים</span>
+              </div>
+              <span class="font-mono font-bold text-slate-900" id="ch-val-corporate"><bdi dir="ltr">₪17,500</bdi></span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>הכשרות AI לחברות הייטק ובנקים</span>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-slate-700 font-semibold" id="ch-pct-corporate">30.0%</span>
+                <span class="text-emerald-700 font-medium"><bdi dir="ltr">+21.0%</bdi></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 3: Academic Teaching -->
+          <div class="p-2.5 rounded border border-slate-200 hover:border-teal-300 hover:bg-teal-50/30 transition cursor-pointer" onclick="inspectChannel('academic')">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-teal-700"></span>
+                <span class="font-bold text-slate-900">הוראה אקדמית מוסדית</span>
+              </div>
+              <span class="font-mono font-bold text-slate-900" id="ch-val-academic"><bdi dir="ltr">₪10,400</bdi></span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>מרצה מן החוץ • אוניברסיטת תל אביב</span>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-slate-700 font-semibold" id="ch-pct-academic">17.8%</span>
+                <span class="text-slate-600"><bdi dir="ltr">0.0%</bdi> (קבוע)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 4: Mentorship 1-on-1 -->
+          <div class="p-2.5 rounded border border-slate-200 hover:border-pink-300 hover:bg-pink-50/30 transition cursor-pointer" onclick="inspectChannel('mentoring')">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-pink-700"></span>
+                <span class="font-bold text-slate-900">מנטורינג וליווי אישי 1-על-1</span>
+              </div>
+              <span class="font-mono font-bold text-slate-900" id="ch-val-mentoring"><bdi dir="ltr">₪6,000</bdi></span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>ליווי חוקרים ובכירים ביישום AI</span>
+              <div class="flex items-center gap-1.5 font-mono">
+                <span class="text-slate-700 font-semibold" id="ch-pct-mentoring">10.2%</span>
+                <span class="text-emerald-700 font-medium"><bdi dir="ltr">+8.5%</bdi></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Add Payment / Quick Invoice Button -->
+        <div class="mt-4 pt-3 border-t border-gray-200">
+          <button type="button" onclick="openPaymentModal()" class="w-full py-2 px-3 text-xs font-semibold rounded bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-slate-600"></i>
+            <span>הזנת תקבול / חשבונית ידנית</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SECTION: QUICK ACTIONS (כפתורי פעולה מהירים) -->
+    <section aria-labelledby="quick-actions-heading" id="section-actions" class="bg-slate-50 border border-slate-200 rounded-lg p-4 sm:p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 id="quick-actions-heading" class="text-base sm:text-lg font-bold text-slate-900">
+            פעולות מהירות למרצה
+          </h2>
+          <p class="text-xs text-slate-500">קיצורי דרך תפעוליים לניהול שוטף של הרצאות, תוכן וכספים</p>
+        </div>
+        <span class="text-xs text-slate-500 hidden sm:inline">זמינות מיידית</span>
+      </div>
+
+      <!-- Action buttons grid: 2 cols on mobile, 5 cols on desktop -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+        
+        <!-- Action 1: New Lecture -->
+        <button type="button" onclick="openNewLectureModal()" class="flex flex-col items-center justify-center text-center p-3 sm:p-4 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-400 rounded-lg shadow-2xs transition group focus:ring-2 focus:ring-blue-600">
+          <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-slate-900">תיאום הרצאה</span>
+          <span class="text-[11px] text-slate-500 mt-0.5">שיבוץ ביומן וקביעת תעריף</span>
+        </button>
+
+        <!-- Action 2: Export Report -->
+        <button type="button" onclick="openReportModal()" class="flex flex-col items-center justify-center text-center p-3 sm:p-4 bg-white hover:bg-slate-100 border border-slate-200 hover:border-slate-400 rounded-lg shadow-2xs transition group focus:ring-2 focus:ring-blue-600">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-slate-900">הפקת דוח כספי</span>
+          <span class="text-[11px] text-slate-500 mt-0.5">יצוא ל-CSV / הדפסה מפורטת</span>
+        </button>
+
+        <!-- Action 3: New Cohort -->
+        <button type="button" onclick="openCohortModal()" class="flex flex-col items-center justify-center text-center p-3 sm:p-4 bg-white hover:bg-purple-50/50 border border-slate-200 hover:border-purple-400 rounded-lg shadow-2xs transition group focus:ring-2 focus:ring-blue-600">
+          <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-slate-900">פתיחת מחזור קורס</span>
+          <span class="text-[11px] text-slate-500 mt-0.5">מחזור חדש לקורס מקוון</span>
+        </button>
+
+        <!-- Action 4: Broadcast Announcement -->
+        <button type="button" onclick="openBroadcastModal()" class="flex flex-col items-center justify-center text-center p-3 sm:p-4 bg-white hover:bg-amber-50/50 border border-slate-200 hover:border-amber-400 rounded-lg shadow-2xs transition group focus:ring-2 focus:ring-blue-600">
+          <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <i data-lucide="megaphone" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-slate-900">הודעה לסטודנטים</span>
+          <span class="text-[11px] text-slate-500 mt-0.5">שליחת עדכון כיתתי מיידי</span>
+        </button>
+
+        <!-- Action 5: Add Payment -->
+        <button type="button" onclick="openPaymentModal()" class="flex flex-col items-center justify-center text-center p-3 sm:p-4 bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-400 rounded-lg shadow-2xs transition group focus:ring-2 focus:ring-blue-600 col-span-2 sm:col-span-1">
+          <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <i data-lucide="receipt" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs sm:text-sm font-bold text-slate-900">רישום תקבול</span>
+          <span class="text-[11px] text-slate-500 mt-0.5">הזנת העברה בנקאית/מזומן</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- SECTION: SCHEDULE & UPCOMING LECTURES + STUDENT SATISFACTION FEEDBACK -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LECTURE SCHEDULE (8 Cols) -->
+      <section class="lg:col-span-8 bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm" id="section-schedule" aria-labelledby="schedule-heading">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="schedule-heading" class="text-base sm:text-lg font-bold text-slate-900">
+                לוח הרצאות ומפגשים קרובים
+              </h2>
+              <span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-700 rounded-full font-mono font-semibold" id="lectureCountBadge">
+                7 הרצאות
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">מעקב סטטוס שיבוצים, קישורי זום ותעריפים צפויים</p>
+          </div>
+
+          <!-- Schedule Filters -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="relative">
+              <input type="text" id="scheduleSearchInput" oninput="filterLectures()" placeholder="חיפוש נושא או לקוח..." class="text-xs pl-2 pr-7 py-1.5 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-600 w-36 sm:w-48" aria-label="חיפוש בהרצאות">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute right-2 top-2.5 pointer-events-none"></i>
+            </div>
+            
+            <div class="inline-flex rounded-sm border border-slate-300 p-0.5 bg-slate-100 text-xs">
+              <button type="button" id="filter-all" onclick="setScheduleFilter('all')" class="px-2 py-1 font-medium rounded-sm pill-filter-active transition-colors">
+                הכל
+              </button>
+              <button type="button" id="filter-zoom" onclick="setScheduleFilter('zoom')" class="px-2 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-900 transition-colors">
+                זום
+              </button>
+              <button type="button" id="filter-physical" onclick="setScheduleFilter('physical')" class="px-2 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-900 transition-colors">
+                פרונטלי
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lectures List / Table -->
+        <div class="mt-4 space-y-3" id="lecturesListContainer">
+          <!-- Dynamic items populated by JavaScript -->
+        </div>
+
+        <div id="noLecturesFound" class="hidden text-center py-8 text-slate-500 text-xs">
+          <i data-lucide="calendar-x-2" class="w-8 h-8 text-slate-400 mx-auto mb-2"></i>
+          <p>לא נמצאו הרצאות התואמות את החיפוש או הסינון שנבחר.</p>
+          <button type="button" onclick="resetScheduleFilters()" class="mt-2 text-blue-600 font-semibold underline text-xs">
+            אפס מסננים
+          </button>
+        </div>
+      </section>
+
+      <!-- STUDENT FEEDBACK & SATISFACTION (4 Cols) -->
+      <section class="lg:col-span-4 bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm" id="section-feedback" aria-labelledby="feedback-heading">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+          <div>
+            <h2 id="feedback-heading" class="text-base sm:text-lg font-bold text-slate-900">
+              משובי הוראה ושביעות רצון
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">דירוגי סטודנטים ומשתתפי סדנאות</p>
+          </div>
+          <span class="text-xs font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1">
+            <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 text-amber-500"></i>
+            <span>4.94 / 5.0</span>
+          </span>
+        </div>
+
+        <!-- Rating Breakdown Bars -->
+        <div class="mt-4 space-y-2">
+          <div class="flex items-center gap-2 text-xs">
+            <span class="w-12 text-slate-600 font-mono">5 כוכבים</span>
+            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-400 rounded-full" style="width: 92%;"></div>
+            </div>
+            <span class="w-8 text-left text-slate-500 font-mono text-[11px]">92%</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <span class="w-12 text-slate-600 font-mono">4 כוכבים</span>
+            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-300 rounded-full" style="width: 6%;"></div>
+            </div>
+            <span class="w-8 text-left text-slate-500 font-mono text-[11px]">6%</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <span class="w-12 text-slate-600 font-mono">3 כוכבים</span>
+            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gray-300 rounded-full" style="width: 2%;"></div>
+            </div>
+            <span class="w-8 text-left text-slate-500 font-mono text-[11px]">2%</span>
+          </div>
+        </div>
+
+        <!-- Student Reviews / Testimonials Cards -->
+        <div class="mt-5 pt-3 border-t border-gray-200">
+          <span class="text-xs font-bold text-slate-800 block mb-2">ציטוטים ממשובים אחרונים</span>
+          
+          <div class="space-y-2.5">
+            <blockquote class="p-2.5 bg-slate-50 rounded border-r-2 border-blue-600 text-xs text-slate-700 italic">
+              "הסדנה המעשית בארגון שינתה לחלוטין את היכולת של הצוות שלנו ליישם כלי AI בעבודה השוטפת. הסברים בהירים ומדויקים!"
+              <cite class="block not-italic text-[10px] text-slate-500 font-medium mt-1">— ראש צוות פיתוח, בנק הפועלים (לפני יומיים)</cite>
+            </blockquote>
+
+            <blockquote class="p-2.5 bg-slate-50 rounded border-r-2 border-purple-600 text-xs text-slate-700 italic">
+              "פרופ' ברק הופך נושאים סבוכים במודלים של שפה לקלים להבנה ומרתקים. הקורס הטוב ביותר שלקחתי השנה."
+              <cite class="block not-italic text-[10px] text-slate-500 font-medium mt-1">— סטודנטית לתואר שני, אוניברסיטת ת״א (לפני 4 ימים)</cite>
+            </blockquote>
+          </div>
+
+          <button type="button" onclick="showFeedbackModal()" class="w-full mt-3 py-1.5 text-xs text-blue-600 hover:text-blue-800 font-semibold border border-blue-200 hover:bg-blue-50/50 rounded transition text-center">
+            צפייה בכל 342 המשובים המלאים
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAVIGATION BAR (Fixed on Mobile Screens < 768px) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg md:hidden" aria-label="ניווט תחתון למובייל">
+    <div class="grid grid-cols-5 h-16 items-center px-1">
+      
+      <!-- Nav Item 1: Overview -->
+      <button type="button" onclick="mobileNavJump('analytics')" id="nav-btn-analytics" class="flex flex-col items-center justify-center py-1 text-blue-600 font-semibold text-[11px] focus:outline-hidden">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i>
+        <span>דשבורד</span>
+      </button>
+
+      <!-- Nav Item 2: Schedule -->
+      <button type="button" onclick="mobileNavJump('schedule')" id="nav-btn-schedule" class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-900 font-medium text-[11px] focus:outline-hidden">
+        <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+        <span>יומן</span>
+      </button>
+
+      <!-- Nav Item 3: Actions (Highlighted Center Button) -->
+      <button type="button" onclick="mobileNavJump('actions')" id="nav-btn-actions" class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-900 font-medium text-[11px] focus:outline-hidden">
+        <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center -mt-4 shadow-md border-2 border-white">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+        </div>
+        <span class="mt-0.5">פעולות</span>
+      </button>
+
+      <!-- Nav Item 4: Revenue Channels -->
+      <button type="button" onclick="mobileNavJump('channels')" id="nav-btn-channels" class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-900 font-medium text-[11px] focus:outline-hidden">
+        <i data-lucide="pie-chart" class="w-5 h-5 mb-0.5"></i>
+        <span>ערוצים</span>
+      </button>
+
+      <!-- Nav Item 5: Feedback -->
+      <button type="button" onclick="mobileNavJump('feedback')" id="nav-btn-feedback" class="flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-900 font-medium text-[11px] focus:outline-hidden">
+        <i data-lucide="star" class="w-5 h-5 mb-0.5"></i>
+        <span>משובים</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- MODALS & ACCESSIBLE DIALOGS -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL 1: SCHEDULE NEW LECTURE -->
+  <dialog id="newLectureModal" class="p-0 rounded-lg shadow-2xl border border-gray-300 max-w-lg w-full backdrop:bg-black/50" aria-labelledby="modalLectureTitle">
+    <div class="p-5 bg-white">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-blue-100 text-blue-700 flex items-center justify-center">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+          </div>
+          <h3 id="modalLectureTitle" class="text-base font-bold text-slate-900">שיבוץ הרצאה חדשה ביומן</h3>
+        </div>
+        <button type="button" onclick="closeModal('newLectureModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded" aria-label="סגור חלון">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="lectureForm" onsubmit="handleCreateLecture(event)" class="mt-4 space-y-3.5 text-xs text-slate-800">
+        <div>
+          <label for="lecTopic" class="block font-semibold mb-1 text-slate-700">נושא ההרצאה / הסדנה *</label>
+          <input type="text" id="lecTopic" required placeholder="לדוגמה: ארכיטקטורת LLMs וסוכנים אוטונומיים" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="lecClient" class="block font-semibold mb-1 text-slate-700">מוסד אקדמי / לקוח עסקי *</label>
+            <input type="text" id="lecClient" required placeholder="לדוגמה: Wix R&D / אוניברסיטת ת״א" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+          </div>
+          <div>
+            <label for="lecFormat" class="block font-semibold mb-1 text-slate-700">פורמט המפגש *</label>
+            <select id="lecFormat" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+              <option value="zoom">מקוון בזום (Zoom Live)</option>
+              <option value="physical">פרונטלי באולם / קמפוס</option>
+              <option value="hybrid">היברידי משולב</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="lecDate" class="block font-semibold mb-1 text-slate-700">תאריך *</label>
+            <input type="date" id="lecDate" required class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 font-mono">
+          </div>
+          <div>
+            <label for="lecTime" class="block font-semibold mb-1 text-slate-700">שעת התחלה *</label>
+            <input type="time" id="lecTime" value="18:00" required class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 font-mono">
+          </div>
+          <div>
+            <label for="lecHours" class="block font-semibold mb-1 text-slate-700">משך (שעות) *</label>
+            <input type="number" id="lecHours" min="0.5" max="10" step="0.5" value="2.5" required class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label for="lecFee" class="block font-semibold mb-1 text-slate-700">שכר / תעריף מוסכם (₪) *</label>
+          <input type="number" id="lecFee" min="0" step="100" value="4500" required class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 font-mono">
+          <span class="text-[11px] text-slate-500 mt-0.5 block">סכום זה יתווסף אוטומטית לערוץ ההכנסה וה-KPI</span>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('newLectureModal')" class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded font-medium transition">
+            ביטול
+          </button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>שמור ושבץ ביומן</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- MODAL 2: FINANCIAL REPORT & EXPORT -->
+  <dialog id="reportModal" class="p-0 rounded-lg shadow-2xl border border-gray-300 max-w-lg w-full backdrop:bg-black/50" aria-labelledby="modalReportTitle">
+    <div class="p-5 bg-white">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          </div>
+          <h3 id="modalReportTitle" class="text-base font-bold text-slate-900">הפקת דוח הכנסות ותקבולים</h3>
+        </div>
+        <button type="button" onclick="closeModal('reportModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded" aria-label="סגור חלון">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-3 text-xs text-slate-800">
+        <div class="bg-slate-50 p-3 rounded border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-1">תמצית לתקופה הנבחרת: <span id="reportPeriodText" class="font-normal font-mono">נובמבר 2026</span></span>
+          <div class="grid grid-cols-2 gap-2 mt-2 font-mono">
+            <div>
+              <span class="text-slate-500 block text-[11px]">סך הכנסה ברוטו</span>
+              <strong class="text-base text-slate-900" id="reportGrossTotal"><bdi dir="ltr">₪58,450</bdi></strong>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[11px]">מע״מ צפוי (17%)</span>
+              <strong class="text-base text-slate-900" id="reportVatTotal"><bdi dir="ltr">₪9,936</bdi></strong>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[11px]">שעות הוראה</span>
+              <strong class="text-base text-slate-900" id="reportHoursTotal"><bdi dir="ltr">42.5 שעות</bdi></strong>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[11px]">תעריף שעתי ממוצע</span>
+              <strong class="text-base text-slate-900" id="reportHourlyAvg"><bdi dir="ltr">₪1,375 / שעה</bdi></strong>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label for="reportFormatSelect" class="block font-semibold mb-1 text-slate-700">פורמט יצוא מועדף</label>
+          <select id="reportFormatSelect" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden font-sans">
+            <option value="csv">קובץ נתונים מפורט (CSV למחשבון רו״ח)</option>
+            <option value="summary">סיכום טבלאי להדפסה</option>
+          </select>
+        </div>
+
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded text-blue-900 text-[11px]">
+          <p class="font-semibold flex items-center gap-1">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>שמירה מקומית מאובטחת</span>
+          </p>
+          <p class="mt-0.5">הדוח נוצר ישירות מהנתונים האינטראקטיביים של הדשבורד וכולל את כל ערוצי ההכנסה וההרצאות.</p>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('reportModal')" class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded font-medium transition">
+            סגור
+          </button>
+          <button type="button" onclick="downloadFinancialReport()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-semibold transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>הורד קובץ דוח</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL 3: BROADCAST ANNOUNCEMENT TO STUDENTS -->
+  <dialog id="broadcastModal" class="p-0 rounded-lg shadow-2xl border border-gray-300 max-w-lg w-full backdrop:bg-black/50" aria-labelledby="modalBroadcastTitle">
+    <div class="p-5 bg-white">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-amber-100 text-amber-700 flex items-center justify-center">
+            <i data-lucide="megaphone" class="w-4 h-4"></i>
+          </div>
+          <h3 id="modalBroadcastTitle" class="text-base font-bold text-slate-900">שליחת הודעה לסטודנטים וללומדים</h3>
+        </div>
+        <button type="button" onclick="closeModal('broadcastModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded" aria-label="סגור חלון">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSendBroadcast(event)" class="mt-4 space-y-3.5 text-xs text-slate-800">
+        <div>
+          <label for="broadcastAudience" class="block font-semibold mb-1 text-slate-700">קהל יעד / קורס *</label>
+          <select id="broadcastAudience" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+            <option value="all">כל 1,480 הלומדים הפעילים</option>
+            <option value="digital">לומדי הקורס הדיגיטלי "Python ל-AI מתקדם"</option>
+            <option value="corporate">משתתפי סדנת Generative AI (בנק הפועלים)</option>
+            <option value="academic">סטודנטים באוניברסיטת ת״א (סמסטר א׳)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="broadcastSubject" class="block font-semibold mb-1 text-slate-700">כותרת ההודעה *</label>
+          <input type="text" id="broadcastSubject" required placeholder="לדוגמה: חומרי עזר מעודכנים + קישור להקלטת המפגש" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div>
+          <label for="broadcastContent" class="block font-semibold mb-1 text-slate-700">תוכן ההודעה *</label>
+          <textarea id="broadcastContent" rows="4" required placeholder="שלום לכולם, עדכנתי את המצגת ומחברות ה-Jupyter של המפגש האחרון..." class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="sendEmailAlso" checked class="rounded text-blue-600 focus:ring-blue-500">
+          <label for="sendEmailAlso" class="text-slate-700 font-medium">שליחה בו-זמנית באימייל + התראה במערכת הקורס</label>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('broadcastModal')" class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded font-medium transition">
+            ביטול
+          </button>
+          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded font-semibold transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>שלח הודעה כעת</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- MODAL 4: RECORD OFFLINE / MANUAL PAYMENT -->
+  <dialog id="paymentModal" class="p-0 rounded-lg shadow-2xl border border-gray-300 max-w-lg w-full backdrop:bg-black/50" aria-labelledby="modalPaymentTitle">
+    <div class="p-5 bg-white">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-teal-100 text-teal-700 flex items-center justify-center">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+          </div>
+          <h3 id="modalPaymentTitle" class="text-base font-bold text-slate-900">הזנת תקבול / חשבונית ידנית</h3>
+        </div>
+        <button type="button" onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded" aria-label="סגור חלון">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleRecordPayment(event)" class="mt-4 space-y-3.5 text-xs text-slate-800">
+        <div>
+          <label for="payPayer" class="block font-semibold mb-1 text-slate-700">גורם משלם / שם הלקוח *</label>
+          <input type="text" id="payPayer" required placeholder="לדוגמה: מרכז החדשנות - עיריית ת״א" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="payChannel" class="block font-semibold mb-1 text-slate-700">ערוץ הכנסה משויך *</label>
+            <select id="payChannel" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600">
+              <option value="corporate">סדנאות והרצאות לארגונים</option>
+              <option value="digital">קורסים דיגיטליים</option>
+              <option value="academic">הוראה אקדמית מוסדית</option>
+              <option value="mentoring">מנטורינג וליווי אישי</option>
+            </select>
+          </div>
+          <div>
+            <label for="payAmount" class="block font-semibold mb-1 text-slate-700">סכום תקבול (₪) *</label>
+            <input type="number" id="payAmount" min="50" step="50" value="3000" required class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label for="payNote" class="block font-semibold mb-1 text-slate-700">הערות / אסמכתא</label>
+          <input type="text" id="payNote" placeholder="מספר העברה בנקאית או צ׳ק" class="w-full px-3 py-2 border border-slate-300 rounded bg-slate-50 focus:bg-white focus:outline-hidden">
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('paymentModal')" class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded font-medium transition">
+            ביטול
+          </button>
+          <button type="submit" class="px-5 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded font-semibold transition flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>עדכן הכנסות</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- MODAL 5: CUSTOM DATE RANGE SELECTOR -->
+  <dialog id="customDateModal" class="p-0 rounded-lg shadow-2xl border border-gray-300 max-w-sm w-full backdrop:bg-black/50" aria-labelledby="modalCustomDateTitle">
+    <div class="p-5 bg-white">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <h3 id="modalCustomDateTitle" class="text-base font-bold text-slate-900">בחירת טווח תאריכים מותאם</h3>
+        <button type="button" onclick="closeModal('customDateModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded" aria-label="סגור חלון">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleApplyCustomDate(event)" class="mt-4 space-y-3.5 text-xs text-slate-800">
+        <div>
+          <label for="customStart" class="block font-semibold mb-1 text-slate-700">מתאריך</label>
+          <input type="date" id="customStart" value="2026-10-01" required class="w-full px-3 py-2 border border-slate-300 rounded font-mono">
+        </div>
+        <div>
+          <label for="customEnd" class="block font-semibold mb-1 text-slate-700">עד תאריך</label>
+          <input type="date" id="customEnd" value="2026-11-30" required class="w-full px-3 py-2 border border-slate-300 rounded font-mono">
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('customDateModal')" class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded font-medium transition">
+            ביטול
+          </button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
+            החל טווח
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-4 left-4 z-50 flex flex-col gap-2 pointer-events-none" aria-live="polite"></div>
+
+  <!-- PERSISTENCE SHIM API - Required for Sandbox environment -->
+  <api-shim></api-shim>
+
+  <!-- MAIN JAVASCRIPT APPLICATION SCRIPT -->
+  <script>
+    // =========================================================================
+    // STATE & DATA STORE
+    // =========================================================================
+    
+    // Core periods dataset
+    const PERIOD_DATA = {
+      month: {
+        label: '1 בנובמבר 2026 – 30 בנובמבר 2026 (חודש נוכחי)',
+        revenue: 58450,
+        revenueTrend: '+16.8%',
+        revenueSub: 'לעומת חודש שעבר',
+        revenueGoalPercent: 89.9,
+        students: 1480,
+        studentsTrend: '+9.2%',
+        studentsSub: '215 נרשמים חדשים',
+        hours: 42.5,
+        hoursTrend: '+5.0%',
+        hoursSub: '14 מפגשים והרצאות',
+        rating: '4.94',
+        ratingTrend: '+0.4%',
+        ratingSub: '342 שאלוני משוב',
+        channels: {
+          digital: 24550,
+          corporate: 17500,
+          academic: 10400,
+          mentoring: 6000
+        },
+        chartLabels: ['יוני 26', 'יולי 26', 'אוגוסט 26', 'ספטמבר 26', 'אוקטובר 26', 'נובמבר 26'],
+        chartRevenue: [44200, 48500, 41000, 52100, 50050, 58450],
+        chartHours: [32, 36, 28, 38, 37, 42.5],
+        chartStudents: [1120, 1205, 1280, 1340, 1390, 1480]
+      },
+      quarter: {
+        label: 'רבעון 4 (Q4 2026: אוקטובר – דצמבר)',
+        revenue: 168500,
+        revenueTrend: '+22.4%',
+        revenueSub: 'לעומת רבעון 3',
+        revenueGoalPercent: 94.2,
+        students: 1480,
+        studentsTrend: '+18.1%',
+        studentsSub: '540 נרשמים ברבעון',
+        hours: 124.0,
+        hoursTrend: '+14.5%',
+        hoursSub: '42 הרצאות ברבעון',
+        rating: '4.93',
+        ratingTrend: '+0.5%',
+        ratingSub: '890 שאלוני משוב',
+        channels: {
+          digital: 71200,
+          corporate: 54300,
+          academic: 28000,
+          mentoring: 15000
+        },
+        chartLabels: ['רבעון 1', 'רבעון 2', 'רבעון 3', 'רבעון 4 (נוכחי)'],
+        chartRevenue: [132000, 145000, 138000, 168500],
+        chartHours: [98, 106, 102, 124],
+        chartStudents: [980, 1150, 1290, 1480]
+      },
+      year: {
+        label: 'שנת 2026 מלאה (מצטבר מתחילת השנה)',
+        revenue: 583500,
+        revenueTrend: '+28.3%',
+        revenueSub: 'לעומת שנת 2025',
+        revenueGoalPercent: 97.2,
+        students: 1480,
+        studentsTrend: '+34.5%',
+        studentsSub: 'סה״כ לומדים פעילים',
+        hours: 430.0,
+        hoursTrend: '+18.2%',
+        hoursSub: '148 מפגשים אקדמיים ועסקיים',
+        rating: '4.92',
+        ratingTrend: '+0.6%',
+        ratingSub: '2,840 שאלוני משוב',
+        channels: {
+          digital: 245000,
+          corporate: 186000,
+          academic: 102500,
+          mentoring: 50000
+        },
+        chartLabels: ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר'],
+        chartRevenue: [42000, 45000, 49000, 46000, 51000, 44200, 48500, 41000, 52100, 50050, 58450],
+        chartHours: [30, 32, 35, 33, 38, 32, 36, 28, 38, 37, 42.5],
+        chartStudents: [920, 960, 1010, 1050, 1100, 1120, 1205, 1280, 1340, 1390, 1480]
+      },
+      prev_year: {
+        label: 'שנת 2025 (שנה קודמת מלאה)',
+        revenue: 454800,
+        revenueTrend: '+19.0%',
+        revenueSub: 'שנת בסיס קודמת',
+        revenueGoalPercent: 100,
+        students: 1100,
+        studentsTrend: '+24.0%',
+        studentsSub: 'לומדים בשנה קודמת',
+        hours: 364.0,
+        hoursTrend: '+11.0%',
+        hoursSub: '122 מפגשים',
+        rating: '4.88',
+        ratingTrend: '+0.2%',
+        ratingSub: '2,150 שאלוני משוב',
+        channels: {
+          digital: 172000,
+          corporate: 145000,
+          academic: 98000,
+          mentoring: 39800
+        },
+        chartLabels: ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'],
+        chartRevenue: [32000, 34000, 36000, 35000, 39000, 38000, 37000, 31000, 42000, 44000, 43000, 43800],
+        chartHours: [26, 28, 30, 27, 31, 30, 29, 22, 34, 36, 35, 36],
+        chartStudents: [720, 750, 780, 810, 840, 870, 900, 920, 960, 1000, 1050, 1100]
+      }
+    };
+
+    // Initial Lecture Schedule Items
+    let scheduleItems = [
+      {
+        id: 'lec-101',
+        topic: 'סדנת Generative AI, LLMs וסוכנים אוטונומיים',
+        client: 'בנק הפועלים • חטיבת החדשנות',
+        date: '2026-11-10',
+        dateDisplay: 'יום ג׳, 10 נובמבר 2026 | 18:00',
+        format: 'zoom',
+        formatLabel: 'זום מקוון',
+        hours: 3.0,
+        fee: 4500,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      },
+      {
+        id: 'lec-102',
+        topic: 'מבני נתונים מתקדמים ואלגוריתמיקה (הרצאת ליבה)',
+        client: 'אוניברסיטת תל אביב • הפקולטה למדעים',
+        date: '2026-11-12',
+        dateDisplay: 'יום ה׳, 12 נובמבר 2026 | 10:00',
+        format: 'physical',
+        formatLabel: 'פרונטלי • אולם 104',
+        hours: 4.0,
+        fee: 2600,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      },
+      {
+        id: 'lec-103',
+        topic: 'הכשרת מפתחים: בניית אפליקציות מבוססות RAG',
+        client: 'Wix R&D Academy • מתחם נמיר',
+        date: '2026-11-16',
+        dateDisplay: 'יום ב׳, 16 נובמבר 2026 | 14:00',
+        format: 'physical',
+        formatLabel: 'פרונטלי • קמפוס Wix',
+        hours: 3.5,
+        fee: 6200,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      },
+      {
+        id: 'lec-104',
+        topic: 'מפגש שו״ת חי: שחרור מודלים והערכת ביצועים (Evals)',
+        client: 'מחזור קורס דיגיטלי Python AI',
+        date: '2026-11-18',
+        dateDisplay: 'יום ד׳, 18 נובמבר 2026 | 20:00',
+        format: 'zoom',
+        formatLabel: 'זום חי • לומדים מקוונים',
+        hours: 2.0,
+        fee: 2500,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      },
+      {
+        id: 'lec-105',
+        topic: 'ליווי אישי 1-על-1: ארכיטקטורת מערכת AI בחברת Fintech',
+        client: 'חברת PayScale מנטורינג בכירים',
+        date: '2026-11-21',
+        dateDisplay: 'יום א׳, 21 נובמבר 2026 | 11:00',
+        format: 'zoom',
+        formatLabel: 'זום אישי',
+        hours: 1.5,
+        fee: 2000,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      },
+      {
+        id: 'lec-106',
+        topic: 'סמינר מחקר: חידושים ב-Diffusion Models וקול',
+        client: 'הטכניון מכון טכנולוגי לישראל',
+        date: '2026-11-25',
+        dateDisplay: 'יום ד׳, 25 נובמבר 2026 | 12:30',
+        format: 'physical',
+        formatLabel: 'פרונטלי • בניין טאוב',
+        hours: 3.0,
+        fee: 3200,
+        status: 'draft',
+        statusLabel: 'טיוטה'
+      },
+      {
+        id: 'lec-107',
+        topic: 'הרצאת אורח: עתיד שוק העבודה בעידן הסוכנים',
+        client: 'כנס החדשנות השנתי HT-Tech 2026',
+        date: '2026-11-29',
+        dateDisplay: 'יום א׳, 29 נובמבר 2026 | 09:30',
+        format: 'zoom',
+        formatLabel: 'זום מקוון (Live Stream)',
+        hours: 2.0,
+        fee: 3800,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      }
+    ];
+
+    // App State object
+    let appState = {
+      currentPeriod: 'month',
+      chartMetric: 'revenue',
+      chartType: 'bar',
+      scheduleFilter: 'all',
+      scheduleSearch: '',
+      lectures: scheduleItems
+    };
+
+    let chartInstance = null;
+
+    // =========================================================================
+    // INITIALIZATION & LIFECYCLE
+    // =========================================================================
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 1. Try to load saved state from NotebookAppApi
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+        try {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && typeof saved === 'object') {
+            if (saved.currentPeriod) appState.currentPeriod = saved.currentPeriod;
+            if (saved.chartMetric) appState.chartMetric = saved.chartMetric;
+            if (saved.chartType) appState.chartType = saved.chartType;
+            if (Array.isArray(saved.lectures) && saved.lectures.length > 0) {
+              appState.lectures = saved.lectures;
+            }
+          }
+        } catch (e) {
+          console.warn('Could not load persistent state:', e);
+        }
+      }
+
+      // 2. Initialize UI components
+      updatePeriodUI(appState.currentPeriod);
+      renderLecturesList();
+      initChart();
+
+      // 3. Render Lucide icons
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      // 4. Notify app ready
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+        window.notebookAppApi.notifyAppReady();
+      }
+    });
+
+    // Helper: persist state safely
+    async function persistState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+        try {
+          await window.notebookAppApi.setAppState({
+            currentPeriod: appState.currentPeriod,
+            chartMetric: appState.chartMetric,
+            chartType: appState.chartType,
+            lectures: appState.lectures
+          });
+        } catch (e) {
+          console.warn('Error saving state:', e);
+        }
+      }
+    }
+
+    // =========================================================================
+    // DATE PERIOD SELECTION & METRICS UPDATES
+    // =========================================================================
+
+    function selectDatePeriod(periodKey) {
+      if (!PERIOD_DATA[periodKey]) return;
+      appState.currentPeriod = periodKey;
+
+      // Update button styles
+      ['month', 'quarter', 'year', 'prev_year', 'custom'].forEach(function(k) {
+        const btn = document.getElementById('btn-period-' + k);
+        if (btn) {
+          if (k === periodKey) {
+            btn.className = 'px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-blue-600 text-white border border-blue-600';
+          } else {
+            btn.className = 'px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap bg-white text-slate-700 hover:bg-slate-100 border border-slate-300';
+          }
+        }
+      });
+
+      updatePeriodUI(periodKey);
+      updateChartData();
+      persistState();
+
+      showToast(`עודכן טווח התאריכים: ${PERIOD_DATA[periodKey].label}`);
+    }
+
+    function updatePeriodUI(periodKey) {
+      const data = PERIOD_DATA[periodKey];
+      if (!data) return;
+
+      // Subtitle
+      const labelElem = document.getElementById('currentPeriodLabel');
+      if (labelElem) labelElem.textContent = data.label;
+
+      // KPI 1: Revenue
+      const revElem = document.getElementById('kpi-revenue');
+      if (revElem) revElem.innerHTML = `<bdi dir="ltr">₪${data.revenue.toLocaleString('he-IL')}</bdi>`;
+      
+      const revTrendElem = document.getElementById('kpi-revenue-trend');
+      if (revTrendElem) revTrendElem.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i> <bdi dir="ltr">${data.revenueTrend}</bdi>`;
+      
+      const revSubElem = document.getElementById('kpi-revenue-sub');
+      if (revSubElem) revSubElem.textContent = data.revenueSub;
+
+      const revPercentElem = document.getElementById('kpi-revenue-percent');
+      if (revPercentElem) revPercentElem.textContent = `${data.revenueGoalPercent}%`;
+
+      const revBarElem = document.getElementById('kpi-revenue-bar');
+      if (revBarElem) revBarElem.style.width = `${Math.min(100, data.revenueGoalPercent)}%`;
+
+      // KPI 2: Students
+      const stuElem = document.getElementById('kpi-students');
+      if (stuElem) stuElem.innerHTML = `<bdi dir="ltr">${data.students.toLocaleString('he-IL')}</bdi>`;
+
+      const stuTrendElem = document.getElementById('kpi-students-trend');
+      if (stuTrendElem) stuTrendElem.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i> <bdi dir="ltr">${data.studentsTrend}</bdi>`;
+
+      const stuSubElem = document.getElementById('kpi-students-sub');
+      if (stuSubElem) stuSubElem.textContent = data.studentsSub;
+
+      // KPI 3: Hours
+      const hrsElem = document.getElementById('kpi-hours');
+      if (hrsElem) hrsElem.innerHTML = `<bdi dir="ltr">${data.hours}</bdi>`;
+
+      const hrsTrendElem = document.getElementById('kpi-hours-trend');
+      if (hrsTrendElem) hrsTrendElem.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600"></i> <bdi dir="ltr">${data.hoursTrend}</bdi>`;
+
+      const hrsSubElem = document.getElementById('kpi-hours-sub');
+      if (hrsSubElem) hrsSubElem.textContent = data.hoursSub;
+
+      // KPI 4: Rating
+      const rateElem = document.getElementById('kpi-rating');
+      if (rateElem) rateElem.innerHTML = `<bdi dir="ltr">${data.rating}</bdi>`;
+
+      const rateTrendElem = document.getElementById('kpi-rating-trend');
+      if (rateTrendElem) rateTrendElem.innerHTML = `<i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-emerald-600"></i> <bdi dir="ltr">${data.ratingTrend}</bdi>`;
+
+      const rateSubElem = document.getElementById('kpi-rating-sub');
+      if (rateSubElem) rateSubElem.textContent = data.ratingSub;
+
+      // Update Channel Values
+      const ch = data.channels;
+      const totalCh = ch.digital + ch.corporate + ch.academic + ch.mentoring;
+
+      const chTotElem = document.getElementById('channelTotalSum');
+      if (chTotElem) chTotElem.innerHTML = `<bdi dir="ltr">100% (₪${totalCh.toLocaleString('he-IL')})</bdi>`;
+
+      const pctDigital = ((ch.digital / totalCh) * 100).toFixed(1);
+      const pctCorp = ((ch.corporate / totalCh) * 100).toFixed(1);
+      const pctAcad = ((ch.academic / totalCh) * 100).toFixed(1);
+      const pctMent = ((ch.mentoring / totalCh) * 100).toFixed(1);
+
+      // Width of distribution bar
+      const bDig = document.getElementById('bar-ch-digital');
+      if (bDig) { bDig.style.width = pctDigital + '%'; bDig.title = `קורסים דיגיטליים: ${pctDigital}%`; }
+      const bCorp = document.getElementById('bar-ch-corporate');
+      if (bCorp) { bCorp.style.width = pctCorp + '%'; bCorp.title = `סדנאות לארגונים: ${pctCorp}%`; }
+      const bAcad = document.getElementById('bar-ch-academic');
+      if (bAcad) { bAcad.style.width = pctAcad + '%'; bAcad.title = `הוראה אקדמית: ${pctAcad}%`; }
+      const bMent = document.getElementById('bar-ch-mentoring');
+      if (bMent) { bMent.style.width = pctMent + '%'; bMent.title = `מנטורינג אישי: ${pctMent}%`; }
+
+      // Channel texts
+      const vDig = document.getElementById('ch-val-digital');
+      if (vDig) vDig.innerHTML = `<bdi dir="ltr">₪${ch.digital.toLocaleString('he-IL')}</bdi>`;
+      const pDig = document.getElementById('ch-pct-digital');
+      if (pDig) pDig.textContent = `${pctDigital}%`;
+
+      const vCorp = document.getElementById('ch-val-corporate');
+      if (vCorp) vCorp.innerHTML = `<bdi dir="ltr">₪${ch.corporate.toLocaleString('he-IL')}</bdi>`;
+      const pCorp = document.getElementById('ch-pct-corporate');
+      if (pCorp) pCorp.textContent = `${pctCorp}%`;
+
+      const vAcad = document.getElementById('ch-val-academic');
+      if (vAcad) vAcad.innerHTML = `<bdi dir="ltr">₪${ch.academic.toLocaleString('he-IL')}</bdi>`;
+      const pAcad = document.getElementById('ch-pct-academic');
+      if (pAcad) pAcad.textContent = `${pctAcad}%`;
+
+      const vMent = document.getElementById('ch-val-mentoring');
+      if (vMent) vMent.innerHTML = `<bdi dir="ltr">₪${ch.mentoring.toLocaleString('he-IL')}</bdi>`;
+      const pMent = document.getElementById('ch-pct-mentoring');
+      if (pMent) pMent.textContent = `${pctMent}%`;
+
+      // Update Report modal summary info as well
+      const repPeriod = document.getElementById('reportPeriodText');
+      if (repPeriod) repPeriod.textContent = data.label;
+      const repGross = document.getElementById('reportGrossTotal');
+      if (repGross) repGross.innerHTML = `<bdi dir="ltr">₪${totalCh.toLocaleString('he-IL')}</bdi>`;
+      const repVat = document.getElementById('reportVatTotal');
+      if (repVat) repVat.innerHTML = `<bdi dir="ltr">₪${Math.round(totalCh * 0.17).toLocaleString('he-IL')}</bdi>`;
+      const repHrs = document.getElementById('reportHoursTotal');
+      if (repHrs) repHrs.innerHTML = `<bdi dir="ltr">${data.hours} שעות</bdi>`;
+      const repAvg = document.getElementById('reportHourlyAvg');
+      if (repAvg) repAvg.innerHTML = `<bdi dir="ltr">₪${Math.round(totalCh / (data.hours || 1)).toLocaleString('he-IL')} / שעה</bdi>`;
+
+      // Re-trigger Lucide icons
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    // =========================================================================
+    // CHART.JS INTERACTIVE VISUALIZATION
+    // =========================================================================
+
+    function initChart() {
+      const canvas = document.getElementById('monthlyBarChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const current = PERIOD_DATA[appState.currentPeriod] || PERIOD_DATA.month;
+      const metric = appState.chartMetric;
+
+      let datasetData = current.chartRevenue;
+      let datasetLabel = 'הכנסות (₪)';
+      let bgColor = 'rgba(15, 98, 254, 0.85)';
+      let borderColor = '#0f62fe';
+
+      if (metric === 'hours') {
+        datasetData = current.chartHours;
+        datasetLabel = 'שעות הרצאה';
+        bgColor = 'rgba(0, 93, 93, 0.85)';
+        borderColor = '#005d5d';
+      } else if (metric === 'students') {
+        datasetData = current.chartStudents;
+        datasetLabel = 'לומדים רשומים';
+        bgColor = 'rgba(105, 41, 196, 0.85)';
+        borderColor = '#6929c4';
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: appState.chartType,
+        data: {
+          labels: current.chartLabels,
+          datasets: [{
+            label: datasetLabel,
+            data: datasetData,
+            backgroundColor: appState.chartType === 'line' ? 'rgba(15, 98, 254, 0.12)' : bgColor,
+            borderColor: borderColor,
+            borderWidth: 2,
+            borderRadius: appState.chartType === 'bar' ? 3 : 0,
+            fill: appState.chartType === 'line',
+            tension: 0.35,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: borderColor,
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              rtl: true,
+              textDirection: 'rtl',
+              backgroundColor: '#161616',
+              titleFont: { family: 'IBM Plex Sans Hebrew', size: 13, weight: 'bold' },
+              bodyFont: { family: 'IBM Plex Mono', size: 12 },
+              padding: 10,
+              cornerRadius: 4,
+              callbacks: {
+                label: function(context) {
+                  let val = context.raw || 0;
+                  if (appState.chartMetric === 'revenue') {
+                    return ` סך הכנסה: ₪${val.toLocaleString('he-IL')}`;
+                  } else if (appState.chartMetric === 'hours') {
+                    return ` שעות הוראה: ${val} שעות`;
+                  } else {
+                    return ` לומדים פעילים: ${val.toLocaleString('he-IL')}`;
+                  }
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { family: 'IBM Plex Sans Hebrew', size: 11 },
+                color: '#525252'
+              }
+            },
+            y: {
+              grid: { color: '#e0e0e0' },
+              ticks: {
+                font: { family: 'IBM Plex Mono', size: 11 },
+                color: '#525252',
+                callback: function(value) {
+                  if (appState.chartMetric === 'revenue') {
+                    return value >= 1000 ? `₪${value / 1000}k` : `₪${value}`;
+                  }
+                  return value;
+                }
+              }
+            }
+          },
+          onClick: function(evt, elements) {
+            if (elements && elements.length > 0) {
+              const index = elements[0].index;
+              const label = current.chartLabels[index];
+              const rev = current.chartRevenue[index] || 0;
+              const hrs = current.chartHours[index] || 0;
+              
+              const mName = document.getElementById('selectedMonthName');
+              if (mName) mName.textContent = label;
+              const mRev = document.getElementById('selectedMonthRev');
+              if (mRev) mRev.innerHTML = `<bdi dir="ltr">₪${rev.toLocaleString('he-IL')}</bdi>`;
+              const mHrs = document.getElementById('selectedMonthHrs');
+              if (mHrs) mHrs.innerHTML = `<bdi dir="ltr">${hrs}</bdi>`;
+
+              showToast(`נבחר לחקירה: ${label}`);
+            }
+          }
+        }
+      });
+    }
+
+    function updateChartData() {
+      if (!chartInstance) return;
+      const current = PERIOD_DATA[appState.currentPeriod] || PERIOD_DATA.month;
+      const metric = appState.chartMetric;
+
+      let datasetData = current.chartRevenue;
+      let datasetLabel = 'הכנסות (₪)';
+      let bgColor = 'rgba(15, 98, 254, 0.85)';
+      let borderColor = '#0f62fe';
+
+      if (metric === 'hours') {
+        datasetData = current.chartHours;
+        datasetLabel = 'שעות הרצאה';
+        bgColor = 'rgba(0, 93, 93, 0.85)';
+        borderColor = '#005d5d';
+      } else if (metric === 'students') {
+        datasetData = current.chartStudents;
+        datasetLabel = 'לומדים רשומים';
+        bgColor = 'rgba(105, 41, 196, 0.85)';
+        borderColor = '#6929c4';
+      }
+
+      chartInstance.config.type = appState.chartType;
+      chartInstance.data.labels = current.chartLabels;
+      chartInstance.data.datasets[0].label = datasetLabel;
+      chartInstance.data.datasets[0].data = datasetData;
+      chartInstance.data.datasets[0].backgroundColor = appState.chartType === 'line' ? 'rgba(15, 98, 254, 0.12)' : bgColor;
+      chartInstance.data.datasets[0].borderColor = borderColor;
+      chartInstance.data.datasets[0].fill = appState.chartType === 'line';
+      chartInstance.data.datasets[0].borderRadius = appState.chartType === 'bar' ? 3 : 0;
+      
+      chartInstance.update();
+    }
+
+    function switchChartMetric(metricName) {
+      appState.chartMetric = metricName;
+
+      ['revenue', 'hours', 'students'].forEach(function(m) {
+        const tab = document.getElementById('tab-metric-' + m);
+        if (tab) {
+          if (m === metricName) {
+            tab.className = 'px-2.5 py-1 font-medium rounded-sm tab-active transition-colors';
+            tab.setAttribute('aria-selected', 'true');
+          } else {
+            tab.className = 'px-2.5 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-950 transition-colors';
+            tab.setAttribute('aria-selected', 'false');
+          }
+        }
+      });
+
+      updateChartData();
+      persistState();
+    }
+
+    function setChartType(type) {
+      if (type !== 'bar' && type !== 'line') return;
+      appState.chartType = type;
+
+      const btnBar = document.getElementById('btn-chart-bar');
+      const btnLine = document.getElementById('btn-chart-line');
+      const badge = document.getElementById('chartViewBadge');
+
+      if (type === 'bar') {
+        if (btnBar) btnBar.className = 'p-1 rounded-sm bg-white text-blue-600 shadow-xs';
+        if (btnLine) btnLine.className = 'p-1 rounded-sm text-slate-600 hover:text-slate-950';
+        if (badge) badge.textContent = 'גרף עמודות';
+      } else {
+        if (btnBar) btnBar.className = 'p-1 rounded-sm text-slate-600 hover:text-slate-950';
+        if (btnLine) btnLine.className = 'p-1 rounded-sm bg-white text-blue-600 shadow-xs';
+        if (badge) badge.textContent = 'גרף קו מגמה';
+      }
+
+      if (chartInstance) {
+        chartInstance.destroy();
+        initChart();
+      }
+      persistState();
+    }
+
+    // =========================================================================
+    // LECTURES LIST & SEARCH / FILTER
+    // =========================================================================
+
+    function renderLecturesList() {
+      const container = document.getElementById('lecturesListContainer');
+      const noLectures = document.getElementById('noLecturesFound');
+      const countBadge = document.getElementById('lectureCountBadge');
+      if (!container) return;
+
+      const query = appState.scheduleSearch.trim().toLowerCase();
+      const filter = appState.scheduleFilter;
+
+      const filtered = appState.lectures.filter(function(lec) {
+        const matchQuery = !query || 
+          lec.topic.toLowerCase().includes(query) || 
+          lec.client.toLowerCase().includes(query);
+
+        let matchType = true;
+        if (filter === 'zoom') matchType = (lec.format === 'zoom');
+        if (filter === 'physical') matchType = (lec.format === 'physical');
+
+        return matchQuery && matchType;
+      });
+
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} הרצאות`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        if (noLectures) noLectures.classList.remove('hidden');
+        return;
+      }
+
+      if (noLectures) noLectures.classList.add('hidden');
+
+      let html = '';
+      filtered.forEach(function(lec) {
+        const isZoom = (lec.format === 'zoom');
+        const badgeColor = isZoom ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200';
+        const iconName = isZoom ? 'video' : 'map-pin';
+
+        html += `
+          <div class="p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded border border-slate-200 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded bg-white border border-slate-300 flex items-center justify-center shrink-0 text-slate-700 font-bold text-xs mt-0.5">
+                <i data-lucide="${iconName}" class="w-4 h-4 text-blue-600"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-bold text-slate-900 text-xs sm:text-sm">${escapeHtml(lec.topic)}</h4>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border rounded ${badgeColor}">
+                    ${escapeHtml(lec.formatLabel)}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
+                  <span class="font-medium text-slate-700">${escapeHtml(lec.client)}</span>
+                  <span>•</span>
+                  <span class="font-mono text-slate-600">${escapeHtml(lec.dateDisplay)}</span>
+                  <span>•</span>
+                  <span>${lec.hours} שעות</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200">
+              <div class="text-right sm:text-left">
+                <span class="text-xs font-mono font-bold text-slate-950 block"><bdi dir="ltr">₪${lec.fee.toLocaleString('he-IL')}</bdi></span>
+                <span class="text-[10px] text-emerald-700 font-semibold">${lec.status === 'confirmed' ? 'אושר ושובץ' : 'טיוטה בתיאום'}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                ${isZoom ? `
+                  <button type="button" onclick="joinZoomMeeting('${lec.id}')" class="px-2.5 py-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center gap-1" title="כניסה למפגש זום">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>כניסה לזום</span>
+                  </button>
+                ` : `
+                  <button type="button" onclick="showLectureDetails('${lec.id}')" class="px-2.5 py-1.5 text-xs font-medium bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded transition" title="צפייה בפרטים">
+                    פרטים
+                  </button>
+                `}
+                <button type="button" onclick="deleteLecture('${lec.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded transition" title="ביטול הרצאה" aria-label="ביטול הרצאה">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+
+    function filterLectures() {
+      const input = document.getElementById('scheduleSearchInput');
+      if (input) {
+        appState.scheduleSearch = input.value;
+        renderLecturesList();
+      }
+    }
+
+    function setScheduleFilter(type) {
+      appState.scheduleFilter = type;
+      ['all', 'zoom', 'physical'].forEach(function(f) {
+        const btn = document.getElementById('filter-' + f);
+        if (btn) {
+          if (f === type) {
+            btn.className = 'px-2 py-1 font-medium rounded-sm pill-filter-active transition-colors';
+          } else {
+            btn.className = 'px-2 py-1 font-medium rounded-sm text-slate-700 hover:text-slate-900 transition-colors';
+          }
+        }
+      });
+      renderLecturesList();
+    }
+
+    function resetScheduleFilters() {
+      appState.scheduleSearch = '';
+      appState.scheduleFilter = 'all';
+      const input = document.getElementById('scheduleSearchInput');
+      if (input) input.value = '';
+      setScheduleFilter('all');
+    }
+
+    function filterLecturesByCurrentMonth() {
+      const input = document.getElementById('scheduleSearchInput');
+      if (input) {
+        input.value = 'נובמבר';
+        appState.scheduleSearch = 'נובמבר';
+        renderLecturesList();
+        
+        // Scroll to schedule
+        const schedSec = document.getElementById('section-schedule');
+        if (schedSec) schedSec.scrollIntoView({ behavior: 'smooth' });
+        showToast('סוננו הרצאות לחודש נובמבר');
+      }
+    }
+
+    // =========================================================================
+    // MODAL HANDLERS & USER INTERACTIONS
+    // =========================================================================
+
+    function openModal(modalId) {
+      const dialog = document.getElementById(modalId);
+      if (dialog && typeof dialog.showModal === 'function') {
+        dialog.showModal();
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      }
+    }
+
+    function closeModal(modalId) {
+      const dialog = document.getElementById(modalId);
+      if (dialog && typeof dialog.close === 'function') {
+        dialog.close();
+      }
+    }
+
+    function openNewLectureModal() {
+      // Set today's date in form
+      const dateInput = document.getElementById('lecDate');
+      if (dateInput) dateInput.value = '2026-11-20';
+      openModal('newLectureModal');
+    }
+
+    function openReportModal() {
+      openModal('reportModal');
+    }
+
+    function openBroadcastModal() {
+      openModal('broadcastModal');
+    }
+
+    function openPaymentModal() {
+      openModal('paymentModal');
+    }
+
+    function openCustomDateModal() {
+      openModal('customDateModal');
+    }
+
+    function openCohortModal() {
+      showToast('נפתח מחזור חורף 2026 עבור קורס Python ל-AI! סטודנטים מוזמנים להירשם.');
+    }
+
+    function openIncomeChannelModal() {
+      showToast('תפריט ניהול ערוצי הכנסה ומחירונים נפתח במערכת.');
+    }
+
+    function showFeedbackModal() {
+      showToast('כל 342 המשובים נטענו בסדר כרונולוגי עם דירוג ממוצע 4.94.');
+    }
+
+    // Handle Form Submissions
+    function handleCreateLecture(event) {
+      event.preventDefault();
+      const topic = document.getElementById('lecTopic').value;
+      const client = document.getElementById('lecClient').value;
+      const format = document.getElementById('lecFormat').value;
+      const dateVal = document.getElementById('lecDate').value;
+      const timeVal = document.getElementById('lecTime').value;
+      const hours = parseFloat(document.getElementById('lecHours').value) || 2;
+      const fee = parseInt(document.getElementById('lecFee').value, 10) || 3000;
+
+      const formatLabel = (format === 'zoom') ? 'זום מקוון' : ((format === 'physical') ? 'פרונטלי באולם' : 'היברידי משולב');
+      const newLec = {
+        id: 'lec-' + Date.now(),
+        topic: topic,
+        client: client,
+        date: dateVal,
+        dateDisplay: `${dateVal} | ${timeVal}`,
+        format: format,
+        formatLabel: formatLabel,
+        hours: hours,
+        fee: fee,
+        status: 'confirmed',
+        statusLabel: 'מאושר'
+      };
+
+      appState.lectures.unshift(newLec);
+
+      // Dynamically add to current period revenue and hours
+      const curData = PERIOD_DATA[appState.currentPeriod];
+      if (curData) {
+        curData.revenue += fee;
+        curData.hours = Math.round((curData.hours + hours) * 10) / 10;
+        if (format === 'zoom') {
+          curData.channels.digital += fee;
+        } else {
+          curData.channels.corporate += fee;
+        }
+        updatePeriodUI(appState.currentPeriod);
+        updateChartData();
+      }
+
+      renderLecturesList();
+      persistState();
+      closeModal('newLectureModal');
+      event.target.reset();
+
+      showToast(`ההרצאה "${topic}" שובצה בהצלחה ביומן!`);
+    }
+
+    function handleSendBroadcast(event) {
+      event.preventDefault();
+      const subject = document.getElementById('broadcastSubject').value;
+      closeModal('broadcastModal');
+      event.target.reset();
+      showToast(`הודעה נשלחה בהצלחה: "${subject}"`);
+    }
+
+    function handleRecordPayment(event) {
+      event.preventDefault();
+      const payer = document.getElementById('payPayer').value;
+      const channel = document.getElementById('payChannel').value;
+      const amount = parseInt(document.getElementById('payAmount').value, 10) || 0;
+
+      const curData = PERIOD_DATA[appState.currentPeriod];
+      if (curData && curData.channels[channel] !== undefined) {
+        curData.channels[channel] += amount;
+        curData.revenue += amount;
+        updatePeriodUI(appState.currentPeriod);
+        updateChartData();
+      }
+
+      persistState();
+      closeModal('paymentModal');
+      event.target.reset();
+      showToast(`תקבול על סך ₪${amount.toLocaleString('he-IL')} מ-${payer} נרשם בהצלחה!`);
+    }
+
+    function handleApplyCustomDate(event) {
+      event.preventDefault();
+      const start = document.getElementById('customStart').value;
+      const end = document.getElementById('customEnd').value;
+
+      PERIOD_DATA.custom = {
+        label: `טווח מותאם אישית: ${start} עד ${end}`,
+        revenue: 84200,
+        revenueTrend: '+12.0%',
+        revenueSub: 'טווח מותאם אישית',
+        revenueGoalPercent: 91.5,
+        students: 1480,
+        studentsTrend: '+7.5%',
+        studentsSub: 'לומדים פעילים בטווח',
+        hours: 64.0,
+        hoursTrend: '+8.2%',
+        hoursSub: '21 מפגשים',
+        rating: '4.93',
+        ratingTrend: '+0.3%',
+        ratingSub: '480 שאלוני משוב',
+        channels: {
+          digital: 38000,
+          corporate: 26200,
+          academic: 13000,
+          mentoring: 7000
+        },
+        chartLabels: ['שבוע 1', 'שבוע 2', 'שבוע 3', 'שבוע 4', 'שבוע 5'],
+        chartRevenue: [16000, 18500, 15000, 19200, 15500],
+        chartHours: [12, 14, 11, 15, 12],
+        chartStudents: [1300, 1350, 1400, 1450, 1480]
+      };
+
+      closeModal('customDateModal');
+      selectDatePeriod('custom');
+    }
+
+    // Export CSV Financial Report
+    function downloadFinancialReport() {
+      const curData = PERIOD_DATA[appState.currentPeriod] || PERIOD_DATA.month;
+      
+      let csvContent = '\uFEFF'; // UTF-8 BOM for Hebrew Excel
+      csvContent += 'דוח הכנסות ופעילות מרצה - פרופ\' איתן ברק\r\n';
+      csvContent += `תקופה: ${curData.label}\r\n`;
+      csvContent += `תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}\r\n\r\n`;
+
+      csvContent += 'ערוץ הכנסה,סכום (₪),אחוז מהסך הכולל\r\n';
+      const ch = curData.channels;
+      const tot = curData.revenue;
+      csvContent += `קורסים דיגיטליים,${ch.digital},${((ch.digital/tot)*100).toFixed(1)}%\r\n`;
+      csvContent += `סדנאות והרצאות לארגונים,${ch.corporate},${((ch.corporate/tot)*100).toFixed(1)}%\r\n`;
+      csvContent += `הוראה אקדמית מוסדית,${ch.academic},${((ch.academic/tot)*100).toFixed(1)}%\r\n`;
+      csvContent += `מנטורינג וליווי אישי,${ch.mentoring},${((ch.mentoring/tot)*100).toFixed(1)}%\r\n`;
+      csvContent += `סך הכל ברוטו,${tot},100%\r\n`;
+      csvContent += `מע"מ צפוי (17%),${Math.round(tot * 0.17)},-\r\n\r\n`;
+
+      csvContent += 'פירוט מפגשים והרצאות משובצים:\r\n';
+      csvContent += 'נושא,מוסד / לקוח,תאריך,פורמט,שעות,שכר (₪),סטטוס\r\n';
+      appState.lectures.forEach(function(l) {
+        csvContent += `"${l.topic.replace(/"/g, '""')}","${l.client.replace(/"/g, '""')}","${l.dateDisplay}","${l.formatLabel}",${l.hours},${l.fee},"${l.statusLabel}"\r\n`;
+      });
+
+      const filename = `lecturer_financial_report_${appState.currentPeriod}_${Date.now()}.csv`;
+
+      // Use NotebookAppApi triggerFileDownload if available
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
+        window.notebookAppApi.triggerFileDownload({
+          content: csvContent,
+          contentType: 'text/csv;charset=utf-8;',
+          encoding: 'plain',
+          filename: filename
+        });
+      } else {
+        // Fallback for direct browser
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      closeModal('reportModal');
+      showToast('קובץ הדוח הכספי הופק והורד בהצלחה!');
+    }
+
+    function joinZoomMeeting(lectureId) {
+      showToast('התחברות לחדר הזום של ההרצאה... קישור נפתח בהצלחה.');
+    }
+
+    function showLectureDetails(lectureId) {
+      const lec = appState.lectures.find(l => l.id === lectureId);
+      if (lec) {
+        showToast(`פרטי מפגש: ${lec.topic} • ${lec.client} (₪${lec.fee})`);
+      }
+    }
+
+    function deleteLecture(lectureId) {
+      appState.lectures = appState.lectures.filter(l => l.id !== lectureId);
+      renderLecturesList();
+      persistState();
+      showToast('ההרצאה הוסרה מהיומן.');
+    }
+
+    function showMetricDetail(metricType) {
+      const curData = PERIOD_DATA[appState.currentPeriod];
+      if (metricType === 'revenue') {
+        showToast(`פירוט הכנסות כולל: ₪${curData.revenue.toLocaleString('he-IL')} (${curData.revenueTrend})`);
+      } else if (metricType === 'students') {
+        showToast(`רישום לומדים: ${curData.students.toLocaleString('he-IL')} סטודנטים פעילים`);
+      } else if (metricType === 'hours') {
+        showToast(`הוראה פעילה: ${curData.hours} שעות שבוצעו`);
+      } else if (metricType === 'rating') {
+        showToast(`ציון שביעות רצון: ${curData.rating} מתוך 5.0 (342 משובים)`);
+      }
+    }
+
+    function inspectChannel(channelKey) {
+      const curData = PERIOD_DATA[appState.currentPeriod];
+      const val = curData.channels[channelKey];
+      const names = {
+        digital: 'קורסים דיגיטליים מוקלטים',
+        corporate: 'סדנאות והרצאות לארגונים',
+        academic: 'הוראה אקדמית מוסדית',
+        mentoring: 'מנטורינג וליווי אישי'
+      };
+      showToast(`${names[channelKey]}: ₪${val.toLocaleString('he-IL')} בתקופה הנבחרת.`);
+    }
+
+    // =========================================================================
+    // MOBILE BOTTOM NAV NAVIGATION
+    // =========================================================================
+
+    function mobileNavJump(sectionId) {
+      const target = document.getElementById('section-' + sectionId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // Update active nav button
+      ['analytics', 'schedule', 'actions', 'channels', 'feedback'].forEach(function(s) {
+        const btn = document.getElementById('nav-btn-' + s);
+        if (btn) {
+          if (s === sectionId) {
+            btn.className = 'flex flex-col items-center justify-center py-1 text-blue-600 font-semibold text-[11px] focus:outline-hidden';
+          } else {
+            btn.className = 'flex flex-col items-center justify-center py-1 text-slate-500 hover:text-slate-900 font-medium text-[11px] focus:outline-hidden';
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // UTILITY FUNCTIONS
+    // =========================================================================
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'bg-slate-900 text-white text-xs px-3.5 py-2.5 rounded shadow-lg flex items-center gap-2 border border-slate-700 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0';
+      toast.innerHTML = `
+        <i data-lucide="info" class="w-4 h-4 text-blue-400 shrink-0"></i>
+        <span>${escapeHtml(message)}</span>
+      `;
+
+      container.appendChild(toast);
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+
+      // Animate entry
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      // Remove after 3.5 seconds
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

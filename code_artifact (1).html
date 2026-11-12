@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מדריך אקסל אינטראקטיבי - הכרת הממשק ומושגי יסוד</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Heebo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lilac: '#c5b0f4',
+                        lime: '#dceeb1',
+                    },
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'panel': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .excel-grid-cell {
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .excel-grid-cell.selected {
+            background-color: #dbeafe !important;
+            outline: 2px solid #16a34a;
+            z-index: 10;
+        }
+        .excel-grid-cell.active-focus {
+            outline: 2px solid #2563eb;
+            background-color: #eff6ff !important;
+        }
+        /* Custom Scrollbar for Ribbon */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col antialiased selection:bg-black selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-black/10 py-4 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center font-black text-xl shadow-md">
+                    X
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-extrabold text-lg tracking-tighter leading-none">Excel Academy</span>
+                    <span class="text-xs text-neutral-600 font-medium">למידה אינטראקטיבית</span>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-6 font-semibold text-sm">
+                <a href="#hero" class="hover:underline transition-all">בית</a>
+                <a href="#ribbon" class="hover:underline transition-all">רצועת הכלים</a>
+                <a href="#grid-section" class="hover:underline transition-all">שורת המצב ותאים</a>
+                <a href="#quiz" class="hover:underline transition-all">תרגול מהיר</a>
+            </nav>
+
+            <a href="#grid-section" class="bg-black text-white hover:bg-neutral-800 transition-all text-sm font-bold py-2.5 px-6 rounded-full shadow-sm">
+                התחל תרגול
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 md:px-8 py-6 space-y-12">
+
+        <!-- HERO SECTION (Lilac Panel) -->
+        <section id="hero" class="bg-[#c5b0f4] text-black rounded-[24px] p-6 sm:p-8 md:p-[48px] shadow-sm relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="inline-block bg-black text-white text-xs sm:text-sm font-bold uppercase tracking-wider px-4 py-1.5 rounded-full">
+                        פרק 1: יסודות אקסל
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-tight">
+                        הכרת הממשק ומושגי יסוד
+                    </h1>
+                    <p class="text-lg sm:text-xl font-medium leading-relaxed opacity-90 max-w-2xl">
+                        מדריך אקסל אינטראקטיבי שילמד אותך לשלוט ברצועת הכלים, להבין את מבנה התאים, ולנצל את שורת המצב לחישובים מהירים בזמן אמת.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-4 items-center">
+                        <a href="#ribbon" class="bg-black text-white hover:bg-neutral-800 transition-all font-extrabold text-base sm:text-lg py-4 px-8 rounded-full shadow-lg inline-flex items-center gap-3 group">
+                            <span>התחל ללמוד</span>
+                            <svg class="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 12H5m7-7l-7 7 7 7"/>
+                            </svg>
+                        </a>
+                        <a href="#grid-section" class="border-2 border-black font-bold text-base sm:text-lg py-3.5 px-7 rounded-full hover:bg-black/10 transition-colors">
+                            התנסה בסריג התאים
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Graphic Illustration -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="w-full max-w-sm bg-white border-2 border-black rounded-2xl p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-3">
+                        <div class="flex items-center justify-between border-b border-neutral-200 pb-2">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+                            <span class="text-xs font-mono font-bold text-neutral-500">Excel_Workbook.xlsx</span>
+                        </div>
+                        <div class="bg-neutral-100 rounded-lg p-3 space-y-2 font-mono text-xs">
+                            <div class="flex justify-between items-center bg-white p-2 rounded border border-neutral-200">
+                                <span class="font-bold text-emerald-700">תא פעיל: B2</span>
+                                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">=SUM(A1:A4)</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1 text-center font-bold text-neutral-700">
+                                <div class="bg-purple-100 p-2 rounded border border-purple-200">A1: 150</div>
+                                <div class="bg-lime-200 p-2 rounded border border-black">B2: 450</div>
+                                <div class="bg-purple-100 p-2 rounded border border-purple-200">C3: 300</div>
+                            </div>
+                        </div>
+                        <div class="bg-black text-white p-2.5 rounded-xl text-center text-xs font-bold flex justify-between px-4">
+                            <span>ספירה: 3</span>
+                            <span>סכום: 900</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: רצועת הכלים (Ribbon - White Background) -->
+        <section id="ribbon" class="bg-white rounded-[24px] border border-neutral-200 p-6 sm:p-8 md:p-[48px] shadow-sm space-y-8">
+            <div class="max-w-3xl space-y-4">
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-200">
+                    חלק 1: ניווט בממשק
+                </span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter">
+                    רצועת הכלים (The Ribbon)
+                </h2>
+                <p class="text-neutral-700 text-base sm:text-lg leading-relaxed">
+                    רצועת הכלים בחלקו העליון של המסך מרכזת את כל הפקודות והכלים באקסל. היא מחולקת ל**כרטיסיות נושא** (כמו "בית", "הוספה", "נוסחאות"), וכל כרטיסייה מחולקת ל**קבוצות עבודה** הגיוניות.
+                </p>
+            </div>
+
+            <!-- Ribbon Simulation Box -->
+            <div class="border-2 border-black rounded-2xl overflow-hidden shadow-md bg-neutral-50">
+                <!-- Top Title Bar simulation -->
+                <div class="bg-emerald-800 text-white px-4 py-2 text-xs font-bold flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-white/20 px-2 py-0.5 rounded text-[11px]">קובץ</span>
+                        <span class="tracking-wide">חוברת עבודה1 - Excel</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-neutral-300 text-xs">
+                        <span>שמירה אוטומטית: פעיל</span>
+                    </div>
+                </div>
+
+                <!-- Ribbon Tabs Navigation -->
+                <div class="bg-neutral-200 border-b border-neutral-300 flex items-center gap-1 px-2 pt-2 overflow-x-auto no-scrollbar">
+                    <button onclick="switchRibbonTab('home')" id="tab-home" class="ribbon-tab-btn active bg-white text-black font-extrabold px-5 py-2.5 rounded-t-lg border-t-2 border-x border-black text-sm transition-all">
+                        בית
+                    </button>
+                    <button onclick="switchRibbonTab('insert')" id="tab-insert" class="ribbon-tab-btn text-neutral-700 hover:text-black font-bold px-5 py-2.5 rounded-t-lg text-sm transition-all">
+                        הוספה
+                    </button>
+                    <button onclick="switchRibbonTab('formulas')" id="tab-formulas" class="ribbon-tab-btn text-neutral-700 hover:text-black font-bold px-5 py-2.5 rounded-t-lg text-sm transition-all">
+                        נוסחאות
+                    </button>
+                    <button onclick="switchRibbonTab('data')" id="tab-data" class="ribbon-tab-btn text-neutral-700 hover:text-black font-bold px-5 py-2.5 rounded-t-lg text-sm transition-all">
+                        נתונים
+                    </button>
+                </div>
+
+                <!-- Ribbon Content Toolbar -->
+                <div class="bg-white p-4 min-h-[110px] flex items-center overflow-x-auto no-scrollbar">
+                    
+                    <!-- TAB HOME CONTENT -->
+                    <div id="content-home" class="ribbon-content flex items-center gap-6">
+                        <!-- Group: Font Formatting -->
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="triggerRibbonAction('מודגש (Ctrl+B)')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 font-extrabold text-sm w-9 h-9 flex items-center justify-center shadow-sm active:scale-95">B</button>
+                                <button onclick="triggerRibbonAction('נטוי (Ctrl+I)')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 italic font-serif text-sm w-9 h-9 flex items-center justify-center shadow-sm active:scale-95">I</button>
+                                <button onclick="triggerRibbonAction('קו תחתון (Ctrl+U)')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 underline font-bold text-sm w-9 h-9 flex items-center justify-center shadow-sm active:scale-95">U</button>
+                                <button onclick="triggerRibbonAction('צבע מילוי תא')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 text-sm w-9 h-9 flex items-center justify-center bg-yellow-200 active:scale-95">🎨</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">גופן ועיצוב</span>
+                        </div>
+
+                        <!-- Group: Alignment -->
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="triggerRibbonAction('יישור לימין')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 text-xs px-2.5 py-1.5 font-bold active:scale-95">ימין ≡</button>
+                                <button onclick="triggerRibbonAction('יישור למרכז')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 text-xs px-2.5 py-1.5 font-bold active:scale-95">מרכז ≡</button>
+                                <button onclick="triggerRibbonAction('מיזוג ומרכז')" class="p-2 hover:bg-neutral-100 rounded border border-neutral-300 text-xs px-2.5 py-1.5 font-bold bg-purple-50 active:scale-95">מיזוג ⧉</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">יישור תאים</span>
+                        </div>
+
+                        <!-- Group: Number Formatting -->
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="triggerRibbonAction('עיצוב מטבע (₪)')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 font-extrabold text-sm active:scale-95">₪ מטבע</button>
+                                <button onclick="triggerRibbonAction('עיצוב אחוזים (%)')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 font-extrabold text-sm active:scale-95">% אחוז</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">מספרים</span>
+                        </div>
+                    </div>
+
+                    <!-- TAB INSERT CONTENT -->
+                    <div id="content-insert" class="ribbon-content hidden flex items-center gap-6">
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <button onclick="triggerRibbonAction('הוספת טבלה חכמה')" class="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 rounded-lg text-xs font-bold flex items-center gap-2 active:scale-95">
+                                📊 טבלה חכמה
+                            </button>
+                            <span class="text-[11px] font-bold text-neutral-500">טבלאות</span>
+                        </div>
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <div class="flex gap-2">
+                                <button onclick="triggerRibbonAction('תרשים עמודות')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">📊 עמודות</button>
+                                <button onclick="triggerRibbonAction('תרשים עוגה')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">🥧 עוגה</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">תרשימים ויזואליים</span>
+                        </div>
+                    </div>
+
+                    <!-- TAB FORMULAS CONTENT -->
+                    <div id="content-formulas" class="ribbon-content hidden flex items-center gap-6">
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <button onclick="triggerRibbonAction('סכום אוטומטי (AutoSum)')" class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 rounded-lg text-xs font-black flex items-center gap-2 active:scale-95">
+                                ∑ סכום אוטומטי (AutoSum)
+                            </button>
+                            <span class="text-[11px] font-bold text-neutral-500">ספרית פונקציות</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="flex gap-1.5">
+                                <button onclick="triggerRibbonAction('פונקציית AVERAGE')" class="px-2.5 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">AVERAGE</button>
+                                <button onclick="triggerRibbonAction('פונקציית IF')" class="px-2.5 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">IF</button>
+                                <button onclick="triggerRibbonAction('פונקציית VLOOKUP')" class="px-2.5 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">VLOOKUP</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">פונקציות נפוצות</span>
+                        </div>
+                    </div>
+
+                    <!-- TAB DATA CONTENT -->
+                    <div id="content-data" class="ribbon-content hidden flex items-center gap-6">
+                        <div class="flex flex-col items-center border-l border-neutral-300 pl-6 gap-2">
+                            <div class="flex gap-2">
+                                <button onclick="triggerRibbonAction('מיון מא\' עד ת\'')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">A-Z מיון</button>
+                                <button onclick="triggerRibbonAction('סינון נתונים (Filter)')" class="px-3 py-1.5 hover:bg-neutral-100 rounded border border-neutral-300 text-xs font-bold active:scale-95">🌪️ סינון</button>
+                            </div>
+                            <span class="text-[11px] font-bold text-neutral-500">מיון וסינון</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Action Feedback Bar -->
+                <div class="bg-neutral-100 px-4 py-2 border-t border-neutral-300 text-xs font-medium text-neutral-700 flex items-center justify-between">
+                    <span>לחץ על אחד הכלים ברצועה כדי לבדוק אותו:</span>
+                    <span id="ribbon-feedback" class="font-extrabold text-black bg-white px-3 py-1 rounded border border-neutral-300 transition-all">
+                        לחץ על כלי ברצועה
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: שורת המצב ותאים (Lime Panel) -->
+        <section id="grid-section" class="bg-[#dceeb1] text-black rounded-[24px] p-6 sm:p-8 md:p-[48px] shadow-sm space-y-8">
+            <div class="max-w-3xl space-y-4">
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-black bg-white/80 px-3.5 py-1.5 rounded-full border border-black/20">
+                    חלק 2: התאים ושורת המצב
+                </span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter">
+                    שורת המצב ותאים (Grid & Status Bar)
+                </h2>
+                <p class="text-base sm:text-lg leading-relaxed font-medium">
+                    גיליון אקסל מורכב מ**עמודות** (מזוהות באותיות A, B, C...) ו**שורות** (מזוהות במספרים 1, 2, 3...). 
+                    המפגש בין עמודה לשורה יוצר **תא** (Cell), כמו למשל <code class="bg-white/80 px-2 py-0.5 rounded font-mono font-bold">B2</code>.
+                    בחלק התחתון של הגיליון נמצאת **שורת המצב**, שמחשבת ומציגה באופן אוטומטי נתונים כגון סכום, ממוצע וספירה של התאים המסומנים.
+                </p>
+            </div>
+
+            <!-- EXCEL INTERACTIVE GRID SIMULATOR -->
+            <div class="bg-white border-2 border-black rounded-2xl p-4 sm:p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4">
+                
+                <!-- Helper Instructions Banner -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-neutral-100 p-3 rounded-xl border border-neutral-300 text-xs sm:text-sm font-bold">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                        <span>הוראות תרגול: לחץ על תאים בגיליון כדי לבחור אותם, או ערוך ערכים.</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="selectAllGridCells()" class="bg-black text-white hover:bg-neutral-800 px-3 py-1.5 rounded-full text-xs font-bold transition">
+                            בחר הכל
+                        </button>
+                        <button onclick="resetGridData()" class="border border-black hover:bg-neutral-200 px-3 py-1.5 rounded-full text-xs font-bold transition">
+                            איפוס נתונים
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Excel Name Box & Formula Bar Container -->
+                <div class="flex items-center gap-2 bg-neutral-50 border border-neutral-300 p-2 rounded-lg font-mono text-xs sm:text-sm">
+                    <!-- Name Box -->
+                    <div class="bg-white border border-neutral-300 px-3 py-1.5 rounded font-extrabold text-emerald-800 min-w-[70px] text-center shadow-inner" id="active-cell-address">
+                        A1
+                    </div>
+                    <!-- Formula icon -->
+                    <span class="font-serif italic font-bold text-neutral-400 px-1">fx</span>
+                    <!-- Formula Bar Input -->
+                    <input type="text" id="formula-bar-input" class="w-full bg-white border border-neutral-300 rounded px-3 py-1 font-mono text-neutral-800 focus:outline-none focus:ring-2 focus:ring-emerald-500" value="120" placeholder="תוכן התא הפעיל...">
+                </div>
+
+                <!-- The 4x4 Interactive Grid -->
+                <div class="overflow-x-auto">
+                    <div class="min-w-[480px]">
+                        <!-- Grid Header Columns (A, B, C, D) -->
+                        <div class="grid grid-cols-5 bg-neutral-200 text-center font-bold text-xs sm:text-sm border-b border-neutral-300 rounded-t-lg">
+                            <div class="p-2 border-r border-neutral-300 text-neutral-500">#</div>
+                            <div class="p-2 border-r border-neutral-300 text-black">A</div>
+                            <div class="p-2 border-r border-neutral-300 text-black">B</div>
+                            <div class="p-2 border-r border-neutral-300 text-black">C</div>
+                            <div class="p-2 text-black">D</div>
+                        </div>
+
+                        <!-- Row 1 -->
+                        <div class="grid grid-cols-5 text-center font-mono text-xs sm:text-sm border-b border-neutral-200">
+                            <div class="bg-neutral-200 font-bold p-3 border-r border-neutral-300 text-neutral-700 flex items-center justify-center">1</div>
+                            <div onclick="toggleCellSelection(this, 'A1')" id="cell-A1" data-val="120" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">120</div>
+                            <div onclick="toggleCellSelection(this, 'B1')" id="cell-B1" data-val="450" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">450</div>
+                            <div onclick="toggleCellSelection(this, 'C1')" id="cell-C1" data-val="300" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">300</div>
+                            <div onclick="toggleCellSelection(this, 'D1')" id="cell-D1" data-val="80" class="excel-grid-cell cursor-pointer p-3 hover:bg-emerald-50 font-semibold">80</div>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="grid grid-cols-5 text-center font-mono text-xs sm:text-sm border-b border-neutral-200">
+                            <div class="bg-neutral-200 font-bold p-3 border-r border-neutral-300 text-neutral-700 flex items-center justify-center">2</div>
+                            <div onclick="toggleCellSelection(this, 'A2')" id="cell-A2" data-val="210" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">210</div>
+                            <div onclick="toggleCellSelection(this, 'B2')" id="cell-B2" data-val="600" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">600</div>
+                            <div onclick="toggleCellSelection(this, 'C2')" id="cell-C2" data-val="150" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">150</div>
+                            <div onclick="toggleCellSelection(this, 'D2')" id="cell-D2" data-val="95" class="excel-grid-cell cursor-pointer p-3 hover:bg-emerald-50 font-semibold">95</div>
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="grid grid-cols-5 text-center font-mono text-xs sm:text-sm border-b border-neutral-200">
+                            <div class="bg-neutral-200 font-bold p-3 border-r border-neutral-300 text-neutral-700 flex items-center justify-center">3</div>
+                            <div onclick="toggleCellSelection(this, 'A3')" id="cell-A3" data-val="340" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">340</div>
+                            <div onclick="toggleCellSelection(this, 'B3')" id="cell-B3" data-val="180" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">180</div>
+                            <div onclick="toggleCellSelection(this, 'C3')" id="cell-C3" data-val="520" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">520</div>
+                            <div onclick="toggleCellSelection(this, 'D3')" id="cell-D3" data-val="110" class="excel-grid-cell cursor-pointer p-3 hover:bg-emerald-50 font-semibold">110</div>
+                        </div>
+
+                        <!-- Row 4 -->
+                        <div class="grid grid-cols-5 text-center font-mono text-xs sm:text-sm">
+                            <div class="bg-neutral-200 font-bold p-3 border-r border-neutral-300 text-neutral-700 flex items-center justify-center">4</div>
+                            <div onclick="toggleCellSelection(this, 'A4')" id="cell-A4" data-val="90" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">90</div>
+                            <div onclick="toggleCellSelection(this, 'A4_2')" id="cell-B4" data-val="730" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">730</div>
+                            <div onclick="toggleCellSelection(this, 'C4')" id="cell-C4" data-val="260" class="excel-grid-cell cursor-pointer p-3 border-r border-neutral-200 hover:bg-emerald-50 font-semibold">260</div>
+                            <div onclick="toggleCellSelection(this, 'D4')" id="cell-D4" data-val="400" class="excel-grid-cell cursor-pointer p-3 hover:bg-emerald-50 font-semibold">400</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REAL-TIME DYNAMIC EXCEL STATUS BAR (שורת המצב) -->
+                <div class="bg-emerald-900 text-white rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-4 font-mono shadow-md">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                        <span class="font-sans font-bold text-xs sm:text-sm text-emerald-200">שורת המצב (Status Bar):</span>
+                    </div>
+
+                    <!-- Computed Indicators -->
+                    <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+                        <div class="bg-emerald-800/80 px-3 py-1.5 rounded border border-emerald-700">
+                            <span class="font-sans text-emerald-300">ספירה: </span>
+                            <span id="stat-count" class="font-bold text-white">0</span>
+                        </div>
+                        <div class="bg-emerald-800/80 px-3 py-1.5 rounded border border-emerald-700">
+                            <span class="font-sans text-emerald-300">סכום: </span>
+                            <span id="stat-sum" class="font-bold text-white">0</span>
+                        </div>
+                        <div class="bg-emerald-800/80 px-3 py-1.5 rounded border border-emerald-700">
+                            <span class="font-sans text-emerald-300">ממוצע: </span>
+                            <span id="stat-avg" class="font-bold text-white">0</span>
+                        </div>
+                        <div class="bg-emerald-800/80 px-3 py-1.5 rounded border border-emerald-700 hidden sm:block">
+                            <span class="font-sans text-emerald-300">מקסימום: </span>
+                            <span id="stat-max" class="font-bold text-white">0</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: בוחן מיומנות מהיר (Quiz Section - Lilac Panel) -->
+        <section id="quiz" class="bg-[#c5b0f4] text-black rounded-[24px] p-6 sm:p-8 md:p-[48px] shadow-sm space-y-8">
+            <div class="max-w-3xl space-y-3">
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-black bg-white px-3.5 py-1.5 rounded-full border border-black/20">
+                    בוחן עצמי מהיר
+                </span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter">
+                    בדוק את ההבנה שלך!
+                </h2>
+                <p class="text-base sm:text-lg font-medium opacity-90">
+                    ענה על השאלות הקצרות כדי לוודא ששולטים במושגי היסוד של ממשק אקסל.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Question 1 -->
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+                    <h3 class="font-black text-lg">1. כיצד נקרא התא שנמצא במפגש בין עמודה C לשורה 3?</h3>
+                    <div class="space-y-2 font-bold text-sm">
+                        <button onclick="checkAnswer(this, false, 'q1-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">א) 3C</button>
+                        <button onclick="checkAnswer(this, true, 'q1-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">ב) C3</button>
+                        <button onclick="checkAnswer(this, false, 'q1-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">ג) C-3</button>
+                    </div>
+                    <div id="q1-feedback" class="hidden text-xs font-bold p-2.5 rounded-lg text-center"></div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="bg-white border-2 border-black rounded-2xl p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+                    <h3 class="font-black text-lg">2. איזה חלק בממשק מציג אוטומטית את סכום התאים המסומנים?</h3>
+                    <div class="space-y-2 font-bold text-sm">
+                        <button onclick="checkAnswer(this, false, 'q2-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">א) תיבת השם</button>
+                        <button onclick="checkAnswer(this, false, 'q2-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">ב) שורת הנוסחאות</button>
+                        <button onclick="checkAnswer(this, true, 'q2-feedback')" class="w-full text-right p-3 rounded-xl border border-neutral-300 hover:bg-neutral-100 transition">ג) שורת המצב (Status Bar)</button>
+                    </div>
+                    <div id="q2-feedback" class="hidden text-xs font-bold p-2.5 rounded-lg text-center"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white mt-12 py-8 px-4 sm:px-8 text-center border-t border-neutral-800">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm font-medium">
+            <div class="flex items-center gap-2">
+                <span class="w-6 h-6 bg-white text-black rounded-full font-black text-xs flex items-center justify-center">X</span>
+                <span class="font-bold tracking-tight">מדריך אקסל אינטראקטיבי</span>
+            </div>
+            <p class="text-neutral-400 text-xs sm:text-sm">
+                נבנה בעזרת מערכת לניתוח ושיפור ממשקי משתמש | עיצוב Figma System
+            </p>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic Script -->
+    <script>
+        // Track state of grid cell selection
+        const selectedCells = new Set();
+        let activeCellId = 'A1';
+
+        // Ribbon Switcher
+        function switchRibbonTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.ribbon-content').forEach(el => el.classList.add('hidden'));
+            // Reset tab button styling
+            document.querySelectorAll('.ribbon-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-black', 'font-extrabold', 'border-t-2', 'border-x', 'border-black');
+                btn.classList.add('text-neutral-700');
+            });
+
+            // Show selected tab content
+            const targetContent = document.getElementById(`content-${tabName}`);
+            if(targetContent) targetContent.classList.remove('hidden');
+
+            // Highlight selected tab button
+            const targetBtn = document.getElementById(`tab-${tabName}`);
+            if(targetBtn) {
+                targetBtn.classList.add('bg-white', 'text-black', 'font-extrabold', 'border-t-2', 'border-x', 'border-black');
+                targetBtn.classList.remove('text-neutral-700');
+            }
+        }
+
+        // Ribbon Feedback Trigger
+        function triggerRibbonAction(actionName) {
+            const feedbackEl = document.getElementById('ribbon-feedback');
+            feedbackEl.textContent = `הפעלת: ${actionName}`;
+            feedbackEl.classList.add('bg-lime-200', 'text-black', 'scale-105');
+            setTimeout(() => {
+                feedbackEl.classList.remove('scale-105');
+            }, 200);
+        }
+
+        // Toggle Grid Cell Selection
+        function toggleCellSelection(cellElem, address) {
+            activeCellId = address;
+            
+            // Update Name box & Formula input
+            document.getElementById('active-cell-address').textContent = address;
+            const currentVal = cellElem.getAttribute('data-val') || cellElem.innerText;
+            document.getElementById('formula-bar-input').value = currentVal;
+
+            // Multi-select toggle
+            if (selectedCells.has(cellElem)) {
+                selectedCells.delete(cellElem);
+                cellElem.classList.remove('selected');
+            } else {
+                selectedCells.add(cellElem);
+                cellElem.classList.add('selected');
+            }
+
+            updateStatusBar();
+        }
+
+        // Update Excel Status Bar logic
+        function updateStatusBar() {
+            const countEl = document.getElementById('stat-count');
+            const sumEl = document.getElementById('stat-sum');
+            const avgEl = document.getElementById('stat-avg');
+            const maxEl = document.getElementById('stat-max');
+
+            if (selectedCells.size === 0) {
+                countEl.textContent = '0';
+                sumEl.textContent = '0';
+                avgEl.textContent = '0';
+                maxEl.textContent = '0';
+                return;
+            }
+
+            let values = [];
+            selectedCells.forEach(cell => {
+                const val = parseFloat(cell.getAttribute('data-val') || cell.innerText);
+                if (!isNaN(val)) {
+                    values.push(val);
+                }
+            });
+
+            const count = values.length;
+            const sum = values.reduce((acc, curr) => acc + curr, 0);
+            const avg = count > 0 ? (sum / count).toFixed(1) : 0;
+            const max = count > 0 ? Math.max(...values) : 0;
+
+            countEl.textContent = count;
+            sumEl.textContent = sum.toLocaleString('he-IL');
+            avgEl.textContent = avg;
+            maxEl.textContent = max.toLocaleString('he-IL');
+        }
+
+        // Select All Cells
+        function selectAllGridCells() {
+            const allCells = document.querySelectorAll('.excel-grid-cell');
+            allCells.forEach(cell => {
+                selectedCells.add(cell);
+                cell.classList.add('selected');
+            });
+            updateStatusBar();
+        }
+
+        // Reset Grid Selection & Data
+        function resetGridData() {
+            const allCells = document.querySelectorAll('.excel-grid-cell');
+            allCells.forEach(cell => {
+                cell.classList.remove('selected');
+            });
+            selectedCells.clear();
+            updateStatusBar();
+        }
+
+        // Formula Bar Real-time Editing
+        document.getElementById('formula-bar-input').addEventListener('input', function(e) {
+            if (!activeCellId) return;
+            const activeCell = document.querySelector(`.excel-grid-cell.selected`) || document.getElementById(`cell-${activeCellId}`);
+            if (activeCell) {
+                activeCell.textContent = e.target.value;
+                activeCell.setAttribute('data-val', e.target.value);
+                updateStatusBar();
+            }
+        });
+
+        // Interactive Quiz Verification
+        function checkAnswer(btnElem, isCorrect, feedbackId) {
+            const feedbackEl = document.getElementById(feedbackId);
+            feedbackEl.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'bg-red-100', 'text-red-900');
+            
+            if (isCorrect) {
+                feedbackEl.classList.add('bg-emerald-100', 'text-emerald-900');
+                feedbackEl.textContent = '✓ תשובה נכונה! כל הכבוד.';
+                btnElem.classList.add('border-emerald-600', 'bg-emerald-50');
+            } else {
+                feedbackEl.classList.add('bg-red-100', 'text-red-900');
+                feedbackEl.textContent = '✗ תשובה שגויה, נסה שוב!';
+                btnElem.classList.add('border-red-400', 'bg-red-50');
+            }
+        }
+
+        // Initialize with default cells selected for demo effect
+        window.addEventListener('DOMContentLoaded', () => {
+            const initialCell1 = document.getElementById('cell-A1');
+            const initialCell2 = document.getElementById('cell-B1');
+            if (initialCell1 && initialCell2) {
+                toggleCellSelection(initialCell1, 'A1');
+                toggleCellSelection(initialCell2, 'B1');
+            }
+        });
+    </script>
+</body>
+</html>
