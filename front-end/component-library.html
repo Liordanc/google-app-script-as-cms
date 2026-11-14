@@ -4,217 +4,263 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="ספריית רכיבים למדריכי למידה — טוקנים, אטומים, מולקולות ואורגניזמים.">
-  <title>ספריית רכיבים — מדריכי למידה</title>
+  <meta name="description" content="קטלוג רכיבי CMS ליצירת מדריכים: פונטים, טוקנים פרימיטיביים וסמנטיים, ורכיבי עריכה ותוכן.">
+  <title>ספריית רכיבי CMS למדריכים</title>
   <style>
     :root {
+      /* Primitive tokens: raw values, not tied to a UI meaning. */
+      --primitive-white: #fff;
+      --primitive-black: #171717;
+      --primitive-gray-50: #f7f7f5;
+      --primitive-gray-100: #eeeeeb;
+      --primitive-gray-300: #d3d3ce;
+      --primitive-gray-600: #666660;
+      --primitive-lilac-100: #eee7fb;
+      --primitive-lilac-300: #cbb8ef;
+      --primitive-lime-100: #edf4d8;
+      --primitive-cream-100: #f7f0dc;
+      --primitive-mint-100: #e1f1e4;
+      --primitive-red-100: #fbe7e7;
+      --primitive-red-700: #9c2630;
+      --primitive-green-700: #23643b;
+      --primitive-amber-800: #765300;
+      --primitive-blue-800: #24577b;
+      --primitive-space-1: 4px;
+      --primitive-space-2: 8px;
+      --primitive-space-3: 12px;
+      --primitive-space-4: 16px;
+      --primitive-space-6: 24px;
+      --primitive-space-8: 32px;
+      --primitive-space-12: 48px;
+      --primitive-radius-sm: 8px;
+      --primitive-radius-md: 14px;
+      --primitive-radius-lg: 24px;
+      --primitive-radius-pill: 999px;
+      --font-hebrew: "Assistant", "Heebo", Arial, sans-serif;
+      --font-latin: Arial, Helvetica, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+      /* Semantic tokens: named for their role in the interface. */
+      --color-text: var(--primitive-black);
+      --color-text-muted: var(--primitive-gray-600);
+      --color-page: var(--primitive-white);
+      --color-surface: var(--primitive-white);
+      --color-surface-subtle: var(--primitive-gray-50);
+      --color-border: var(--primitive-gray-100);
+      --color-border-strong: var(--primitive-gray-300);
+      --color-accent: var(--primitive-lilac-300);
+      --color-accent-soft: var(--primitive-lilac-100);
+      --color-success: var(--primitive-green-700);
+      --color-success-soft: var(--primitive-mint-100);
+      --color-warning: var(--primitive-amber-800);
+      --color-warning-soft: var(--primitive-cream-100);
+      --color-danger: var(--primitive-red-700);
+      --color-danger-soft: var(--primitive-red-100);
+      --color-info: var(--primitive-blue-800);
+      --space-card: var(--primitive-space-4);
+      --space-section: var(--primitive-space-8);
+      --radius-card: var(--primitive-radius-md);
+      --radius-panel: var(--primitive-radius-lg);
+      --font-ui: var(--font-hebrew);
+      --font-content: var(--font-hebrew);
+      --font-code: var(--font-mono);
+
       color-scheme: light;
-      --ink: #111111;
-      --muted: #656565;
-      --canvas: #ffffff;
-      --surface: #ffffff;
-      --surface-soft: #f7f7f5;
-      --line: #e6e6e6;
-      --line-soft: #f1f1f1;
-      --lilac: #c5b0f4;
-      --lime: #dceeb1;
-      --cream: #f4ecd6;
-      --mint: #c8e6cd;
-      --pink: #efd4d4;
-      --coral: #f3c9b6;
-      --navy: #1f1d3d;
-      --success: #176b3a;
-      --warning: #795000;
-      --danger: #a51d2d;
-      --info: #174e79;
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 24px;
-      --pill: 9999px;
-      --space-1: 4px;
-      --space-2: 8px;
-      --space-3: 12px;
-      --space-4: 16px;
-      --space-6: 24px;
-      --space-8: 32px;
-      font-family: "Assistant", "Heebo", Arial, sans-serif;
+      font-family: var(--font-ui);
     }
     *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 82px; }
-    body { margin: 0; background: var(--canvas); color: var(--ink); font-size: 15px; line-height: 1.55; }
+    html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+    body { margin: 0; background: var(--color-page); color: var(--color-text); line-height: 1.65; }
     button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    :focus-visible { outline: 2px solid #000; outline-offset: 3px; }
     a { color: inherit; }
-    .topbar { position: sticky; top: 0; z-index: 5; background: rgb(255 255 255 / .97); border-bottom: 1px solid var(--line); }
-    .topbar-inner { max-width: 1280px; margin: auto; padding: 10px 24px; min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; }
-    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; background: #000; color: #fff; border-radius: 50%; }
-    .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 10px; }
-    .top-nav { display: flex; flex-wrap: wrap; gap: 5px; }
-    .top-nav a { padding: 6px 11px; border-radius: var(--pill); font-size: 11px; text-decoration: none; }
-    .top-nav a:hover { background: var(--surface-soft); }
-    .page { max-width: 1280px; margin: auto; padding: 28px 24px 64px; }
-    .intro { padding: clamp(22px, 4vw, 42px); background: var(--lilac); border-radius: var(--radius-lg); margin-bottom: 30px; }
-    .eyebrow, .token-code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 10px; letter-spacing: .04em; }
-    h1 { margin: 7px 0 8px; font-size: clamp(30px, 4vw, 48px); line-height: 1.08; letter-spacing: -.035em; }
-    h2 { margin: 0; font-size: 23px; line-height: 1.25; }
-    h3 { margin: 0; font-size: 14px; }
+    :focus-visible { outline: 3px solid var(--primitive-blue-800); outline-offset: 3px; }
+    .topbar { position: sticky; top: 0; z-index: 5; border-bottom: 1px solid var(--color-border); background: rgb(255 255 255 / .97); }
+    .topbar-inner { max-width: 1240px; min-height: 64px; margin: auto; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; white-space: nowrap; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--primitive-black); }
+    .brand small { display: block; color: var(--color-text-muted); font-size: 10px; font-weight: 400; }
+    .top-nav { display: flex; gap: 5px; overflow-x: auto; }
+    .top-nav a { padding: 6px 11px; border-radius: var(--primitive-radius-pill); font-size: 12px; text-decoration: none; white-space: nowrap; }
+    .top-nav a:hover { background: var(--color-surface-subtle); }
+    main { max-width: 1240px; margin: auto; padding: 28px 24px 64px; }
+    .intro { padding: clamp(24px, 5vw, 48px); border-radius: var(--radius-panel); background: var(--color-accent); margin-bottom: 30px; }
+    .eyebrow, .token-name, .token-value { font: 11px var(--font-mono); letter-spacing: .02em; }
+    h1 { margin: 8px 0 10px; font-size: clamp(30px, 5vw, 50px); line-height: 1.12; }
+    h2 { margin: 0; font-size: clamp(21px, 3vw, 27px); line-height: 1.3; }
+    h3 { margin: 0; font-size: 16px; }
     p { margin: 0; }
-    .intro p { max-width: 760px; font-size: 14px; }
-    .intro-note { display: inline-flex; margin-top: 15px; padding: 5px 11px; border-radius: var(--pill); background: #fff; font-size: 10px; font-weight: 700; }
-    .library-section { margin-top: 34px; scroll-margin-top: 82px; }
-    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 15px; }
-    .section-heading p { color: var(--muted); font-size: 11px; }
-    .level { color: var(--muted); font: 10px ui-monospace, monospace; }
-    .catalog-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
-    .catalog-card { min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); padding: 16px; }
-    .catalog-card.wide { grid-column: 1 / -1; }
-    .card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .card-heading p { color: var(--muted); font-size: 10px; }
-    .specimen { min-height: 50px; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
-    .swatch-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
-    .swatch { min-height: 61px; border: 1px solid rgb(0 0 0 / .08); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; }
-    .swatch code { font: 9px ui-monospace, monospace; }
-    .button { min-height: 40px; padding: 8px 17px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #000; border-radius: var(--pill); background: #000; color: #fff; font-size: 11px; font-weight: 700; }
-    .button:hover { background: #292929; }
-    .button.secondary { background: #fff; color: #000; border-color: var(--line); }
-    .button.secondary:hover { background: var(--surface-soft); }
-    .button.text { background: transparent; color: #000; border-color: transparent; }
-    .button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-    .button:disabled { background: #e8e8e8; border-color: #e8e8e8; color: #666; cursor: not-allowed; }
-    .icon-button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-soft); display: inline-grid; place-items: center; color: #000; }
-    .icon-button:hover { border-color: #000; }
-    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--pill); background: var(--surface-soft); font-size: 10px; font-weight: 700; }
-    .tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    .tag.success { background: var(--mint); color: #164b2a; }
-    .tag.warning { background: var(--cream); color: var(--warning); }
-    .tag.error { background: var(--pink); color: var(--danger); }
-    .tag.info { background: var(--lilac); color: #251653; }
-    .type-sample { display: grid; gap: 7px; width: 100%; }
-    .type-display { font-size: clamp(25px, 4vw, 38px); line-height: 1.1; font-weight: 700; letter-spacing: -.04em; }
-    .type-heading { font-size: 21px; font-weight: 700; }
-    .type-body { font-size: 14px; }
-    .type-caption { color: var(--muted); font-size: 10px; }
-    .label { display: block; font-size: 10px; font-weight: 700; margin-bottom: 5px; }
-    .control { width: 100%; min-height: 40px; border: 1px solid #bdbdbd; border-radius: var(--radius-sm); background: #fff; color: #000; padding: 8px 10px; font-size: 11px; }
-    .control:focus { border-color: #000; }
-    .control.error { border-color: var(--danger); }
-    .control-help { color: var(--muted); font-size: 9px; margin-top: 4px; }
-    .control-error { color: var(--danger); font-size: 9px; margin-top: 4px; }
-    .field-demo { width: min(100%, 400px); }
-    .check-line { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; }
-    .check-line input { accent-color: #000; }
-    .progress { height: 7px; border-radius: var(--pill); background: var(--line); overflow: hidden; width: 100%; }
-    .progress span { display: block; height: 100%; width: 58%; background: #000; border-radius: inherit; }
-    .alert { width: 100%; border-radius: 10px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 8px; font-size: 10px; }
-    .alert strong { display: block; }
-    .alert.success { background: var(--mint); color: #164b2a; }
-    .alert.warning { background: var(--cream); color: #5e4100; }
-    .alert.error { background: var(--pink); color: #711321; }
-    .alert.info { background: var(--surface-soft); color: #333; border: 1px solid var(--line); }
-    .media-card { width: min(100%, 430px); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .media-placeholder { min-height: 125px; background: var(--lime); display: grid; place-items: center; font-size: 12px; }
-    .media-caption { padding: 8px 10px; color: var(--muted); font-size: 9px; }
-    .quote { border-right: 3px solid #000; padding: 7px 12px; background: var(--surface-soft); font-size: 11px; max-width: 500px; }
-    .quote cite { display: block; color: var(--muted); font-style: normal; margin-top: 6px; font-size: 9px; }
-    .code-block { width: 100%; direction: ltr; text-align: left; background: var(--navy); color: #fff; padding: 12px; border-radius: 10px; font: 10px/1.6 ui-monospace, monospace; overflow: auto; }
+    .intro p { max-width: 780px; }
+    .note { display: inline-flex; margin-top: 16px; padding: 5px 12px; border-radius: var(--primitive-radius-pill); background: white; font-size: 12px; font-weight: 700; }
+    .section { margin-top: 42px; scroll-margin-top: 88px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 14px; padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+    .section-head p, .muted { color: var(--color-text-muted); font-size: 13px; }
+    .section-index { color: var(--color-text-muted); font: 11px var(--font-mono); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card { min-width: 0; padding: var(--space-card); border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
+    .card.wide { grid-column: 1 / -1; }
+    .card-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .card-head p { margin-top: 3px; color: var(--color-text-muted); font-size: 12px; }
+    .demo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .token-list { display: grid; gap: 7px; }
+    .token-row { display: grid; grid-template-columns: minmax(115px, .9fr) 1fr 1.2fr; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--color-surface-subtle); font-size: 12px; }
+    .token-name { direction: ltr; text-align: left; overflow-wrap: anywhere; }
+    .token-value { direction: ltr; text-align: left; color: var(--color-text-muted); }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 9px; }
+    .swatch { min-height: 74px; padding: 9px; border: 1px solid rgb(0 0 0 / .08); border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; }
+    .swatch code { direction: ltr; text-align: left; font: 10px var(--font-mono); }
+    .font-sample { display: grid; gap: 12px; }
+    .font-line { padding: 12px; border: 1px solid var(--color-border); border-radius: 10px; }
+    .font-line .example { display: block; margin-top: 5px; font-size: 20px; }
+    .font-line code { color: var(--color-text-muted); font: 11px var(--font-mono); direction: ltr; }
+    .type-display { font-size: clamp(30px, 4vw, 42px); line-height: 1.2; font-weight: 800; }
+    .type-title { font-size: 28px; line-height: 1.3; font-weight: 700; }
+    .type-subtitle { font-size: 21px; line-height: 1.4; font-weight: 700; }
+    .type-body { font-size: 16px; line-height: 1.8; }
+    .type-caption { color: var(--color-text-muted); font-size: 13px; }
+    .button { min-height: 42px; padding: 8px 17px; border: 1px solid var(--primitive-black); border-radius: var(--primitive-radius-pill); background: var(--primitive-black); color: white; cursor: pointer; }
+    .button.secondary { background: white; color: var(--color-text); border-color: var(--color-border-strong); }
+    .button.soft { background: var(--color-accent-soft); color: var(--color-text); border-color: transparent; }
+    .button.text { background: transparent; border-color: transparent; color: var(--color-text); }
+    .button:disabled { background: var(--primitive-gray-100); color: var(--color-text-muted); border-color: var(--primitive-gray-100); cursor: not-allowed; }
+    .tag { display: inline-flex; padding: 4px 10px; border-radius: var(--primitive-radius-pill); background: var(--color-surface-subtle); font-size: 12px; font-weight: 700; }
+    .tag.draft { background: var(--color-warning-soft); color: var(--color-warning); }
+    .tag.published { background: var(--color-success-soft); color: var(--color-success); }
+    .tag.error { background: var(--color-danger-soft); color: var(--color-danger); }
+    .field { width: min(100%, 440px); }
+    .field label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 700; }
+    .control { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid var(--color-border-strong); border-radius: var(--primitive-radius-sm); background: white; color: var(--color-text); }
+    .control-help { margin-top: 4px; color: var(--color-text-muted); font-size: 11px; }
+    .alert { padding: 12px 14px; border-radius: 10px; width: 100%; font-size: 13px; }
+    .alert.info { color: var(--color-info); background: var(--primitive-lilac-100); }
+    .alert.success { color: var(--color-success); background: var(--color-success-soft); }
+    .alert.warning { color: var(--color-warning); background: var(--color-warning-soft); }
+    .alert.error { color: var(--color-danger); background: var(--color-danger-soft); }
+    .cms-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .cms-list li { padding: 10px 12px; border: 1px solid var(--color-border); border-radius: 9px; background: white; }
+    .tree { border: 1px solid var(--color-border); border-radius: 12px; padding: 12px; background: var(--color-surface-subtle); }
+    .tree ul { margin: 6px 0 0; padding-right: 22px; }
+    .tree li { padding: 4px 0; }
+    .content-block { width: 100%; padding: 15px; border: 1px solid var(--color-border); border-radius: 12px; }
+    .content-block h4 { margin: 0 0 5px; font-size: 16px; }
+    .callout { padding: 12px 14px; border-right: 4px solid var(--primitive-lilac-300); border-radius: 8px; background: var(--primitive-lilac-100); }
+    .media-placeholder { min-height: 145px; display: grid; place-items: center; border-radius: 10px; background: var(--primitive-lime-100); color: var(--color-text); }
+    figure { margin: 0; width: 100%; }
+    figcaption { margin-top: 6px; color: var(--color-text-muted); font-size: 12px; }
+    .steps { margin: 0; padding-right: 22px; }
+    .steps li { padding: 3px 0; }
+    .code { width: 100%; padding: 13px; border-radius: 10px; background: #23213e; color: white; direction: ltr; text-align: left; overflow-x: auto; font: 13px/1.7 var(--font-code); }
     .table-wrap { width: 100%; overflow-x: auto; }
-    .data-table { width: 100%; min-width: 400px; border-collapse: collapse; text-align: right; font-size: 10px; }
-    .data-table th { background: var(--surface-soft); color: #333; padding: 8px; border-bottom: 1px solid var(--line); }
-    .data-table td { padding: 8px; border-bottom: 1px solid var(--line-soft); }
-    .list-demo { padding-right: 20px; font-size: 11px; }
-    .list-demo li { margin: 3px 0; }
-    .video-placeholder { width: min(100%, 430px); aspect-ratio: 16/7; display: grid; place-items: center; background: var(--navy); color: #fff; border-radius: 12px; font-size: 12px; }
-    .molecule { display: grid; gap: 8px; width: min(100%, 500px); border: 1px solid var(--line); border-radius: 12px; padding: 11px; background: #fff; }
-    .molecule-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-    .search { position: relative; flex: 1; }
-    .search input { padding-right: 30px; }
-    .search span { position: absolute; right: 9px; top: 8px; color: var(--muted); }
-    .stepper { display: flex; align-items: center; gap: 5px; width: 100%; }
-    .step { flex: 1; display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--muted); }
-    .step b { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #fff; color: #000; }
-    .step.done b { background: #000; color: #fff; border-color: #000; }
-    .step.current { color: #000; font-weight: 700; }
-    .lesson-header { padding: 17px; background: var(--cream); border-radius: 14px; width: 100%; }
-    .lesson-header h3 { font-size: 17px; margin: 8px 0 4px; }
-    .lesson-header p { color: #444; font-size: 10px; }
-    .quiz-card { width: min(100%, 520px); border: 1px solid var(--line); border-radius: 13px; padding: 13px; }
-    .quiz-card h3 { margin-bottom: 9px; }
-    .quiz-options { display: grid; gap: 6px; }
-    .quiz-option { text-align: right; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; background: #fff; font-size: 10px; }
-    .quiz-option:hover { border-color: #000; background: var(--surface-soft); }
-    .simulator { width: 100%; border: 1px solid #000; border-radius: 14px; overflow: hidden; }
-    .simulator-bar { display: flex; justify-content: space-between; padding: 9px 12px; background: #000; color: #fff; font: 10px ui-monospace, monospace; }
-    .simulator-body { padding: 12px; }
-    .simulator-screen { min-height: 115px; padding: 12px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 9px; display: grid; place-items: center; color: var(--muted); font-size: 10px; }
-    .lesson-organism { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 12px; width: 100%; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-    .lesson-organism nav { background: var(--surface-soft); padding: 12px; font-size: 9px; }
-    .lesson-organism nav strong { display: block; margin-bottom: 6px; }
-    .lesson-organism nav span { display: block; padding: 5px 7px; border-radius: 7px; }
-    .lesson-organism nav span.active { background: var(--lilac); color: #000; font-weight: 700; }
-    .lesson-organism article { padding: 13px; }
-    .lesson-organism article h3 { margin: 6px 0; }
-    .lesson-organism article p { color: var(--muted); font-size: 10px; }
-    .empty { text-align: center; width: 100%; padding: 20px; color: var(--muted); font-size: 10px; border: 1px dashed #bbb; border-radius: 12px; }
-    .footer { margin-top: 38px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
-    @media (max-width: 760px) { .topbar-inner { align-items: flex-start; flex-direction: column; padding: 10px 16px; } .top-nav { max-width: 100%; overflow: auto; flex-wrap: nowrap; } .page { padding: 20px 14px 45px; } .section-heading { align-items: flex-start; flex-direction: column; } .catalog-grid { grid-template-columns: 1fr; } .catalog-card.wide { grid-column: auto; } .lesson-organism { grid-template-columns: 1fr; } .lesson-organism nav { display: flex; flex-wrap: wrap; gap: 5px; } .lesson-organism nav strong { width: 100%; } .stepper { overflow-x: auto; } .step { min-width: 88px; } }
-    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+    table { width: 100%; min-width: 420px; border-collapse: collapse; text-align: right; font-size: 13px; }
+    th, td { padding: 9px; border-bottom: 1px solid var(--color-border); }
+    th { background: var(--color-surface-subtle); }
+    .quiz-option { width: 100%; padding: 9px 11px; margin-top: 6px; border: 1px solid var(--color-border-strong); border-radius: 8px; text-align: right; background: white; }
+    .cms-panel { padding: 15px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface-subtle); }
+    .cms-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .progress { height: 8px; overflow: hidden; border-radius: var(--primitive-radius-pill); background: var(--primitive-gray-100); }
+    .progress span { display: block; width: 62%; height: 100%; border-radius: inherit; background: var(--primitive-black); }
+    footer { margin-top: 42px; padding-top: 16px; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 12px; }
+    @media (max-width: 760px) {
+      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 10px 16px; }
+      .top-nav { max-width: 100%; }
+      main { padding: 20px 16px 48px; }
+      .grid { grid-template-columns: 1fr; }
+      .card.wide { grid-column: auto; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .token-row { grid-template-columns: 1fr 1fr; }
+      .token-row span:last-child { grid-column: 1 / -1; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="topbar-inner"><a class="brand" href="#top"><span class="brand-mark">L</span><span>ספריית רכיבים<small>מדריכי למידה · Excel ו־Gmail</small></span></a><nav class="top-nav" aria-label="ניווט בספרייה"><a href="#foundations">יסודות</a><a href="#atoms">אטומים</a><a href="#molecules">מולקולות</a><a href="#organisms">אורגניזמים</a><a href="#content-blocks">בלוקי תוכן</a></nav></div></header>
-  <main class="page" id="top">
-    <section class="intro"><span class="eyebrow">COMPONENT CATALOG · FIGMA-INSPIRED</span><h1>ספריית רכיבים למדריכי למידה</h1><p>קטלוג רכיבים מסודר מהבסיסיים ביותר למורכבים ביותר. כאן מוצגים רכיבים בודדים בלבד — לא עמודי מדריך לדוגמה ולא שיעורים שלמים.</p><span class="intro-note">RTL · נגישות · רכיבים לשימוש חוזר</span></section>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">CMS</span><span>ספריית רכיבים<small>מערכת עיצוב ליצירת מדריכים</small></span></a>
+      <nav class="top-nav" aria-label="ניווט בקטלוג">
+        <a href="#primitives">פרימיטיבים</a><a href="#semantic">טוקנים סמנטיים</a><a href="#foundations">טיפוגרפיה</a><a href="#cms">ממשק CMS</a><a href="#guide-blocks">רכיבי מדריך</a>
+      </nav>
+    </div>
+  </header>
+  <main id="top">
+    <section class="intro" aria-labelledby="page-title">
+      <span class="eyebrow">DESIGN SYSTEM · CMS COMPONENT CATALOG</span>
+      <h1 id="page-title">רכיבים ליצירה ולניהול של מדריכים</h1>
+      <p>הקטלוג מחלק בין ערכי בסיס (פרימיטיבים), החלטות לפי משמעות (טוקנים סמנטיים), רכיבי ממשק של ה־CMS, ובלוקי תוכן שמרכיבים מדריך. כך אפשר לשנות שפה חזותית בלי לשנות את מבנה התוכן.</p>
+      <span class="note">קטלוג הדגמה סטטי — לא מחובר ל־GAS, ל־Sheets או ל־Docs</span>
+    </section>
 
-    <section class="library-section" id="foundations"><div class="section-heading"><div><span class="level">LEVEL 0</span><h2>יסודות וטוקנים</h2></div><p>צבע, טיפוגרפיה, ריווח וצורה</p></div><div class="catalog-grid">
-      <article class="catalog-card wide"><div class="card-heading"><div><h3>פלטת צבעים</h3><p>צבעים ניטרליים ופסטליים בהשראת Figma, עם צבעי מצב סמנטיים.</p></div><span class="level">COLOR TOKENS</span></div><div class="swatch-row"><div class="swatch" style="background:#000;color:#fff">Ink<code>#000000</code></div><div class="swatch" style="background:#f7f7f5">Surface soft<code>#F7F7F5</code></div><div class="swatch" style="background:var(--lilac)">Lilac<code>#C5B0F4</code></div><div class="swatch" style="background:var(--lime)">Lime<code>#DCEEB1</code></div><div class="swatch" style="background:var(--mint)">Mint<code>#C8E6CD</code></div><div class="swatch" style="background:var(--cream)">Cream<code>#F4ECD6</code></div><div class="swatch" style="background:var(--pink)">Pink<code>#EFD4D4</code></div><div class="swatch" style="background:var(--coral)">Coral<code>#F3C9B6</code></div><div class="swatch" style="background:var(--navy);color:#fff">Navy<code>#1F1D3D</code></div></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>סולם טיפוגרפי</h3><p>פונט עברי כללי; ללא תלות בפונט קנייני.</p></div><span class="level">TYPE</span></div><div class="type-sample"><span class="type-display">כותרת ראשית</span><span class="type-heading">כותרת מקטע</span><span class="type-body">טקסט גוף לקריאה והסבר.</span><span class="type-caption">כיתוב עזר · metadata · זמן</span></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>ריווח, גבולות ופינות</h3><p>קנה מידה עקבי לרכיבים ולפריסות.</p></div><span class="level">SPACE / SHAPE</span></div><div class="specimen"><span class="tag">4px</span><span class="tag">8px</span><span class="tag">12px</span><span class="tag">16px</span><span class="tag">24px</span><span class="tag">32px</span><span class="tag info">radius 8 / 14 / 24</span></div></article>
-    </div></section>
+    <section class="section" id="primitives">
+      <div class="section-head"><div><span class="section-index">01 · FOUNDATIONS</span><h2>פרימיטיבים — ערכי בסיס</h2></div><p>ערכים גולמיים ועצמאיים; לא מתארים עדיין שימוש בממשק.</p></div>
+      <div class="grid">
+        <article class="card wide"><div class="card-head"><div><h3>צבעים פרימיטיביים</h3><p>פלטת בסיס ניטרלית ופסטלית.</p></div></div>
+          <div class="swatches">
+            <div class="swatch" style="background:var(--primitive-white)">White<code>#FFFFFF</code></div><div class="swatch" style="background:var(--primitive-gray-50)">Gray 50<code>#F7F7F5</code></div><div class="swatch" style="background:var(--primitive-gray-100)">Gray 100<code>#EEEEEB</code></div><div class="swatch" style="background:var(--primitive-gray-300)">Gray 300<code>#D3D3CE</code></div><div class="swatch" style="background:var(--primitive-lilac-100)">Lilac 100<code>#EEE7FB</code></div><div class="swatch" style="background:var(--primitive-lilac-300)">Lilac 300<code>#CBB8EF</code></div><div class="swatch" style="background:var(--primitive-lime-100)">Lime 100<code>#EDF4D8</code></div><div class="swatch" style="background:var(--primitive-cream-100)">Cream 100<code>#F7F0DC</code></div>
+          </div>
+        </article>
+        <article class="card"><div class="card-head"><div><h3>סולם ריווח</h3><p>ערכים מספריים לשימוש חוזר.</p></div></div><div class="token-list">
+          <div class="token-row"><span class="token-name">space-1</span><span>4px</span><span class="token-value">--primitive-space-1</span></div><div class="token-row"><span class="token-name">space-2</span><span>8px</span><span class="token-value">--primitive-space-2</span></div><div class="token-row"><span class="token-name">space-4</span><span>16px</span><span class="token-value">--primitive-space-4</span></div><div class="token-row"><span class="token-name">space-8</span><span>32px</span><span class="token-value">--primitive-space-8</span></div>
+        </div></article>
+        <article class="card"><div class="card-head"><div><h3>פינות ומידות</h3><p>ערכי צורה בסיסיים לרכיבים.</p></div></div><div class="token-list">
+          <div class="token-row"><span class="token-name">radius-sm</span><span>8px</span><span>שדות קטנים</span></div><div class="token-row"><span class="token-name">radius-md</span><span>14px</span><span>כרטיסים</span></div><div class="token-row"><span class="token-name">radius-lg</span><span>24px</span><span>משטחים גדולים</span></div><div class="token-row"><span class="token-name">radius-pill</span><span>999px</span><span>כפתורים ותגיות</span></div>
+        </div></article>
+      </div>
+    </section>
 
-    <section class="library-section" id="atoms"><div class="section-heading"><div><span class="level">LEVEL 1</span><h2>אטומים</h2></div><p>אבני הבניין הקטנות של הממשק</p></div><div class="catalog-grid">
-      <article class="catalog-card"><div class="card-heading"><div><h3>כפתורים</h3><p>פעולה ראשית, משנית, טקסט, הרסנית ומושבתת.</p></div></div><div class="specimen"><button class="button">פעולה ראשית</button><button class="button secondary">פעולה משנית</button><button class="button text">פעולת טקסט</button><button class="button danger">פעולה מסוכנת</button><button class="button" disabled>מושבת</button><button class="icon-button" aria-label="חיפוש">⌕</button></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>תגיות וסטטוסים</h3><p>תמיד מציגים תווית טקסט ולא צבע בלבד.</p></div></div><div class="specimen"><span class="tag success">הושלם</span><span class="tag warning">טיוטה</span><span class="tag error">שגיאה</span><span class="tag info">טיפ</span><span class="tag">Excel</span><span class="tag">Gmail</span></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>שדות טופס</h3><p>קלט, בחירה, תיבת סימון, מצב שגיאה ועזרה.</p></div></div><div class="field-demo"><label class="label" for="atomTitle">כותרת השיעור</label><input id="atomTitle" class="control" value="עריכת גיליון"><div class="control-help">טקסט עזר קצר מתחת לשדה.</div><label class="label" for="atomError" style="margin-top:10px">מצב שגיאה</label><input id="atomError" class="control error" aria-invalid="true" aria-describedby="atomErrorText" value=""><div id="atomErrorText" class="control-error">יש למלא את השדה.</div></div><div class="specimen" style="margin-top:12px"><label class="check-line"><input type="checkbox" checked> הצגת טיפ</label><label class="check-line"><input type="radio" name="sample-radio"> אפשרות</label></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>קישור, מפריד וכפתור אייקון</h3><p>רכיבי ניווט וכלי עזר קטנים.</p></div></div><div class="specimen"><a href="#molecules">קישור טקסט</a><span style="color:var(--muted)">/ מפריד /</span><button class="icon-button" aria-label="מידע נוסף">i</button><button class="icon-button" aria-label="סגירה">×</button><span class="tag">⌕ חיפוש</span></div></article>
-      <article class="catalog-card wide"><div class="card-heading"><div><h3>הודעות ומשוב</h3><p>הצלחה, מידע, אזהרה ושגיאה.</p></div></div><div class="specimen"><div class="alert success"><span>✓</span><div><strong>הושלם</strong>הפעולה בוצעה בהצלחה.</div></div><div class="alert info"><span>i</span><div><strong>טיפ</strong>אפשר לבצע את הפעולה שוב.</div></div><div class="alert warning"><span>!</span><div><strong>שימו לב</strong>נדרשת בדיקה לפני המשך.</div></div><div class="alert error"><span>×</span><div><strong>לא ניתן להמשיך</strong>בדקו את הפרטים ונסו שוב.</div></div></div></article>
-    </div></section>
+    <section class="section" id="semantic">
+      <div class="section-head"><div><span class="section-index">02 · DESIGN TOKENS</span><h2>טוקנים סמנטיים</h2></div><p>שמות לפי תפקיד. כל טוקן סמנטי מצביע לערך פרימיטיבי.</p></div>
+      <div class="grid">
+        <article class="card"><div class="card-head"><div><h3>צבע לפי תפקיד</h3><p>שימוש עקבי בכל ממשק ה־CMS ובמדריך.</p></div></div><div class="token-list">
+          <div class="token-row"><span class="token-name">color-text</span><span>טקסט ראשי</span><span class="token-value">→ black</span></div><div class="token-row"><span class="token-name">color-text-muted</span><span>טקסט משני</span><span class="token-value">→ gray-600</span></div><div class="token-row"><span class="token-name">color-surface</span><span>משטח רכיב</span><span class="token-value">→ white</span></div><div class="token-row"><span class="token-name">color-border</span><span>גבול רגיל</span><span class="token-value">→ gray-100</span></div><div class="token-row"><span class="token-name">color-accent</span><span>הדגשה</span><span class="token-value">→ lilac-300</span></div>
+        </div></article>
+        <article class="card"><div class="card-head"><div><h3>צבעי מצב</h3><p>לכל מצב יש גם טקסט, לא צבע בלבד.</p></div></div><div class="demo"><span class="tag published">פורסם · הצלחה</span><span class="tag draft">טיוטה · אזהרה</span><span class="tag error">שגיאה</span></div><div class="token-list" style="margin-top:12px">
+          <div class="token-row"><span class="token-name">color-success</span><span>הצלחה</span><span class="token-value">green-700 / mint-100</span></div><div class="token-row"><span class="token-name">color-warning</span><span>טיוטה / אזהרה</span><span class="token-value">amber-800 / cream-100</span></div><div class="token-row"><span class="token-name">color-danger</span><span>שגיאה / מחיקה</span><span class="token-value">red-700 / red-100</span></div>
+        </div></article>
+        <article class="card wide"><div class="card-head"><div><h3>טיפוגרפיה סמנטית</h3><p>תפקידים טיפוגרפיים שממפים למשפחת הגופן ולסולם הגודל.</p></div></div><div class="token-list">
+          <div class="token-row"><span class="token-name">font-ui</span><span>ממשק, ניווט, טפסים</span><span class="token-value">--font-hebrew</span></div><div class="token-row"><span class="token-name">font-content</span><span>תוכן המדריך</span><span class="token-value">--font-hebrew</span></div><div class="token-row"><span class="token-name">font-code</span><span>קוד, קיצורים ונוסחאות</span><span class="token-value">--font-mono</span></div><div class="token-row"><span class="token-name">text-title / body / caption</span><span>כותרת / גוף / הערה</span><span>28px / 16px / 13px</span></div>
+        </div></article>
+      </div>
+    </section>
 
-    <section class="library-section" id="molecules"><div class="section-heading"><div><span class="level">LEVEL 2</span><h2>מולקולות</h2></div><p>קבוצות קטנות של אטומים עם תפקיד מוגדר</p></div><div class="catalog-grid">
-      <article class="catalog-card"><div class="card-heading"><div><h3>שורת חיפוש וסינון</h3><p>שדה חיפוש, מסנן וכפתור ניקוי.</p></div></div><div class="molecule"><div class="molecule-top"><label class="search"><span>⌕</span><input class="control" placeholder="חיפוש לפי נושא" aria-label="חיפוש דוגמה"></label><button class="button secondary">סינון</button></div><div class="specimen"><span class="tag">כל הנושאים</span><span class="tag info">Excel</span></div></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>שלבי התקדמות</h3><p>שלב שהושלם, נוכחי ושלב עתידי.</p></div></div><div class="stepper"><span class="step done"><b>✓</b>היכרות</span><span class="step current"><b>2</b>תרגול</span><span class="step"><b>3</b>בדיקה</span><span class="step"><b>4</b>סיום</span></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>תמונה וכיתוב</h3><p>מדיה מופרדת מהתיאור והקרדיט.</p></div></div><figure class="media-card" style="margin:0"><div class="media-placeholder" role="img" aria-label="מקום לתמונה לימודית">אזור תמונה / תרשים</div><figcaption class="media-caption">איור או צילום · כיתוב והסבר לתמונה.</figcaption></figure></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>ציטוט והדגשה</h3><p>ציטוט, הגדרה או הערת מפתח.</p></div></div><blockquote class="quote">תא הוא המפגש בין שורה לעמודה.<cite>מושג מרכזי · גיליון אלקטרוני</cite></blockquote></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>רשימה</h3><p>צעדים, דרישות או נקודות חשובות.</p></div></div><ol class="list-demo"><li>בחרו את התא.</li><li>הקלידו ערך.</li><li>אשרו את הפעולה.</li></ol></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>בלוק קוד</h3><p>נוסחה, קיצור מקלדת או פקודה.</p></div></div><pre class="code-block"><code>=SUM(A1:A4)
+    <section class="section" id="foundations">
+      <div class="section-head"><div><span class="section-index">03 · TYPOGRAPHY</span><h2>פונטים וטיפוגרפיה</h2></div><p>דוגמאות משפחה, משקל, גודל ותפקיד — עם fallback למכשירים ללא הפונט.</p></div>
+      <div class="grid">
+        <article class="card"><div class="card-head"><div><h3>משפחות פונטים</h3><p>משפחת UI עברית, לטינית וקוד.</p></div></div><div class="font-sample">
+          <div class="font-line" style="font-family:var(--font-hebrew)"><code>--font-hebrew: Assistant, Heebo, Arial, sans-serif</code><span class="example">מדריך ברור מתחיל בכותרת טובה</span><span class="muted">ממשק ותוכן בעברית · משקלים 400, 600, 700</span></div>
+          <div class="font-line" style="font-family:var(--font-latin);direction:ltr;text-align:left"><code>--font-latin: Arial, Helvetica, sans-serif</code><span class="example">Create a clear learning guide</span><span class="muted">תוכן באנגלית ורכיבים דו־לשוניים</span></div>
+          <div class="font-line" style="font-family:var(--font-mono);direction:ltr;text-align:left"><code>--font-mono: SFMono-Regular, Consolas, Liberation Mono, monospace</code><span class="example">=SUM(A1:A10) · Ctrl + Enter</span><span class="muted">נוסחאות, קיצורי מקלדת וקטעי קוד</span></div>
+        </div><p class="muted" style="margin-top:12px">Assistant ו־Heebo מוגדרים כהעדפה; אם אינם מותקנים, הדפדפן משתמש ב־Arial. הקטלוג לא טוען פונטים חיצוניים.</p></article>
+        <article class="card"><div class="card-head"><div><h3>סולם טקסט</h3><p>דוגמת היררכיה במדריך.</p></div></div><div class="font-sample"><div class="type-display">כותרת מדריך</div><div class="type-title">כותרת פרק</div><div class="type-subtitle">כותרת מקטע</div><p class="type-body">טקסט גוף קריא שמסביר פעולה, מושג או תהליך. שורות מרווחות תומכות בקריאה ממושכת.</p><p class="type-caption">כיתוב תמונה · זמן קריאה · מקור</p></div></article>
+      </div>
+    </section>
+
+    <section class="section" id="cms">
+      <div class="section-head"><div><span class="section-index">04 · CMS AUTHORING</span><h2>רכיבי ממשק ליצירת מדריכים ב־CMS</h2></div><p>כלים לעורך יחיד: מבנה, מטא־נתונים, טיוטה, תצוגה מקדימה ופרסום מפורש.</p></div>
+      <div class="grid">
+        <article class="card"><div class="card-head"><div><h3>עץ תוכן וניווט בין פרקים</h3><p>ארגון המדריך וחלקיו.</p></div></div><div class="tree"><strong>מדריך: יסודות Google Sheets</strong><ul><li>01 · היכרות עם הגיליון</li><li>02 · הזנת נתונים<ul><li>שורות ועמודות</li><li>עיצוב תאים</li></ul></li><li>03 · נוסחאות בסיסיות</li></ul></div></article>
+        <article class="card"><div class="card-head"><div><h3>פרטי מדריך ופרק</h3><p>מטא־נתונים שה־CMS שומר לצד גוף התוכן.</p></div></div><div class="demo"><div class="field"><label for="guide-title">כותרת</label><input class="control" id="guide-title" value="יסודות Google Sheets" readonly></div><div class="field"><label for="guide-slug">כתובת (slug)</label><input class="control" id="guide-slug" value="google-sheets-basics" dir="ltr" readonly></div><div class="field"><label for="guide-summary">תקציר</label><input class="control" id="guide-summary" value="צעדים ראשונים לעבודה בגיליון" readonly></div></div><p class="muted" style="margin-top:9px">שפה · קטגוריה · תמונת שער · זמן קריאה · סדר פרקים · מסמך מקור</p></article>
+        <article class="card"><div class="card-head"><div><h3>סטטוס ופעולות פרסום</h3><p>פרסום אינו מתרחש אוטומטית בעת עריכה.</p></div></div><div class="cms-panel"><div class="cms-panel-head"><strong>מצב תוכן</strong><span class="tag draft">טיוטה</span></div><div class="demo"><button class="button secondary" type="button">תצוגה מקדימה</button><button class="button" type="button">פרסום</button><button class="button text" type="button">ביטול פרסום</button></div></div><p class="muted" style="margin-top:10px">הדגמה בלבד: הכפתורים אינם מחוברים לפעולות backend.</p></article>
+        <article class="card"><div class="card-head"><div><h3>התקדמות בניית מדריך</h3><p>אינדיקציה למבנה, לא ציון איכות.</p></div></div><div class="cms-panel"><div class="cms-panel-head"><strong>5 מתוך 8 מקטעים הושלמו</strong><span>62%</span></div><div class="progress" role="progressbar" aria-label="התקדמות בניית המדריך" aria-valuemin="0" aria-valuemax="100" aria-valuenow="62"><span></span></div><p class="muted" style="margin-top:10px">פרטים · פרקים · תוכן · קישורים · בדיקת תצוגה</p></div></article>
+      </div>
+    </section>
+
+    <section class="section" id="guide-blocks">
+      <div class="section-head"><div><span class="section-index">05 · GUIDE CONTENT BLOCKS</span><h2>רכיבי תוכן לבניית מדריך</h2></div><p>בלוקים שאפשר לסדר בפרק ולשמור במסמך התוכן.</p></div>
+      <div class="grid">
+        <article class="card"><div class="card-head"><div><h3>טקסט וכותרות</h3><p>הסבר, הקדמה והיררכיית מקטעים.</p></div></div><div class="content-block"><h4>למה להשתמש בטווחים?</h4><p>טווח הוא קבוצת תאים שאפשר לעצב, למיין או לחשב יחד.</p></div></article>
+        <article class="card"><div class="card-head"><div><h3>הוראות בשלבים</h3><p>רצף פעולות עם תוצאה צפויה.</p></div></div><ol class="steps"><li>סמנו את התאים הרצויים.</li><li>בחרו בתפריט <strong>עיצוב</strong>.</li><li>בדקו שהתוצאה תואמת לדוגמה.</li></ol></article>
+        <article class="card"><div class="card-head"><div><h3>טיפ, הערה ואזהרה</h3><p>מידע משלים שמובחן מההוראות.</p></div></div><div class="callout"><strong>טיפ:</strong> אפשר לבטל פעולה אחרונה באמצעות Ctrl+Z.</div></article>
+        <article class="card"><div class="card-head"><div><h3>תמונה, צילום מסך וכיתוב</h3><p>כולל תיאור חלופי ומקור לצורכי נגישות ועריכה.</p></div></div><figure><div class="media-placeholder" role="img" aria-label="מקום לצילום מסך של גיליון">צילום מסך / איור</div><figcaption>כיתוב: בחירת טווח תאים · תיאור חלופי: תאים A1 עד C4 מסומנים.</figcaption></figure></article>
+        <article class="card"><div class="card-head"><div><h3>נוסחה, קיצור וקוד</h3><p>קטע טכני קריא להעתקה.</p></div></div><pre class="code"><code>=SUM(B2:B10)
 Ctrl + Shift + V</code></pre></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>טבלה</h3><p>תוכן מובנה והשוואת נתונים.</p></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>מונח</th><th>הסבר</th><th>דוגמה</th></tr></thead><tbody><tr><td>תא</td><td>מיקום בגיליון</td><td dir="ltr">B2</td></tr><tr><td>שורה</td><td>רצף אופקי</td><td>2</td></tr></tbody></table></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>נגן וידאו</h3><p>Placeholder עם יחס ממדים וכיתוב נגיש.</p></div></div><div class="video-placeholder" role="img" aria-label="מקום לנגן וידאו">▶ סרטון הדרכה</div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>שורת התקדמות</h3><p>התקדמות למידה או ביצוע משימה.</p></div></div><div class="progress" role="progressbar" aria-label="התקדמות רכיב לדוגמה" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100"><span></span></div><p class="type-caption" style="margin-top:7px">3 מתוך 5 שלבים</p></article>
-    </div></section>
-
-    <section class="library-section" id="organisms"><div class="section-heading"><div><span class="level">LEVEL 3</span><h2>אורגניזמים</h2></div><p>רכיבים מורכבים המורכבים ממולקולות ואטומים</p></div><div class="catalog-grid">
-      <article class="catalog-card wide"><div class="card-heading"><div><h3>כותרת שיעור</h3><p>כותרת, פרק, זמן משוער ותקציר — רכיב כותרת בלבד, לא דף שיעור מלא.</p></div></div><div class="lesson-header"><span class="tag">פרק 2 · יסודות</span><h3>עבודה עם תאים ונוסחאות</h3><p>היכרות עם מבנה הגיליון ותרגול פעולות בסיסיות.</p><div class="specimen" style="margin-top:10px"><span class="tag">⏱ 8 דקות</span><span class="tag info">מתחילים</span></div></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>כרטיס תרגיל</h3><p>הוראה, משימה, כלי אינטראקטיבי ומשוב.</p></div></div><div class="quiz-card"><span class="tag tag-lime">תרגול</span><h3 style="margin:8px 0">בחרו תא בגיליון</h3><p class="type-caption" style="margin-bottom:9px">הוראה קצרה + רכיב פעולה.</p><div class="specimen"><button class="button">הפעל תרגיל</button><span class="tag success">משוב מופיע כאן</span></div></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>קליפת סימולטור</h3><p>כותרת וכלי תוכנה מבודדים בתוך מסגרת.</p></div></div><div class="simulator"><div class="simulator-bar"><span>סימולטור</span><span>תרגול לדוגמה</span></div><div class="simulator-body"><div class="simulator-screen">כאן יוצב סימולטור Excel או Gmail</div></div></div></article>
-      <article class="catalog-card wide"><div class="card-heading"><div><h3>ניווט פרק ותוכן</h3><p>תפריט קטן ליד אזור תוכן; אפשר למחזר אותו במדריכים שונים.</p></div></div><div class="lesson-organism"><nav aria-label="דוגמת ניווט פרק"><strong>תוכן הפרק</strong><span>1. היכרות</span><span class="active">2. תרגול</span><span>3. בדיקת הבנה</span></nav><article><span class="tag tag-lilac">תת־פרק</span><h3>הסבר או הוראות</h3><p>אורגניזם זה הוא שלד רכיב בלבד. תוכן מלא יורכב ממקטעי טקסט, מדיה, טבלה ותרגיל לפי הצורך.</p></article></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>מצב ריק</h3><p>ללא תוכן, תוצאות או מדיה.</p></div></div><div class="empty"><strong>אין עדיין רכיב משויך</strong>אפשר להוסיף מדיה או להמשיך לרכיב הבא.</div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>שאלון</h3><p>שאלה, אפשרויות ומשוב.</p></div></div><div class="quiz-card"><h3>איזו פעולה תציג הסבר נוסף?</h3><div class="quiz-options"><button class="quiz-option">פתיחת רמז</button><button class="quiz-option">איפוס כל הנתונים</button></div></div></article>
-    </div></section>
-
-    <section class="library-section" id="content-blocks"><div class="section-heading"><div><span class="level">CONTENT BLOCKS</span><h2>בלוקי תוכן למדריך</h2></div><p>מקטעים בודדים להרכבת שיעור — לא תבנית של דף שלם</p></div><div class="catalog-grid">
-      <article class="catalog-card"><div class="card-heading"><div><h3>טקסט עשיר</h3><p>כותרות, פסקאות, הדגשה וקישורים.</p></div></div><div><h3 style="margin-bottom:6px">כותרת בתוך התוכן</h3><p class="type-body">פסקת טקסט עם <strong>מונח מודגש</strong>, קישור והסבר קצר לקריאה נוחה.</p></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>הוראות וטיפ</h3><p>בלוק מידע עצמאי עם סמנטיקה ברורה.</p></div></div><div class="alert info"><span>i</span><div><strong>טיפ</strong>הודעת עזר קצרה בתוך התוכן.</div></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>תמונה עם חלופות</h3><p>תמונה, כיתוב, alt text וקרדיט.</p></div></div><figure class="media-card" style="margin:0"><div class="media-placeholder" role="img" aria-label="דוגמת תרשים עם תיאור חלופי">תרשים מדגים פעולה</div><figcaption class="media-caption">כיתוב לתמונה · תיאור חלופי: תרשים המציג את שלבי הפעולה.</figcaption></figure></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>טבלת נתונים</h3><p>כותרות, שורות, תיאור ונגישות.</p></div></div><div class="table-wrap"><table class="data-table"><caption style="text-align:right;padding:5px">השוואת פעולות</caption><thead><tr><th>פעולה</th><th>תוצאה</th></tr></thead><tbody><tr><td>שמירה</td><td>טיוטה</td></tr><tr><td>פרסום</td><td>זמין ללומדים</td></tr></tbody></table></div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>רשימת צעדים</h3><p>רשימה ממוספרת או תבליטים.</p></div></div><ol class="list-demo"><li>פתחו את הכלי.</li><li>בחרו את הפקודה.</li><li>בדקו את התוצאה.</li></ol></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>הטמעת מדיה</h3><p>Placeholder עבור וידאו או אנימציה.</p></div></div><div class="video-placeholder" role="img" aria-label="Placeholder לוידאו">▶ סרטון / GIF</div></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>ציטוט</h3><p>ציטוט או הערה בולטת.</p></div></div><blockquote class="quote">מושג חשוב שכדאי לזכור לאורך התרגול.<cite>הערת מדריך</cite></blockquote></article>
-      <article class="catalog-card"><div class="card-heading"><div><h3>קוד ונוסחה</h3><p>נוסחה, קיצור מקלדת או קטע טקסט טכני.</p></div></div><pre class="code-block"><code>=SUM(A1:A4)
-Ctrl + Enter</code></pre></article>
-    </div></section>
-    <footer class="footer">ספריית רכיבים בלבד · לא דף דוגמאות שלם ולא מדריך מחובר · שפת עיצוב בהשראת Figma</footer>
+        <article class="card"><div class="card-head"><div><h3>טבלה</h3><p>השוואה או נתונים מובנים.</p></div></div><div class="table-wrap"><table><caption class="muted">דוגמאות לסוגי נתונים</caption><thead><tr><th scope="col">סוג</th><th scope="col">דוגמה</th></tr></thead><tbody><tr><td>טקסט</td><td>שם מוצר</td></tr><tr><td>מספר</td><td>24</td></tr></tbody></table></div></article>
+        <article class="card"><div class="card-head"><div><h3>תרגיל ושאלון</h3><p>בדיקת הבנה עם משוב.</p></div></div><div class="content-block"><strong>איזו נוסחה מחברת את B2 עד B10?</strong><button class="quiz-option" type="button">=SUM(B2:B10)</button><button class="quiz-option" type="button">=COUNT(B2:B10)</button></div></article>
+        <article class="card"><div class="card-head"><div><h3>וידאו או מדיה מוטמעת</h3><p>מקום לנגן, קישור, כיתוב ותמלול.</p></div></div><div class="media-placeholder" role="img" aria-label="מקום לנגן וידאו">וידאו · משך · תמלול</div></article>
+        <article class="card"><div class="card-head"><div><h3>מילון מושגים</h3><p>הגדרה קצרה של מונח מקצועי.</p></div></div><dl><dt><strong>תא</strong></dt><dd>נקודת מפגש בין שורה לעמודה בגיליון.</dd><dt style="margin-top:8px"><strong>טווח</strong></dt><dd>קבוצה של תא אחד או יותר.</dd></dl></article>
+        <article class="card"><div class="card-head"><div><h3>קישור ומשאב להורדה</h3><p>הפניה לקובץ תרגול או למדריך קשור.</p></div></div><ul class="cms-list"><li><a href="#guide-blocks">פתיחת קובץ תרגול</a> <span class="muted">· XLSX</span></li><li><a href="#guide-blocks">מדריך קשור: יצירת תרשים</a></li></ul></article>
+        <article class="card wide"><div class="card-head"><div><h3>סיכום פרק והמשך למידה</h3><p>סיום יחידת לימוד עם נקודות מפתח ופעולה הבאה.</p></div></div><div class="alert success"><strong>בפרק הזה למדתם:</strong> לבחור טווח, להזין נתונים ולחשב סכום. בפרק הבא נבנה נוסחה עם כמה פונקציות.</div></article>
+      </div>
+    </section>
+    <footer>ספריית רכיבים סטטית ל־CMS אישי וליצירת מדריכים · דוגמאות ממשק אינן מחוברות ל־API · כיווני פרסום והרשאות נשארים בצד השרת.</footer>
   </main>
 </body>
 </html>
