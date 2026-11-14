@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="עורך הדגמה מקומי לבניית מדריכים מבלוקים.">
+  <title>עורך מדריכים — אבטיפוס</title>
+  <style>
+    :root{font-family:Assistant,Heebo,Arial,sans-serif;color:#171717;background:#f7f7f5;--line:#e4e4df;--muted:#666;--accent:#cbb8ef;--surface:#fff;--soft:#f7f7f5;--radius:14px}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button{cursor:pointer}.top{height:auto;min-height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 22px;position:sticky;top:0;z-index:5}.brand{font-weight:800}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:400}.actions,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{border:1px solid #171717;background:#171717;color:#fff;border-radius:999px;padding:9px 15px}.btn.secondary{background:#fff;color:#171717;border-color:var(--line)}.btn.soft{background:#eee7fb;border-color:transparent;color:#171717}.layout{max-width:1440px;margin:auto;padding:20px;display:grid;grid-template-columns:245px minmax(0,1fr) 230px;gap:16px;align-items:start}.panel,.workspace{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px}.panel{position:sticky;top:84px}.panel h2,.panel h3{margin:0 0 12px;font-size:15px}.workspace{min-height:75vh}.field{display:grid;gap:5px;margin-bottom:12px}.field label{font-size:12px;font-weight:700}.input,textarea,select{width:100%;padding:9px 10px;border:1px solid #c9c9c2;border-radius:8px;background:#fff}textarea{min-height:78px;resize:vertical}.chapter-nav{display:grid;gap:6px}.chapter-link{padding:9px;border-radius:8px;border:1px solid var(--line);background:#fff;text-align:right}.chapter-link.active{background:#eee7fb;border-color:#cbb8ef}.chapter-link small{display:block;color:var(--muted)}.palette{display:grid;gap:7px}.palette button{padding:9px;text-align:right;border:1px solid var(--line);border-radius:9px;background:#fff}.palette button:hover{border-color:#171717}.chapter{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}.chapter-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.chapter-head h2{margin:0;font-size:22px}.block{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:12px;background:#fff}.block-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.block-type{font-size:12px;font-weight:800}.icon-actions button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px}.hint{font-size:11px;color:var(--muted);line-height:1.55}.empty{padding:22px;text-align:center;border:1px dashed #bbb;border-radius:10px;color:var(--muted)}.toast{position:fixed;bottom:18px;left:18px;background:#171717;color:#fff;padding:10px 15px;border-radius:10px;display:none}.modal{position:fixed;inset:0;background:#0008;z-index:10;display:none;place-items:center;padding:18px}.modal.open{display:grid}.dialog{width:min(900px,100%);max-height:90vh;overflow:auto;background:white;border-radius:16px;padding:22px}.preview-body{max-width:700px;margin:20px auto;line-height:1.8}.preview-body h1{font-size:36px}.preview-body h2{margin-top:30px}.preview-body img{max-width:100%}.status{font-size:11px;color:var(--muted)}:focus-visible{outline:3px solid #24577b;outline-offset:2px}@media(max-width:1050px){.layout{grid-template-columns:220px minmax(0,1fr)}.right{position:static;grid-column:1/-1}.palette{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.top{align-items:flex-start;flex-direction:column}.layout{padding:10px;grid-template-columns:1fr}.panel{position:static}.left{order:1}.workspace{order:2}.right{order:3;grid-column:auto}.palette{grid-template-columns:repeat(2,1fr)}.actions .btn{padding:8px 11px}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">עורך מדריכים <small>אבטיפוס מקומי · אין חיבור ל־CMS או ל־Google Docs</small></div>
+    <div class="actions">
+      <span class="status" id="save-status" aria-live="polite">נשמר מקומית בדפדפן</span>
+      <button class="btn secondary" id="preview-btn" type="button">תצוגה מקדימה</button>
+      <button class="btn secondary" id="import-btn" type="button">ייבוא JSON</button>
+      <button class="btn" id="export-btn" type="button">ייצוא JSON</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </header>
+  <main class="layout">
+    <aside class="panel left" aria-label="מבנה המדריך">
+      <h2>מבנה המדריך</h2>
+      <div class="chapter-nav" id="chapter-nav"></div>
+      <button class="btn soft" id="add-chapter" type="button" style="width:100%;margin-top:10px">＋ הוספת פרק</button>
+      <p class="hint" style="margin-top:12px">הסדר כאן הוא סדר ההצגה לקוראים. שמירה מתבצעת אוטומטית בדפדפן הזה בלבד.</p>
+    </aside>
+    <section class="workspace" aria-label="עורך תוכן">
+      <div class="field"><label for="guide-title">כותרת המדריך</label><input class="input" id="guide-title" maxlength="160"></div>
+      <div class="field"><label for="guide-summary">תקציר</label><textarea id="guide-summary" maxlength="500"></textarea></div>
+      <div class="row" style="justify-content:space-between"><h2 style="font-size:17px;margin:0">תוכן הפרק</h2><button class="btn secondary" id="delete-chapter" type="button">מחיקת הפרק</button></div>
+      <div class="field" style="margin-top:12px"><label for="chapter-title">כותרת הפרק</label><input class="input" id="chapter-title" maxlength="160"></div>
+      <div id="blocks"></div>
+    </section>
+    <aside class="panel right" aria-label="הוספת רכיב תוכן">
+      <h3>הוספת רכיב לפרק</h3>
+      <div class="palette" id="palette"></div>
+      <p class="hint" style="margin-top:12px">הרכיבים נשמרים כנתונים מובנים. תצוגת האבטיפוס אינה מפרסמת תוכן.</p>
+    </aside>
+  </main>
+  <div class="modal" id="preview-modal" role="dialog" aria-modal="true" aria-label="תצוגה מקדימה"><div class="dialog"><div class="row" style="justify-content:space-between"><strong>תצוגה מקדימה</strong><button class="btn secondary" id="close-preview" type="button">סגירה</button></div><article class="preview-body" id="preview-content"></article></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      'use strict';
+      const STORAGE_KEY = 'guide-editor-prototype-v1';
+      const types = {
+        paragraph: { label: 'פסקה', fields: [{ key: 'text', label: 'טקסט', multi: true, value: 'כתבו כאן הסבר ברור לקוראים.' }] },
+        heading: { label: 'כותרת מקטע', fields: [{ key: 'text', label: 'כותרת', value: 'כותרת מקטע' }, { key: 'level', label: 'רמה', options: ['2', '3'], value: '2' }] },
+        steps: { label: 'רשימת צעדים', fields: [{ key: 'items', label: 'צעד אחד בכל שורה', multi: true, value: 'פתחו את הקובץ.\nבחרו את הטווח.\nבדקו את התוצאה.' }] },
+        callout: { label: 'טיפ / הערה', fields: [{ key: 'kind', label: 'סוג', options: ['טיפ', 'הערה', 'אזהרה'], value: 'טיפ' }, { key: 'text', label: 'תוכן', multi: true, value: 'הוסיפו כאן מידע חשוב.' }] },
+        image: { label: 'תמונה', fields: [{ key: 'url', label: 'כתובת תמונה', value: '' }, { key: 'alt', label: 'תיאור חלופי (alt)', value: '' }, { key: 'caption', label: 'כיתוב', value: '' }] },
+        code: { label: 'קוד / נוסחה', fields: [{ key: 'text', label: 'תוכן', multi: true, value: '=SUM(A1:A10)' }] },
+        table: { label: 'טבלה', fields: [{ key: 'text', label: 'שורה בכל שורה; עמודות מופרדות בפסיק', multi: true, value: 'פעולה,תוצאה\nבחירה,טווח מסומן\nחישוב,סכום מוצג' }] },
+        quiz: { label: 'שאלת בדיקה', fields: [{ key: 'question', label: 'שאלה', value: 'איזו נוסחה מחברת טווח?' }, { key: 'options', label: 'אפשרויות — אחת בכל שורה', multi: true, value: '=SUM(A1:A5)\n=COUNT(A1:A5)' }, { key: 'answer', label: 'תשובה נכונה', value: '=SUM(A1:A5)' }] },
+        video: { label: 'וידאו / מדיה', fields: [{ key: 'url', label: 'קישור למדיה', value: '' }, { key: 'caption', label: 'תיאור / תמלול', multi: true, value: '' }] },
+        quote: { label: 'ציטוט', fields: [{ key: 'text', label: 'ציטוט', multi: true, value: 'מושג מרכזי שכדאי לזכור.' }, { key: 'source', label: 'מקור (רשות)', value: '' }] }
+      };
+      const initial = { schemaVersion: 1, title: 'מדריך לדוגמה', summary: 'תקציר קצר שמסביר מה נלמד במדריך.', language: 'he', chapters: [{ id: id(), title: 'פרק ראשון: מתחילים', blocks: [{ id: id(), type: 'paragraph', data: { text: 'זהו עורך הדגמה שמאפשר לבנות מדריך מפרקי תוכן ובלוקים.' } }, { id: id(), type: 'steps', data: { items: 'הוסיפו פרק.\nבחרו רכיב תוכן.\nייצאו את המדריך כ־JSON.' } }] }] };
+      let state = load();
+      let activeChapter = state.chapters[0]?.id;
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+      function id() { return 'id-' + Math.random().toString(36).slice(2, 10); }
+      function load() { try { const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); return saved?.schemaVersion === 1 && Array.isArray(saved.chapters) ? saved : initial; } catch (_) { return initial; } }
+      function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); $('#save-status').textContent = 'נשמר מקומית · ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }); }
+      function current() { return state.chapters.find(chapter => chapter.id === activeChapter); }
+      function renderNav() {
+        $('#chapter-nav').innerHTML = state.chapters.map((chapter, index) => `<button class="chapter-link ${chapter.id === activeChapter ? 'active' : ''}" data-chapter="${escapeHtml(chapter.id)}" type="button">${escapeHtml(chapter.title || 'פרק ללא כותרת')}<small>פרק ${index + 1} · ${chapter.blocks.length} רכיבים</small></button>`).join('');
+      }
+      function fieldMarkup(block, field) {
+        const value = block.data[field.key] ?? field.value ?? '';
+        if (field.options) return `<div class="field"><label>${escapeHtml(field.label)}</label><select class="input" data-field="${escapeHtml(field.key)}">${field.options.map(option => `<option ${String(value) === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></div>`;
+        const tag = field.multi ? 'textarea' : 'input';
+        return `<div class="field"><label>${escapeHtml(field.label)}</label><${tag} class="input" data-field="${escapeHtml(field.key)}">${field.multi ? escapeHtml(value) : ''}</${tag}>${field.multi ? '' : ''}${!field.multi ? '' : ''}</div>`.replace(/<input([^>]*)><\/input>/, '<input$1 value="' + escapeHtml(value).replace(/"/g, '&quot;') + '">');
+      }
+      function renderBlocks() {
+        const chapter = current();
+        if (!chapter) { $('#blocks').innerHTML = '<div class="empty">הוסיפו פרק כדי להתחיל.</div>'; return; }
+        $('#blocks').innerHTML = chapter.blocks.length ? chapter.blocks.map((block, index) => {
+          const definition = types[block.type];
+          return `<article class="block" data-block="${escapeHtml(block.id)}"><div class="block-head"><span class="block-type">${index + 1}. ${escapeHtml(definition?.label || block.type)}</span><span class="icon-actions"><button type="button" data-move="-1" aria-label="הזזת רכיב למעלה" ${index === 0 ? 'disabled' : ''}>↑</button> <button type="button" data-move="1" aria-label="הזזת רכיב למטה" ${index === chapter.blocks.length - 1 ? 'disabled' : ''}>↓</button> <button type="button" data-delete aria-label="מחיקת רכיב">✕</button></span></div>${(definition?.fields || []).map(field => fieldMarkup(block, field)).join('')}</article>`;
+        }).join('') : '<div class="empty">אין עדיין רכיבים בפרק. בחרו רכיב מהסרגל כדי להוסיף.</div>';
+      }
+      function render() {
+        $('#guide-title').value = state.title || '';
+        $('#guide-summary').value = state.summary || '';
+        renderNav();
+        const chapter = current();
+        $('#chapter-title').value = chapter?.title || '';
+        $('#chapter-title').disabled = !chapter;
+        $('#delete-chapter').disabled = !chapter;
+        renderBlocks();
+        $('#palette').innerHTML = Object.entries(types).map(([type, definition]) => `<button type="button" data-add="${type}">＋ ${escapeHtml(definition.label)}</button>`).join('');
+      }
+      function notify(message) { const toast = $('#toast'); toast.textContent = message; toast.style.display = 'block'; setTimeout(() => { toast.style.display = 'none'; }, 2300); }
+      $('#chapter-nav').addEventListener('click', event => { const button = event.target.closest('[data-chapter]'); if (!button) return; activeChapter = button.dataset.chapter; render(); });
+      $('#add-chapter').addEventListener('click', () => { const chapter = { id: id(), title: `פרק ${state.chapters.length + 1}`, blocks: [] }; state.chapters.push(chapter); activeChapter = chapter.id; save(); render(); });
+      $('#delete-chapter').addEventListener('click', () => { if (!current() || !confirm('למחוק את הפרק ואת כל הרכיבים שבו?')) return; state.chapters = state.chapters.filter(chapter => chapter.id !== activeChapter); activeChapter = state.chapters[0]?.id; save(); render(); });
+      $('#palette').addEventListener('click', event => { const button = event.target.closest('[data-add]'); const chapter = current(); if (!button || !chapter) return; const definition = types[button.dataset.add]; chapter.blocks.push({ id: id(), type: button.dataset.add, data: Object.fromEntries(definition.fields.map(field => [field.key, field.value || ''])) }); save(); renderBlocks(); renderNav(); });
+      $('#blocks').addEventListener('input', event => { const blockElement = event.target.closest('[data-block]'); const field = event.target.dataset.field; if (!blockElement || !field) return; const block = current()?.blocks.find(item => item.id === blockElement.dataset.block); if (block) { block.data[field] = event.target.value; save(); } });
+      $('#blocks').addEventListener('change', event => { const blockElement = event.target.closest('[data-block]'); const field = event.target.dataset.field; if (!blockElement || !field) return; const block = current()?.blocks.find(item => item.id === blockElement.dataset.block); if (block) { block.data[field] = event.target.value; save(); } });
+      $('#blocks').addEventListener('click', event => { const blockElement = event.target.closest('[data-block]'); if (!blockElement) return; const chapter = current(); const index = chapter.blocks.findIndex(block => block.id === blockElement.dataset.block); if (event.target.closest('[data-delete]')) chapter.blocks.splice(index, 1); else if (event.target.closest('[data-move]')) { const target = index + Number(event.target.closest('[data-move]').dataset.move); if (target >= 0 && target < chapter.blocks.length) [chapter.blocks[index], chapter.blocks[target]] = [chapter.blocks[target], chapter.blocks[index]]; } else return; save(); renderBlocks(); renderNav(); });
+      $('#guide-title').addEventListener('input', event => { state.title = event.target.value; save(); });
+      $('#guide-summary').addEventListener('input', event => { state.summary = event.target.value; save(); });
+      $('#chapter-title').addEventListener('input', event => { if (current()) { current().title = event.target.value; save(); renderNav(); } });
+      function renderPreviewBlock(block) {
+        const data = block.data || {};
+        switch (block.type) {
+          case 'paragraph': return `<p>${escapeHtml(data.text).replace(/\n/g, '<br>')}</p>`;
+          case 'heading': return `<h${data.level === '3' ? '3' : '2'}>${escapeHtml(data.text)}</h${data.level === '3' ? '3' : '2'}>`;
+          case 'steps': return `<ol>${String(data.items || '').split('\n').filter(Boolean).map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ol>`;
+          case 'callout': return `<aside class="callout"><strong>${escapeHtml(data.kind)}:</strong> ${escapeHtml(data.text)}</aside>`;
+          case 'image': return data.url ? `<figure><img src="${escapeHtml(data.url)}" alt="${escapeHtml(data.alt)}"><figcaption>${escapeHtml(data.caption)}</figcaption></figure>` : `<p><em>תמונה: ${escapeHtml(data.alt || data.caption || 'יש להוסיף כתובת תמונה')}</em></p>`;
+          case 'code': return `<pre class="code"><code>${escapeHtml(data.text)}</code></pre>`;
+          case 'table': { const rows = String(data.text || '').split('\n').filter(Boolean).map(row => row.split(',')); if (!rows.length) return ''; return `<div style="overflow:auto"><table><tbody>${rows.map((row, i) => `<tr>${row.map(cell => i === 0 ? `<th>${escapeHtml(cell.trim())}</th>` : `<td>${escapeHtml(cell.trim())}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
+          case 'quiz': return `<section class="callout"><strong>${escapeHtml(data.question)}</strong><ul>${String(data.options || '').split('\n').filter(Boolean).map(option => `<li>${escapeHtml(option)}</li>`).join('')}</ul><small>תשובה לעורך: ${escapeHtml(data.answer)}</small></section>`;
+          case 'video': return `<p><a href="${escapeHtml(data.url)}">פתיחת מדיה</a> ${escapeHtml(data.caption)}</p>`;
+          case 'quote': return `<blockquote>${escapeHtml(data.text)}${data.source ? `<footer>— ${escapeHtml(data.source)}</footer>` : ''}</blockquote>`;
+          default: return '';
+        }
+      }
+      $('#preview-btn').addEventListener('click', () => { $('#preview-content').innerHTML = `<h1>${escapeHtml(state.title)}</h1><p>${escapeHtml(state.summary)}</p>${state.chapters.map(chapter => `<section><h2>${escapeHtml(chapter.title)}</h2>${chapter.blocks.map(renderPreviewBlock).join('')}</section>`).join('')}`; $('#preview-modal').classList.add('open'); $('#close-preview').focus(); });
+      $('#close-preview').addEventListener('click', () => $('#preview-modal').classList.remove('open'));
+      $('#preview-modal').addEventListener('click', event => { if (event.target.id === 'preview-modal') event.currentTarget.classList.remove('open'); });
+      $('#export-btn').addEventListener('click', () => { const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = (state.title || 'guide').trim().replace(/[^\p{L}\p{N}-]+/gu, '-').replace(/^-|-$/g, '') + '.json'; link.click(); URL.revokeObjectURL(link.href); notify('קובץ JSON יוצא'); });
+      $('#import-btn').addEventListener('click', () => $('#import-file').click());
+      $('#import-file').addEventListener('change', async event => { const file = event.target.files?.[0]; if (!file) return; try { const imported = JSON.parse(await file.text()); if (imported.schemaVersion !== 1 || !Array.isArray(imported.chapters) || imported.chapters.some(chapter => !Array.isArray(chapter.blocks))) throw new Error('schema'); state = imported; state.chapters.forEach(chapter => { chapter.id ||= id(); chapter.blocks.forEach(block => { block.id ||= id(); block.data ||= {}; if (!types[block.type]) throw new Error('block'); }); }); activeChapter = state.chapters[0]?.id; save(); render(); notify('המדריך יובא בהצלחה'); } catch (_) { alert('קובץ לא תקין או שאינו תואם לגרסת המודל.'); } finally { event.target.value = ''; } });
+      render(); save();
+    })();
+  </script>
+</body>
+</html>
