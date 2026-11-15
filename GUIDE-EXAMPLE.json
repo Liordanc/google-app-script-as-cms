@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "guide-google-sheets-basics",
+  "title": "יסודות Google Sheets",
+  "slug": "google-sheets-basics",
+  "summary": "מדריך ראשוני לעבודה עם גיליונות, טווחים ונוסחאות.",
+  "language": "he",
+  "status": "draft",
+  "category": {"id": "productivity", "name": "פרודוקטיביות"},
+  "estimatedMinutes": 15,
+  "audience": "מתחילים ללא ניסיון קודם בגיליונות אלקטרוניים",
+  "learningObjectives": ["לזהות תאים, שורות ועמודות", "לבחור טווח תאים", "לחשב סכום באמצעות נוסחה"],
+  "prerequisites": [],
+  "chapters": [
+    {
+      "id": "chapter-getting-started",
+      "title": "היכרות עם הגיליון",
+      "slug": "getting-started",
+      "summary": "מושגי יסוד לניווט בגיליון.",
+      "sortOrder": 1,
+      "estimatedMinutes": 5,
+      "learningObjectives": ["לזהות תא לפי כתובת"],
+      "blocks": [
+        {"id": "block-heading-cells", "type": "heading", "sortOrder": 1, "data": {"text": "תאים, שורות ועמודות", "level": 2}},
+        {"id": "block-paragraph-cells", "type": "paragraph", "sortOrder": 2, "data": {"text": "כל גיליון מורכב משורות ומעמודות. נקודת המפגש ביניהן נקראת תא.", "format": "plain"}},
+        {"id": "block-tip", "type": "callout", "sortOrder": 3, "data": {"kind": "tip", "title": "טיפ", "text": "שם העמודה ומספר השורה יוצרים יחד את כתובת התא, לדוגמה A1."}},
+        {"id": "block-steps", "type": "steps", "sortOrder": 4, "data": {"items": ["פתחו גיליון חדש.", "לחצו על תא A1.", "הקלידו טקסט ולחצו Enter."], "ordered": true}},
+        {"id": "block-quiz", "type": "quiz", "sortOrder": 5, "data": {"question": "איזו כתובת מתארת את התא בעמודה B ובשורה 3?", "options": [{"id": "option-a", "text": "B3"}, {"id": "option-b", "text": "3B"}], "answer": ["option-a"], "explanation": "אות העמודה מופיעה לפני מספר השורה."}}
+      ]
+    }
+  ],
+  "seo": {"title": "יסודות Google Sheets — מדריך למתחילים", "description": "למדו לזהות תאים, לבחור טווחים ולבנות נוסחאות בסיסיות.", "noIndex": true},
+  "createdAt": "2026-11-15T10:00:00Z",
+  "updatedAt": "2026-11-15T10:00:00Z",
+  "publishedAt": null,
+  "version": 1,
+  "changeNote": "יצירת דוגמת מדריך ראשונית"
+}

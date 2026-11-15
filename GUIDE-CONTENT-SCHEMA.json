@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Liordanc/google-app-script-as-cms/blob/master/GUIDE-CONTENT-SCHEMA.json",
+  "title": "Guide content document",
+  "description": "Schema for a Hebrew-first, structured learning guide composed of ordered chapters and typed content blocks. Public output must include published content only.",
+  "type": "object",
+  "required": ["schemaVersion", "title", "summary", "language", "chapters"],
+  "properties": {
+    "schemaVersion": {"const": 1, "description": "Major content format version; increment only for incompatible changes."},
+    "id": {"$ref": "#/$defs/id"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 160},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 180},
+    "summary": {"type": "string", "maxLength": 1000},
+    "language": {"type": "string", "pattern": "^[a-z]{2,3}(?:-[A-Z]{2})?$", "examples": ["he", "en", "en-US"]},
+    "status": {"enum": ["draft", "published", "archived"], "default": "draft"},
+    "category": {"$ref": "#/$defs/category"},
+    "cover": {"$ref": "#/$defs/cover"},
+    "estimatedMinutes": {"type": "integer", "minimum": 0, "maximum": 10000},
+    "audience": {"type": "string", "maxLength": 300},
+    "learningObjectives": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 300}, "maxItems": 30},
+    "prerequisites": {"type": "array", "items": {"$ref": "#/$defs/relatedGuide"}, "maxItems": 50},
+    "chapters": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/chapter"}},
+    "seo": {"$ref": "#/$defs/seo"},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "updatedAt": {"type": "string", "format": "date-time"},
+    "publishedAt": {"type": ["string", "null"], "format": "date-time"},
+    "version": {"type": "integer", "minimum": 1},
+    "changeNote": {"type": "string", "maxLength": 500}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{1,79}$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 180},
+    "category": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "name": {"type": "string", "minLength": 1, "maxLength": 100}},
+      "additionalProperties": false
+    },
+    "relatedGuide": {
+      "type": "object",
+      "required": ["id", "title", "slug"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "title": {"type": "string", "minLength": 1, "maxLength": 160}, "slug": {"$ref": "#/$defs/slug"}},
+      "additionalProperties": false
+    },
+    "cover": {
+      "type": "object",
+      "required": ["url", "alt"],
+      "properties": {"url": {"type": "string", "format": "uri"}, "alt": {"type": "string", "maxLength": 300}, "caption": {"type": "string", "maxLength": 300}, "credit": {"type": "string", "maxLength": 200}},
+      "additionalProperties": false
+    },
+    "seo": {
+      "type": "object",
+      "properties": {"title": {"type": "string", "maxLength": 70}, "description": {"type": "string", "maxLength": 180}, "canonicalUrl": {"type": "string", "format": "uri"}, "noIndex": {"type": "boolean"}},
+      "additionalProperties": false
+    },
+    "chapter": {
+      "type": "object",
+      "required": ["id", "title", "blocks"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 160},
+        "slug": {"$ref": "#/$defs/slug"},
+        "summary": {"type": "string", "maxLength": 500},
+        "sortOrder": {"type": "integer", "minimum": 0},
+        "estimatedMinutes": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "learningObjectives": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 300}, "maxItems": 30},
+        "blocks": {"type": "array", "items": {"$ref": "#/$defs/block"}}
+      },
+      "additionalProperties": false
+    },
+    "blockBase": {
+      "type": "object",
+      "required": ["id", "type", "data"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "type": {"type": "string"}, "sortOrder": {"type": "integer", "minimum": 0}, "data": {"type": "object"}}
+    },
+    "block": {
+      "oneOf": [
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "paragraph"}, "data": {"$ref": "#/$defs/paragraphData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "heading"}, "data": {"$ref": "#/$defs/headingData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "steps"}, "data": {"$ref": "#/$defs/stepsData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "callout"}, "data": {"$ref": "#/$defs/calloutData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "image"}, "data": {"$ref": "#/$defs/imageData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "code"}, "data": {"$ref": "#/$defs/codeData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "table"}, "data": {"$ref": "#/$defs/tableData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "quiz"}, "data": {"$ref": "#/$defs/quizData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "video"}, "data": {"$ref": "#/$defs/videoData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "quote"}, "data": {"$ref": "#/$defs/quoteData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "glossary"}, "data": {"$ref": "#/$defs/glossaryData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "download"}, "data": {"$ref": "#/$defs/downloadData"}}, "unevaluatedProperties": false}]},
+        {"allOf": [{"$ref": "#/$defs/blockBase"}, {"properties": {"type": {"const": "summary"}, "data": {"$ref": "#/$defs/summaryData"}}, "unevaluatedProperties": false}]}
+      ]
+    },
+    "paragraphData": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string", "minLength": 1, "maxLength": 20000}, "format": {"enum": ["plain", "markdown"], "default": "plain"}}, "additionalProperties": false},
+    "headingData": {"type": "object", "required": ["text", "level"], "properties": {"text": {"type": "string", "minLength": 1, "maxLength": 200}, "level": {"enum": [2, 3, 4, "2", "3", "4"]}}, "additionalProperties": false},
+    "stepsData": {"type": "object", "required": ["items"], "properties": {"items": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"type": "string", "minLength": 1, "maxLength": 2000}}, "ordered": {"type": "boolean", "default": true}}, "additionalProperties": false},
+    "calloutData": {"type": "object", "required": ["kind", "text"], "properties": {"kind": {"enum": ["tip", "note", "warning", "important", "success"]}, "title": {"type": "string", "maxLength": 120}, "text": {"type": "string", "minLength": 1, "maxLength": 10000}}, "additionalProperties": false},
+    "imageData": {"type": "object", "required": ["url", "alt"], "properties": {"url": {"type": "string", "format": "uri"}, "alt": {"type": "string", "maxLength": 500}, "decorative": {"type": "boolean", "default": false}, "caption": {"type": "string", "maxLength": 1000}, "credit": {"type": "string", "maxLength": 300}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}}, "allOf": [{"if": {"properties": {"decorative": {"const": true}}, "required": ["decorative"]}, "then": {"properties": {"alt": {"maxLength": 0}}}, "else": {"properties": {"alt": {"minLength": 1}}}}], "additionalProperties": false},
+    "codeData": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string", "minLength": 1, "maxLength": 20000}, "language": {"type": "string", "maxLength": 40}, "caption": {"type": "string", "maxLength": 300}, "copyable": {"type": "boolean", "default": true}}, "additionalProperties": false},
+    "tableData": {"type": "object", "required": ["headers", "rows"], "properties": {"caption": {"type": "string", "maxLength": 300}, "headers": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "string", "minLength": 1, "maxLength": 200}}, "rows": {"type": "array", "maxItems": 500, "items": {"type": "array", "items": {"type": "string", "maxLength": 5000}, "minItems": 1, "maxItems": 20}}, "headerRow": {"type": "boolean", "default": true}}, "additionalProperties": false},
+    "quizData": {"type": "object", "required": ["question", "options", "answer"], "properties": {"question": {"type": "string", "minLength": 1, "maxLength": 1000}, "options": {"type": "array", "minItems": 2, "maxItems": 10, "items": {"type": "object", "required": ["id", "text"], "properties": {"id": {"$ref": "#/$defs/id"}, "text": {"type": "string", "minLength": 1, "maxLength": 500}}, "additionalProperties": false}}, "answer": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}}, "explanation": {"type": "string", "maxLength": 3000}, "feedbackCorrect": {"type": "string", "maxLength": 1000}, "feedbackIncorrect": {"type": "string", "maxLength": 1000}}, "additionalProperties": false},
+    "videoData": {"type": "object", "required": ["url"], "properties": {"url": {"type": "string", "format": "uri"}, "title": {"type": "string", "maxLength": 160}, "caption": {"type": "string", "maxLength": 1000}, "transcript": {"type": "string", "maxLength": 50000}, "durationSeconds": {"type": "integer", "minimum": 0}, "provider": {"enum": ["youtube", "vimeo", "direct", "other"]}}, "additionalProperties": false},
+    "quoteData": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string", "minLength": 1, "maxLength": 5000}, "source": {"type": "string", "maxLength": 300}, "sourceUrl": {"type": "string", "format": "uri"}}, "additionalProperties": false},
+    "glossaryData": {"type": "object", "required": ["term", "definition"], "properties": {"term": {"type": "string", "minLength": 1, "maxLength": 160}, "definition": {"type": "string", "minLength": 1, "maxLength": 3000}, "relatedTerms": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 160}, "maxItems": 30}}, "additionalProperties": false},
+    "downloadData": {"type": "object", "required": ["title", "url"], "properties": {"title": {"type": "string", "minLength": 1, "maxLength": 160}, "url": {"type": "string", "format": "uri"}, "description": {"type": "string", "maxLength": 1000}, "fileType": {"type": "string", "maxLength": 30}, "fileSizeBytes": {"type": "integer", "minimum": 0}}, "additionalProperties": false},
+    "summaryData": {"type": "object", "required": ["items"], "properties": {"title": {"type": "string", "maxLength": 160}, "items": {"type": "array", "minItems": 1, "maxItems": 30, "items": {"type": "string", "minLength": 1, "maxLength": 1000}}, "nextStep": {"type": "string", "maxLength": 1000}, "nextGuide": {"$ref": "#/$defs/relatedGuide"}}, "additionalProperties": false}
+  }
+}
