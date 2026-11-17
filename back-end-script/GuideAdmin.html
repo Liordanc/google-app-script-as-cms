@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{font-family:Arial,sans-serif;color:#171717;background:#f7f7f5}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}.bar{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e5e0;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:2}.wrap{max-width:1300px;margin:auto;padding:18px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px}.panel,.editor{background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:16px}.panel{height:max-content;position:sticky;top:76px}.panel h2,.editor h2{font-size:17px;margin:0 0 12px}.list{display:grid;gap:7px;max-height:65vh;overflow:auto}.item{padding:9px;border:1px solid #e5e5e0;border-radius:8px;text-align:right;background:#fff;cursor:pointer}.item.active{background:#eee7fb;border-color:#cbb8ef}.item small{display:block;color:#666;margin-top:3px}.field{display:grid;gap:5px;margin:12px 0}.field label{font-size:13px;font-weight:bold}.field input,.field textarea,.field select{width:100%;padding:9px;border:1px solid #c9c9c2;border-radius:7px}.field textarea{min-height:340px;direction:ltr;text-align:left;font:13px/1.5 monospace;tab-size:2}.buttons{display:flex;flex-wrap:wrap;gap:8px}.btn{border:1px solid #171717;background:#171717;color:#fff;border-radius:999px;padding:9px 14px;cursor:pointer}.btn.alt{background:#fff;color:#171717;border-color:#d3d3ce}.btn.soft{background:#eee7fb;color:#171717;border-color:transparent}.btn:disabled{opacity:.55;cursor:wait}.notice{padding:10px 12px;border-radius:8px;margin:10px 0;display:none;white-space:pre-wrap}.notice.error{display:block;background:#fbe7e7;color:#842029}.notice.ok{display:block;background:#e1f1e4;color:#23643b}.muted{color:#666;font-size:12px;line-height:1.55}.status{font-size:12px;color:#666}.empty{padding:18px;border:1px dashed #bbb;border-radius:9px;color:#666;text-align:center}@media(max-width:760px){.bar{align-items:flex-start;flex-direction:column}.wrap{grid-template-columns:1fr;padding:10px}.panel{position:static}.list{max-height:240px}}
+  </style>
+</head>
+<body>
+  <header class="bar"><div><strong>ניהול מדריכים</strong><div class="muted">ממשק GAS · נדרשת הרשאת בעלים</div></div><div class="buttons"><span class="status" id="status" aria-live="polite"></span><button class="btn alt" id="reload" type="button">רענון רשימה</button><button class="btn soft" id="create" type="button">＋ מדריך חדש</button></div></header>
+  <main class="wrap">
+    <aside class="panel"><h2>מדריכים</h2><div class="list" id="guide-list"><div class="empty">טוען…</div></div><p class="muted">שמירה מעדכנת טיוטה. פרסום מתבצע רק בלחיצה מפורשת. שינויים נשמרים ב־Google Sheets.</p></aside>
+    <section class="editor"><div class="buttons"><button class="btn" id="save" type="button" disabled>שמירת מדריך</button><button class="btn alt" id="preview" type="button" disabled>תצוגה מקדימה (JSON)</button><button class="btn soft" id="publish" type="button" disabled>פרסום</button><button class="btn alt" id="unpublish" type="button" disabled>ביטול פרסום</button><button class="btn alt" id="archive" type="button" disabled>העברה לארכיון</button></div>
+      <div id="notice" class="notice" role="status" aria-live="polite"></div>
+      <div class="field"><label for="title">כותרת</label><input id="title" maxlength="160" disabled></div>
+      <div class="field"><label for="slug">כתובת (slug) — אותיות לטיניות קטנות, מספרים ומקפים</label><input id="slug" dir="ltr" maxlength="180" disabled></div>
+      <div class="field"><label for="summary">תקציר</label><textarea id="summary" maxlength="1000" rows="3" disabled></textarea></div>
+      <div class="field"><label for="language">שפה</label><input id="language" value="he" maxlength="10" dir="ltr" disabled></div>
+      <div class="field"><label for="guide-json">תוכן מלא (JSON לפי GUIDE-CONTENT-SCHEMA.json)</label><textarea id="guide-json" spellcheck="false" disabled></textarea></div>
+      <p class="muted">העורך כרגע מציג JSON מובנה; הוא אינו מריץ HTML. לפני פרסום השרת מאמת סוגי בלוקים, קישורים, מזהים, מבנה שאלון ו־slug.</p>
+    </section>
+  </main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let guides = [], current = null, busy = false;
+  const controls = ['title','slug','summary','language'];
+  const actionButtons = ['save','preview','publish','unpublish','archive'];
+  function call(name, ...args) {
+    return new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler(error => reject(new Error(error && error.message ? error.message : 'התקשורת עם Apps Script נכשלה.')))[name](...args));
+  }
+  function notice(message, kind) { const box = $('notice'); box.textContent = message || ''; box.className = 'notice' + (message ? ' ' + kind : ''); }
+  function setBusy(value, message) { busy = value; $('status').textContent = message || (value ? 'מבצע פעולה…' : ''); [...actionButtons,'create','reload'].forEach(id => $(id).disabled = value || (!current && actionButtons.includes(id))); }
+  function escapeHtml(text) { return String(text || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+  function renderList() {
+    $('guide-list').innerHTML = guides.length ? guides.map(item => `<button class="item ${current && current.id === item.id ? 'active' : ''}" data-id="${escapeHtml(item.id)}" type="button">${escapeHtml(item.title)}<small>${escapeHtml(item.status)} · v${item.version} · ${escapeHtml(item.slug)}</small></button>`).join('') : '<div class="empty">אין עדיין מדריכים. צרו מדריך חדש.</div>';
+  }
+  function renderCurrent() {
+    controls.forEach(id => $(id).disabled = !current || busy);
+    actionButtons.forEach(id => $(id).disabled = !current || busy);
+    if (!current) { $('title').value = $('slug').value = $('summary').value = $('guide-json').value = ''; $('language').value = 'he'; renderList(); return; }
+    $('title').value = current.title || ''; $('slug').value = current.slug || ''; $('summary').value = current.summary || ''; $('language').value = current.language || 'he'; $('guide-json').value = JSON.stringify(current, null, 2); renderList();
+  }
+  async function refreshList(selectId) {
+    setBusy(true, 'טוען רשימה…');
+    try { guides = await call('adminListGuides'); if (selectId) current = await call('adminGetGuide', selectId); else if (current) { const found = guides.some(item => item.id === current.id); if (found) current = await call('adminGetGuide', current.id); else current = null; } renderCurrent(); notice('', ''); }
+    catch (error) { notice(error.message, 'error'); }
+    finally { setBusy(false); renderCurrent(); }
+  }
+  function readForm() {
+    let guide;
+    try { guide = JSON.parse($('guide-json').value); } catch (error) { throw new Error('JSON לא תקין: ' + error.message); }
+    guide.title = $('title').value.trim(); guide.slug = $('slug').value.trim(); guide.summary = $('summary').value; guide.language = $('language').value.trim();
+    return guide;
+  }
+  $('guide-list').addEventListener('click', async event => { const button = event.target.closest('[data-id]'); if (button) await refreshList(button.dataset.id); });
+  $('create').addEventListener('click', async () => { setBusy(true, 'יוצר מדריך…'); try { const guide = await call('adminCreateGuide','מדריך חדש','he'); guides.unshift({id:guide.id,title:guide.title,slug:guide.slug,language:guide.language,status:guide.status,version:guide.version}); current=guide; renderCurrent(); notice('נוצרה טיוטה חדשה. אפשר לערוך ולשמור.','ok'); } catch(error) { notice(error.message,'error'); } finally { setBusy(false); renderCurrent(); } });
+  $('reload').addEventListener('click', () => refreshList());
+  $('save').addEventListener('click', async () => { setBusy(true,'שומר…'); try { const guide=readForm(); current=await call('adminSaveGuide',guide,current.version); notice('המדריך נשמר. גרסה '+current.version,'ok'); await refreshList(current.id); } catch(error) { notice(error.message,'error'); } finally { setBusy(false); renderCurrent(); } });
+  $('preview').addEventListener('click', () => { try { const guide=readForm(); const win=window.open('','_blank'); if(!win) throw new Error('הדפדפן חסם חלון תצוגה.'); win.document.write('<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><title>תצוגת JSON</title><body style="font:14px monospace;white-space:pre-wrap;direction:ltr;text-align:left;padding:20px">'+escapeHtml(JSON.stringify(guide,null,2))+'</body></html>'); win.document.close(); } catch(error) { notice(error.message,'error'); } });
+  $('publish').addEventListener('click', async () => { try { current=readForm(); const saved=await call('adminSaveGuide',current,current.version); current=saved; if(!confirm('לפרסם את המדריך? התוכן יופיע בקריאות הציבוריות.')) { renderCurrent(); return; } setBusy(true,'מפרסם…'); current=await call('adminPublishGuide',current.id); notice('המדריך פורסם.','ok'); await refreshList(current.id); } catch(error) { notice(error.message,'error'); } finally { setBusy(false); renderCurrent(); } });
+  $('unpublish').addEventListener('click', async () => { if(!current || !confirm('לבטל פרסום ולהחזיר את המדריך לטיוטה?')) return; setBusy(true,'מבטל פרסום…'); try { current=await call('adminUnpublishGuide',current.id); notice('הפרסום בוטל.','ok'); await refreshList(current.id); } catch(error) { notice(error.message,'error'); } finally { setBusy(false); renderCurrent(); } });
+  $('archive').addEventListener('click', async () => { if(!current || !confirm('להעביר את המדריך לארכיון?')) return; setBusy(true,'מעביר לארכיון…'); try { current=await call('adminArchiveGuide',current.id); notice('המדריך הועבר לארכיון.','ok'); await refreshList(current.id); } catch(error) { notice(error.message,'error'); } finally { setBusy(false); renderCurrent(); } });
+  ['title','slug','summary','language'].forEach(id => $(id).addEventListener('input', () => { if (current) { current[id === 'title' ? 'title' : id] = $(id).value; } }));
+  refreshList();
+})();
+</script>
+</body>
+</html>

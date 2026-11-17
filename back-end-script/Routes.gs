@@ -1,19 +1,23 @@
 function doGet(e) {
-  if (!isAuthorized(e))
-    return buildErrorResponse("Unauthorized");
-  else
-    return buildSuccessGetResponse("Authorized");
+  var action = e && e.parameter ? String(e.parameter.action || '') : '';
+  if (action === 'guide.admin') return guideAdminPage_();
+  if (action.indexOf('guide.') === 0) return guideApiGet_(e);
+  if (!isAuthorized(e)) return buildErrorResponse('Unauthorized');
+  return buildSuccessGetResponse('Authorized');
 }
 
 function doPost(e) {
+  var action = e && e.parameter ? String(e.parameter.action || '') : '';
+  if (action.indexOf('guide.') === 0) return guideApiPost_(e);
   var response;
-  if(typeof e !== "undefined") {
-    var formIsValid = processForm(e.parameter);
-    formIsValid ? sendEmail(e.parameter) : null;
-    formIsValid ? postDataToSheet(e) : null;
-    var response = buildResponse(formIsValid, getMessages());
+  if (typeof e !== 'undefined') {
+    var formIsValid = processForm(e.parameter || {});
+    if (formIsValid) sendEmail(e.parameter);
+    if (formIsValid) postDataToSheet(e);
+    response = buildResponse(formIsValid, getMessages());
   } else {
-    var response = buildResponse(false, "Please fill in all fields");
+    response = buildResponse(false, 'Please fill in all fields');
   }
   return ContentService.createTextOutput(JSON.stringify(response));
 }
+
