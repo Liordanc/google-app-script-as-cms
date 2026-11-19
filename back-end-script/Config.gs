@@ -1,18 +1,16 @@
-// this file is example only. Normally it should not be commited to Github.
+// Configuration is loaded lazily from Apps Script Script Properties.
+// Never commit spreadsheet IDs, email addresses, or API keys here.
 function Config() {
-  API_KEY = "abcd1234"; // create an API key
-  getSpreadsheetId =  "glxdkvnl329856lsdkghlksh"; // enter ID for the spreadsheet with site content
-  postSpreadsheetId = "djlshgk9486783ldhglskghks"; // enter ID for the spreadsheet with contact form submissions
-  getSpreadsheet = SpreadsheetApp.openById(getSpreadsheetId);
-  postSpreadsheet = SpreadsheetApp.openById(postSpreadsheetId);
-  sendToEmail = "test@example.com"; // enter email that the contact form submissions will be sent to
-
+  var properties = PropertiesService.getScriptProperties();
+  var contentId = String(properties.getProperty('CONTENT_SPREADSHEET_ID') || '').trim();
+  var submissionsId = String(properties.getProperty('SUBMISSIONS_SPREADSHEET_ID') || '').trim();
+  var contentSpreadsheet = contentId ? SpreadsheetApp.openById(contentId) : null;
+  var submissionsSpreadsheet = submissionsId ? SpreadsheetApp.openById(submissionsId) : null;
   return {
-    api_key: API_KEY,
-    getSpreadsheetId: getSpreadsheetId,
-    postSpreadsheetId: postSpreadsheetId,
-    getSpreadsheet: getSpreadsheet,
-    postSpreadsheet: postSpreadsheet,
-    sendToEmail: sendToEmail
-  }
+    getSpreadsheetId: contentId,
+    postSpreadsheetId: submissionsId,
+    getSpreadsheet: contentSpreadsheet,
+    postSpreadsheet: submissionsSpreadsheet,
+    sendToEmail: String(properties.getProperty('CONTACT_EMAIL') || '').trim()
+  };
 }

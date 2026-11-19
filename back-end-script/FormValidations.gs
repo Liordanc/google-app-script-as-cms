@@ -1,26 +1,22 @@
-var errorMessages = [];
-
+// Stateless validation for the legacy public contact form.
 function validateForm(params) {
-  var formIsValid = true;
-  // basic validations
-  if (params.name.length < 1) {
-      formIsValid = false;
-      errorMessages.push("Name must exceed 1 symbol");
-  };
-
-  const validEmailPattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  if (!validEmailPattern.test(params.email)) {
-      formIsValid = false;
-      errorMessages.push("Email is not valid");
-  };
-
-  if (params.message.length < 5) {
-      formIsValid = false;
-      errorMessages.push("Message must exceed 5 symbols");
-  };
-  return formIsValid;
+  params = params || {};
+  var errors = [];
+  var name = String(params.name || '').trim();
+  var email = String(params.email || '').trim();
+  var message = String(params.message || '').trim();
+  if (name.length < 2 || name.length > 100) errors.push('Name must contain 2–100 characters.');
+  var validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!validEmailPattern.test(email) || email.length > 254) errors.push('Email is not valid.');
+  if (message.length < 5 || message.length > 5000) errors.push('Message must contain 5–5000 characters.');
+  return errors.length === 0;
 }
 
-function returnErrors() {
- return errorMessages;
+function returnErrors(params) {
+  params = params || {};
+  var errors = [];
+  if (String(params.name || '').trim().length < 2) errors.push('Name must contain at least 2 characters.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(params.email || '').trim())) errors.push('Email is not valid.');
+  if (String(params.message || '').trim().length < 5) errors.push('Message must contain at least 5 characters.');
+  return errors;
 }
