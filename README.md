@@ -1,80 +1,122 @@
-# Google App Script as Content Management System
+<div dir="rtl">
 
-This is a very simple starter website (front-end folder) and app (back-end-script folder) to be able to use Google App Script as a back-end CMS for a simple front-end site. It allows for the site content to be edited via Google spreadsheets and contact form submissions to be sent to a separate Google spreadsheet as well as emailed to client. This is a very simple but a working solution if the site you are building does not contain a lot of (secure) data, your client is not very tech savvy and cost needs to be taken into account. 
+# מערכת CMS אישית למדריכים — Google Apps Script
 
-## How to use it
+פרויקט זה הוא בסיס ל־CMS אישי ליצירת מדריכים ולפרסומם. הוא משתמש ב־Google Apps Script כשכבת שירות, ב־Google Sheets לאחסון מטא־נתונים ותוכן מובנה, וב־HtmlService לממשק ניהול.
 
-#### Front End:
+> **מצב הפרויקט:** קיימים קוד בסיסי, סכמה, ממשק ראשוני ותיעוד. המערכת **אינה מוכנה לפרודקשיין**: הקוד עדיין לא הותקן ולא נבדק בפרויקט GAS ובחשבון Google בפועל. ראו [רשימת מוכנות לפרודקשיין](PRODUCTION-READINESS.md).
 
-*See [Front End Page](https://google-app-script-as-cms.netlify.com/) here.*
+## מה יש בערכה?
 
-You can use any front-end site. This example includes a simple HTML/CSS/JS page but any front-end framework will work as well. Simply connect to your App Script via Ajax call. 
+### יכולות מתוכננות/ממומשות בקוד
 
-#### Back End:
+- הקמת לשוניות CMS ב־Google Sheets: `Guides`, `GuideContent`, `AuditLog`.
+- יצירת מדריך כטיוטה, שמירה, טעינה, תצוגת נתונים, פרסום, ביטול פרסום והעברה לארכיון.
+- שמירת תוכן מדריך כמבנה JSON של מדריך, פרקים ורכיבי תוכן.
+- API ציבורי לקריאת רשימת מדריכים שפורסמו ולקריאת מדריך לפי `slug`; API זה אמור להחזיר תוכן שפורסם בלבד.
+- בדיקות שרת למבנה, סוגי רכיבים, מזהים, כתובות URL, שאלונים ו־slug לפני פרסום.
+- הרשאת בעלים לפעולות ניהול, נעילת כתיבות, מניעת דריסת גרסה ורישום פעולות ושגיאות ליומן.
+- ממשק ניהול ראשוני ב־HtmlService. בשלב הנוכחי עיקר עריכת גוף המדריך נעשית כ־JSON; אין עדיין עורך ויזואלי מלא.
 
-*Note: You will need a Google account for this app.*
+### סוגי רכיבי מדריך בסכמה
 
-##### Create Spreadsheets:
-Create new spreadsheets in your Google Drive. This example uses two separate spreadsheets: one to store the site content and the other to store contact form submissions. 
+`paragraph`, `heading`, `steps`, `callout`, `image`, `code`, `table`, `quiz`, `video`, `quote`, `glossary`, `download`, `summary`.
 
-Spreadsheet 1 with site content:
+הסכמה כוללת שדות למטא־נתונים, פרקים, סדר, שפה, סטטוס, קטגוריה, מטרות למידה, SEO, גרסאות ושדות נגישות כגון טקסט חלופי לתמונה ותמלול וידאו.
 
-ContainerId | ContainerPosition | Title | Content | List 
- --- | --- | --- | --- | --- 
-content1 | left | Title One | Content goes here | List, Items, Here
-content2 | right | Title One | Content goes here | List, Items, Here
+## קבצים חשובים
 
-ContainerId corresponds to the content location on the HTML page:
-```
-   <div class="row">
-      <!-- left column -->
-      <div class="col-md-6 blue section-padding" id="content1">
-        <!-- append left content here -->
-      </div>
-      <! -- right column -->
-      <div class="col-md-6 gray section-padding" id="content2">
-        <!-- append right content here -->
-      </div>
-    </div>
-```
+### GAS — `back-end-script/`
 
-Spreadsheet 2 for form submissions:
+| קובץ | תפקיד |
+|---|---|
+| `Config.gs` | טעינה עצלה של הגדרות מ־Script Properties; אינו אמור להכיל מזהים או סודות בקוד. |
+| `CheckAuthorization.gs` | בדיקת הרשאת בעלים בצד השרת והפעלה אופציונלית של API הדוגמה הישן. |
+| `Routes.gs` | נקודות הכניסה `doGet` ו־`doPost`, ניתוב API וטיפול כללי בשגיאות. |
+| `GuideData.gs` | יצירה ובדיקה של לשוניות, קריאה/כתיבה ל־Sheets, Audit Log ורישום ליומן. |
+| `GuideValidation.gs` | בדיקות תוכן וכללי פרסום בצד השרת. |
+| `GuideService.gs` | שירותי מדריכים: יצירה, שמירה, רשימה, Preview, פרסום, ביטול פרסום וארכיון. |
+| `GuideAdminFunctions.gs` | פונקציות שרת שמפעיל ממשק הניהול דרך `google.script.run`. |
+| `GuideRoutes.gs` | API ציבורי וניהול, מעטפת JSON והצגת דף הניהול. |
+| `GuideAdmin.html` | ממשק ניהול GAS ראשוני לרשימת מדריכים ועריכת JSON. |
+| `GuideValidationTests.gs` | בדיקות ולידציה ידניות להרצה בעורך Apps Script. |
+| `appsscript.json` | Manifest בסיסי של פרויקט Apps Script. יש לאמת את הגדרות ההרשאות והפריסה אצלך. |
+| `FormValidations.gs`, `DoPostFunctions.gs`, `GetDataFromSheet.gs`, `PostDataToSheet.gs` | קוד אתר/טופס הדוגמה הישן; פעולות אלה נפרדות מ־CMS המדריכים וחלקן כבויות כברירת מחדל. |
 
-Timestamp | Name | Email | Message 
---- | --- | --- | --- 
- 1/7/2019 13:33:35 | Jane | jane@test.com | Message will appear here
- 
-##### Create App Script:
-*I'm working on being able to just clone the directory to your new script project.*
+### מודל נתונים ותיעוד
 
-Go to [Google App Script](https://script.google.com) and create a new script.
+| קובץ | תפקיד |
+|---|---|
+| `GUIDE-CONTENT-SCHEMA.json` | סכמה פורמלית לתוכן מדריך, פרקים ורכיבים. |
+| `GUIDE-EXAMPLE.json` | דוגמה למדריך בעברית בנושא יסודות Google Sheets. |
+| `GUIDE-CONTENT-MODEL.md` | הסבר על המודל, מגבלות, כללי פרסום והצעת אחסון. |
+| `GUIDE-API.md` | הוראות API והתקנה ל־GAS. |
+| `PRODUCTION-READINESS.md` | חסמים, הקשחה ותהליך בדיקה ושחרור. |
+| `MVP-PLAN.md`, `PLAN-ARCHITECTURE.md`, `TODO.md` | תוכנית MVP, ארכיטקטורה ורשימת משימות. |
+| `CMS-COMPONENTS.json`, `CMS-COMPONENTS.md` | תכנון רכיבי המערכת. |
 
-Right click on Code.gs and rename it to any of the files listed in this back-end repo. Add new files (File -> New -> Script file) until you have all the files that are included in this backend repo. Copy the code included in each file to corresponding file in your App Script. Add your corresponding spreadsheet IDs to Config.gs. You will find them in the URL of your spreadsheet: `https://docs.google.com/spreadsheets/d/{ spreadsheet ID }/`. 
+### Frontend — `front-end/`
 
-```javascript
-function Config() {
-  getSpreadsheetId =  "{  spreadsheetID }";
-  getSpreadsheet = SpreadsheetApp.openById(getSpreadsheetId);
-  
-  return {
-    getSpreadsheetId: getSpreadsheetId,
-    getSpreadsheet: getSpreadsheet
-  }
-}
-``` 
+- `guide-editor.html` — אבטיפוס מקומי לבניית מדריך; שומר בדפדפן ומאפשר ייבוא/ייצוא JSON. **אינו מחובר ל־GAS או ל־Sheets.**
+- `component-library.html` — קטלוג חזותי סטטי של טוקנים, טיפוגרפיה ורכיבי CMS/מדריך.
+- `index.html`, `app.js`, `style.css` — אתר הדוגמה הישן וטופס יצירת קשר; אינם ממשק המדריכים החדש.
 
-Once your code is completed, Publish -> Deploy as web app (repeat this every time after you make changes to your code). Make sure to allow ‘Anyone, even anonymous’ access to your app. Copy the provided app URL to your Ajax call in the front-end. 
+## מודל אחסון
 
-### Github support:
+`initializeGuideCms()` יוצר שלוש לשוניות ב־Spreadsheet שהוגדר:
 
-If you want to commit your code to Github from Google App Script, you can add the [Chrome extension for GitHub Assistant](https://chrome.google.com/webstore/detail/google-apps-script-github/lfjcgcmkmjjlieihflfhjopckgpelofo?hl=en) to your browser. 
+- **`Guides`** — רשומת אינדקס לכל מדריך: מזהה, כותרת, כתובת `slug`, שפה, סטטוס, תאריכים וגרסה.
+- **`GuideContent`** — JSON מלא של המדריך, כולל פרקים ורכיבים.
+- **`AuditLog`** — תיעוד פעולות ניהול.
 
+הקוד מגביל את ה־JSON לגודל שהוגדר בו כדי להימנע מתוכן גדול מדי בתא Sheets. Sheets ו־GAS מתאימים ל־MVP קטן; יש לבחון מכסות ונפח לפני שימוש רחב.
 
-## Future improvements:
+## התקנה ראשונית ב־Google Apps Script
 
-- Make entire site content available to edit via App Script.
-- Make use of Clasp to be able to use app script locally.
-- Clone just the back-end repo via Github Assistant. Currently it will pull the entire repo.
-- How to pull the folder content only?
+1. צרו **עותק פיתוח** נפרד של פרויקט GAS ושל Spreadsheet. אל תתחילו עם נתוני ייצור.
+2. העתיקו לפרויקט Apps Script את קובצי `.gs` הרלוונטיים ואת `GuideAdmin.html`. יש להוסיף את `appsscript.json` כ־manifest ולבדוק את ה־scopes לפני אישור.
+3. ב־**Project Settings → Script Properties** הגדירו:
+   - `CMS_SPREADSHEET_ID` — מזהה ה־Spreadsheet הייעודי ל־CMS.
+   - `CMS_OWNER_EMAIL` — כתובת חשבון הבעלים.
+4. הריצו ידנית את `initializeGuideCms()` ואשרו את הרשאות Sheets. בדקו שנוצרו שלוש הלשוניות עם כותרות צפויות.
+5. הריצו `runGuideValidationTests()` ובדקו את תוצאות ההרצה ואת Apps Script Execution log.
+6. פרסו סביבת Web App לבדיקה. ודאו בפועל ש־`Session.getActiveUser().getEmail()` מזהה את בעל החשבון. אם לא, פעולות Admin צריכות להיכשל סגור; אין להחליף זאת במפתח API בדפדפן.
+7. פתחו את כתובת ה־Web App עם `?action=guide.admin` בחשבון המורשה ובדקו יצירה, שמירה, Preview, פרסום, ביטול פרסום וארכיון מול נתוני בדיקה.
+8. רק אחרי בדיקות הרשאות, גיבוי ושחזור, נגישות, RTL וקריאות ציבוריות — שקלו פריסה מצומצמת. ראו [הוראות API](GUIDE-API.md) ו[רשימת מוכנות לפרודקשיין](PRODUCTION-READINESS.md).
 
+> הקוד בריפו אינו מחובר אוטומטית לפרויקט Apps Script. לא נכללים בו מזהה פרויקט GAS, מזהי גיליונות, כתובת Deployment או נתוני חשבון.
 
+## API מדריכים
+
+קריאות ציבוריות לדוגמה:
+
+- `GET .../exec?action=guide.listPublished&page=1&limit=20&language=he`
+- `GET .../exec?action=guide.getPublishedBySlug&slug=google-sheets-basics&language=he`
+
+הפעולות הציבוריות הן לקריאה בלבד. פעולות ניהול דורשות הרשאת בעלים בצד השרת. פירוט מלא, שמות פעולות ומבנה תשובה נמצאים ב־[GUIDE-API.md](GUIDE-API.md).
+
+## דוגמאות מדריכים
+
+כרגע יש **דוגמת תוכן אחת**: [יסודות Google Sheets](GUIDE-EXAMPLE.json). היא מדגימה פרקים ובלוקים, אך אינה מבטיחה שכל הבלוקים מוצגים כרגע בממשק ניהול או באתר ציבורי. יש לאמת כל תוכן מול הסכמה לפני ייבוא או פרסום.
+
+## טיפול בשגיאות ולוגים
+
+- שגיאות טכניות נרשמות ב־Apps Script Execution log באמצעות `guideLog_()`.
+- פעולות מוצלחות נרשמות ב־`AuditLog`; כשל Audit נרשם ליומן הטכני.
+- הודעות למשתמש נועדו להיות בטוחות ואינן אמורות לכלול stack trace.
+- `LockService` מגן על פעולות כתיבה, ו־`expectedVersion` מסייע לזהות עריכה מיושנת.
+- בדיקות ולידציה: `back-end-script/GuideValidationTests.gs`.
+
+## מה עדיין חסר לפני פרודקשיין
+
+- התקנה, פריסה ואימות מלאים בתוך חשבון Google שלך; לא ניתן לבצע אותם מתוך GitHub בלבד.
+- בדיקות אינטגרציה ו־end-to-end אמיתיות, כולל בדיקת זהות והרשאות.
+- עורך תוכן ויזואלי מלא ותצוגת מדריך ציבורית שמרנדרת את כל סוגי הבלוקים.
+- התאמה מלאה בין אבטיפוס `guide-editor.html`, הסכמה, ממשק הניהול וה־API.
+- בדיקה וטיפול בחשיפת תשובות של שאלונים בקריאות ציבוריות.
+- גיבוי ושחזור, התאוששות מכתיבה חלקית, מדיניות קישורי מדיה, הגבלת שימוש וניטור.
+- דוגמאות נוספות, אם נדרש קטלוג של מדריכים בנושאים שונים.
+
+**לכן זו ערכת MVP לפיתוח ובדיקה, לא מוצר שמוכן לפרודקשיין או תחליף מלא ל־Microsoft Learn / Google Help.**
+
+</div>
